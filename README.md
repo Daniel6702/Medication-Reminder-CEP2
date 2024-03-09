@@ -5,15 +5,24 @@
 ## **Github**
 
 - **Setup repository for ssh:**
+
+```shell
 git remote set-url origin git@github.com:Daniel6702/Medication-Reminder-CEP2.git
+```
 
 - **Push changes to github**
+
+```shell
 git add .
 git commit -m "commit message"
 git push -u origin master
+```
 
 - **Pull changes from github**
+
+```shell
 git pull origin master
+```
 
 ## **Web Server Management**
 ### **Virtual Environment**
