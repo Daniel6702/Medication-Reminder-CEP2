@@ -1,0 +1,18 @@
+<!-- MediRemind_WebApp/templates/MediRemind_WebApp/add_item.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Item</title>
+</head>
+<body>
+    <h1>Add New Item</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+    <br>
+    <a href="{% url 'show_items' %}">View Items</a> | <a href="{% url 'home' %}">Home</a>
+</body>
+</html>
