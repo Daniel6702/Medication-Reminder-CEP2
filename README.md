@@ -2,6 +2,19 @@
 
 # Useful Commands
 
+## **Github**
+
+- **Setup repository for ssh:**
+git remote set-url origin git@github.com:Daniel6702/Medication-Reminder-CEP2.git
+
+- **Push changes to github**
+git add .
+git commit -m "commit message"
+git push -u origin master
+
+- **Pull changes from github**
+git pull origin master
+
 ## **Web Server Management**
 ### **Virtual Environment**
 - **Activate Environment:**
