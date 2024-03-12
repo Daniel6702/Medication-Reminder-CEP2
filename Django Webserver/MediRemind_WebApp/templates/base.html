@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{% block title %}My Site{% endblock %}</title>
+  {% block extra_css %}{% endblock %}
+  {% block extra_js %}{% endblock %}
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="{% url 'home' %}">Home</a>
+      {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}" method="post">
+          {% csrf_token %}
+          <button type="submit">Logout</button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'register' %}">Register</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main>
+    {% block content %}
+    {% endblock %}
+  </main>
+</body>
+</html>

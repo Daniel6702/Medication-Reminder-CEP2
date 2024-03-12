@@ -123,6 +123,13 @@ sudo mysql -u root -p
 SELECT User, Host FROM mysql.user WHERE User = 'cep2';
 ```
 
+- **Grant PRIVILEGES:**
+
+```shell
+GRANT ALL PRIVILEGES ON django_db.* TO 'django_user'@'%' IDENTIFIED BY 'your_password';
+FLUSH PRIVILEGES;
+```
+
 - **Database Operations:**
   
 ```shell
@@ -156,6 +163,12 @@ sudo systemctl start mariadb
 
 ```shell
 sudo systemctl stop mariadb
+```
+
+- **Restart Service:**
+
+```shell
+sudo systemctl restart mariadb
 ```
 
 - **Check Service Status:**
