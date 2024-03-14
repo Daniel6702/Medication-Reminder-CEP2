@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Welcome, {{ user.username }}!</h1>
+
+<div>
+    <p>Your API Token:</p>
+    <textarea id="apiToken" readonly>{{ token.key }}</textarea>
+</div>
+
+{% endblock %}
