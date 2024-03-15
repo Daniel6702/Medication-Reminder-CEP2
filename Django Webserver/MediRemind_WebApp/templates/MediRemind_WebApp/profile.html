@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Welcome, {{ user.username }}!</h1>
+
+<div>
+    <p>Your API Token:</p>
+    <textarea id="apiToken" readonly>{{ token.key }}</textarea>
+</div>
+
+<!-- Display Logs -->
+<div>
+    <h2>Your Logs</h2>
+    {% if logs %}
+        <ul>
+            {% for log in logs %}
+                <li>
+                    <p><strong>Timestamp:</strong> {{ log.timestamp }}</p>
+                    <p><strong>Description:</strong> {{ log.description }}</p>
+                    <!-- Add other log fields as needed -->
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No logs found.</p>
+    {% endif %}
+</div>
+
+{% endblock %}
