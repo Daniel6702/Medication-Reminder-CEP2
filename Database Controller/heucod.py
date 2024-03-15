@@ -129,22 +129,21 @@ class HeucodEventType(Enum):
 
 class HeucodEventJsonEncoder(json.JSONEncoder):
     def default(self, obj):  # pylint: disable=E0202
-        def to_camel(key):
-            # Convert the attribtues names from snake case (Python "default") to camel case.
-            return "".join([key.split("_")[0].lower(), *map(str.title, key.split("_")[1:])])
+        def to_snake(key):
+            # Convert the attribute names from camel case to snake case.
+            s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', key)
+            return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
         if isinstance(obj, HeucodEvent):
             result = deepcopy(obj.__dict__)
             keys_append = {}
             keys_remove = set()
-            camel_name = {}
+            snake_name = {}
 
             for k, v in result.items():
-                # Check if the name must be changed to camel case
-                first, *others = k.split("_")
-
-                if first != "id" and len(others) > 0 and v is not None:
-                    camel_name[k] = to_camel(k)
+                # Check if the name must be changed to snake case
+                if any(char.isupper() for char in k) and v is not None:
+                    snake_name[k] = to_snake(k)
                     keys_remove.add(k)
 
                 # Remove value if it is None
@@ -161,7 +160,7 @@ class HeucodEventJsonEncoder(json.JSONEncoder):
                 elif isinstance(v, HeucodEventType):
                     result[k] = str(v)
 
-            for k, v in camel_name.items():
+            for k, v in snake_name.items():
                 result[v] = result[k]
             for k in keys_remove:
                 result.pop(k)
@@ -177,12 +176,13 @@ class HeucodEventJsonEncoder(json.JSONEncoder):
         return result
 
 
+
 @dataclass
 class HeucodEvent:
     # --------------------  General event properties --------------------
     
     # The unique ID of the event. Usually a GUID or UUID but one is free to choose.
-    id_: Union[UUID, str] = None
+    id: Union[UUID, str] = None
     # The type of the event. This should preferably match the name of the "class" of the device
     # following the HEUCOD ontology in enumeration HeucodEventType.
     event_type: str = None

@@ -136,7 +136,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
-LOGIN_REDIRECT_URL = '/accounts/profile/'
+LOGIN_REDIRECT_URL = 'profile_home'
 
 
 # Default primary key field type

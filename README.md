@@ -4,6 +4,13 @@
 
 ## **Web Server Management**
 
+- **Test User:**
+
+```shell
+TESTUSER1
+p8uaDACb5e.iS$i
+```
+
 ### **Virtual Environment**
 - **Activate Environment:**
 
@@ -22,6 +29,7 @@ deactivate
 
 ```shell
 python manage.py runserver 0.0.0.0:8000
+http://localhost:8000/
 ```
 
 - **Database Migrations:**

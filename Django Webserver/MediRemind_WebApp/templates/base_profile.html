@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+
+{% load static %}
+
+<html>
+    <head>
+    <title>{% block title %}My Site{% endblock %}</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/profile_style.css' %}">
+        {% block extra_css %}{% endblock %}
+        {% block extra_js %}{% endblock %}
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="sidebar">
+                <h1>Medication Reminder</h1>
+                <h3>{{ user.username }}</h3>
+                <ul>
+                    <li><a href="{% url 'profile_home' %}">Home</a></li>
+                    <li><a href="{% url 'medication_schedule' %}">Medication Schedule</a></li>
+                    <li><a href="{% url 'configuration' %}">Configuration</a></li>
+                    <li><a href="{% url 'events' %}">Events</a></li>
+                    <li><a href="{% url 'data' %}">Data Analysis</a></li>
+                    <li><a href="{% url 'settings' %}">Account Settings</a></li>
+                    <li>
+                        <form action="{% url 'logout' %}" method="post">
+                            {% csrf_token %}
+                        <button type="submit">Logout</button>
+                      </form>
+                    </li>
+                </ul>
+            </div>
+            <div class="main-content">
+                {% block profile_content %}
+                {% endblock %}
+            </div>
+        </div>
+    </body>
+
+</html>

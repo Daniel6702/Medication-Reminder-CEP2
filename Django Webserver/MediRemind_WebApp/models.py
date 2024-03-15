@@ -1,18 +1,77 @@
 from django.db import models
 from django.contrib.auth.models import User
+import uuid
 
-class Item(models.Model):
+def get_default_user_id():
+    return User.objects.first().id if User.objects.exists() else None
+
+class Item(models.Model): #TEST
     name = models.CharField(max_length=100)
     description = models.TextField()
 
     def __str__(self):
         return self.name
+    
+class MedicationSchedule(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='medication_schedules', default=get_default_user_id)
+    medication_name = models.CharField(max_length=100)
+    reminder_time = models.DateTimeField()
+    window_start = models.DateTimeField()
+    window_end = models.DateTimeField()
 
-from django.db import models
+    def __str__(self):
+        return f"{self.medication_name} Schedule for {self.user.username}"
+
+class Room(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rooms', null=True, blank=True)
+    room_id = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+    
+class Sensor(models.Model):
+    SENSOR_TYPES = (
+        ('PIR', 'Passive Infrared'),
+        ('VIB', 'Vibration'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sensors', null=True, blank=True)
+    sensor_id = models.CharField(max_length=50, primary_key=True)
+    type = models.CharField(max_length=3, choices=SENSOR_TYPES)
+    zigbee_id = models.CharField(max_length=50)
+    status = models.CharField(max_length=50)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='sensors')
+
+    def __str__(self):
+        return f"{self.type} Sensor {self.sensor_id} at {self.room}"
+    
+class AlertConfiguration(models.Model):
+    ALERT_TYPES = (
+        ('LIGHT', 'Light'),
+        ('SOUND', 'Sound'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='alert_configurations', null=True, blank=True)
+    alert_type = models.CharField(max_length=5, choices=ALERT_TYPES)
+    color_code = models.CharField(max_length=7, blank=True)  # For RGB color code like '#FF5733'
+    sound_file = models.FileField(upload_to='alerts/sounds/', blank=True)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='alert_configurations')
+    
+class MQTTConfiguration(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='mqtt_configurations')
+    broker_address = models.URLField()
+    port = models.IntegerField()
+    username = models.CharField(max_length=100, blank=True)
+    password = models.CharField(max_length=100, blank=True)
+
+    def __str__(self):
+        return f"MQTT Broker at {self.broker_address}"
 
 class HeucodEvent(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='heucod_events', default=User.objects.first().id)
-    id = models.UUIDField(primary_key=True, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='heucod_events', default=get_default_user_id)
+
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     event_type = models.CharField(max_length=100)
     event_type_enum = models.IntegerField()
     description = models.TextField(null=True, blank=True)

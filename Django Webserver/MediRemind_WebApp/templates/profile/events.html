@@ -1,17 +1,13 @@
-{% extends 'base.html' %}
+{% extends 'base_profile.html' %}
+
 {% load static %}
 
-{% block content %}
-<h1>Welcome, {{ user.username }}!</h1>
+{% block profile_content %}
+
+<h1>Events</h1>
 
 <div>
-    <p>Your API Token:</p>
-    <textarea id="apiToken" readonly>{{ token.key }}</textarea>
-</div>
-
-<!-- Display Logs -->
-<div>
-    <h2>Your Events</h2>
+    <h2>logs</h2>
     {% if logs %}
         <table>
             <thead>
@@ -43,5 +39,5 @@
 {% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/profile_style.css' %}">
 {% endblock %}

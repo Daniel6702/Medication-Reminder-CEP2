@@ -1,0 +1,12 @@
+{% extends 'base_profile.html' %}
+
+{% block profile_content %}
+
+<h1>Configurations</h1>
+
+<div>
+    <p>Your API Token:</p>
+    <textarea id="apiToken" readonly>{{ token.key }}</textarea>
+</div>
+
+{% endblock %}

@@ -1,0 +1,48 @@
+/* profile_style.css */
+
+.container {
+    display: flex;
+}
+.sidebar {
+    width: 200px;
+    background-color: #f0f0f0;
+    padding: 10px;
+    height: 100vh;
+}
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+}
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+.sidebar ul li a {
+    text-decoration: none;
+    color: black;
+    display: block;
+    padding: 8px;
+    margin-bottom: 5px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+}
+.sidebar ul li a:hover {
+    background-color: #d0d0d0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+th {
+    background-color: #f2f2f2;
+    text-align: left;
+}
+
+tr:nth-child(even) {background-color: #f2f2f2;}
