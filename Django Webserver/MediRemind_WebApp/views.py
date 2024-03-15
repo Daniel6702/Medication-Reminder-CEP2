@@ -9,6 +9,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import HeucodEventSerializer
+from .models import HeucodEvent 
+
 
 from .forms import RegisterForm
 from .models import Item
@@ -61,10 +63,12 @@ class CustomLoginView(LoginView):
 @login_required
 def profile(request):
     token, created = Token.objects.get_or_create(user=request.user)
-    
+    user_logs = request.user.heucod_events.all()  # Fetch logs for the user
+
     context = {
         'user': request.user,
-        'token': token
+        'token': token,
+        'logs': user_logs,  # Add logs to context
     }
     return render(request, 'MediRemind_WebApp/profile.html', context)
 

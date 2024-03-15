@@ -180,6 +180,7 @@ class HeucodEventJsonEncoder(json.JSONEncoder):
 @dataclass
 class HeucodEvent:
     # --------------------  General event properties --------------------
+    
     # The unique ID of the event. Usually a GUID or UUID but one is free to choose.
     id_: Union[UUID, str] = None
     # The type of the event. This should preferably match the name of the "class" of the device

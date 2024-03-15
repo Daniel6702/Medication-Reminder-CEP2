@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Item(models.Model):
     name = models.CharField(max_length=100)
@@ -10,6 +11,7 @@ class Item(models.Model):
 from django.db import models
 
 class HeucodEvent(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='heucod_events', default=User.objects.first().id)
     id = models.UUIDField(primary_key=True, editable=False)
     event_type = models.CharField(max_length=100)
     event_type_enum = models.IntegerField()
