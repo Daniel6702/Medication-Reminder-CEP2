@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import HeucodEvent
 from .models import MedicationSchedule
+from .models import MQTTConfiguration
+
 
 class HeucodEventSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(read_only=True)
@@ -15,3 +17,8 @@ class MedicationScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = MedicationSchedule
         fields = '__all__'
+
+class MQTTConfigurationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MQTTConfiguration
+        fields = ['id', 'user', 'broker_address', 'port', 'username', 'password']

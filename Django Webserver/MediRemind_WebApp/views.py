@@ -20,6 +20,9 @@ from django.views.generic.list import ListView
 from .models import MedicationSchedule
 from .forms import MedicationScheduleForm
 from .serializers import MedicationScheduleSerializer
+from .models import MQTTConfiguration
+from .serializers import MQTTConfigurationSerializer
+from .forms import MQTTConfigurationForm
 
     
 class ProfileViews:
@@ -37,10 +40,32 @@ class ProfileViews:
 
         def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
+            
+            # Getting or creating a token for the user
             token, created = Token.objects.get_or_create(user=self.request.user)
             context['token'] = token
 
+            # Getting or creating the MQTT configuration instance for the user
+            mqtt_config, created = MQTTConfiguration.objects.get_or_create(
+                user=self.request.user,
+                defaults={'port': 1883, 'broker_address': 'http://defaultaddress.com'}  # Default values
+            )
+            context['mqtt_form'] = MQTTConfigurationForm(instance=mqtt_config)
+
             return context
+
+        def post(self, request, *args, **kwargs):
+            mqtt_config, created = MQTTConfiguration.objects.get_or_create(user=request.user)
+            form = MQTTConfigurationForm(request.POST, instance=mqtt_config)
+
+            if form.is_valid():
+                form.save()
+                # Redirect to a success page or the same configuration page
+                return redirect(reverse('configuration')) 
+
+            # If the form is not valid, re-render the page with the existing form data
+            return self.render_to_response(self.get_context_data(mqtt_form=form))
+
 
     class EventsView(LoginRequiredMixin, TemplateView):
         template_name = 'profile/events.html'
@@ -148,6 +173,24 @@ class APIViews:
                 serializer.save(user=request.user)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    class MQTTConfigurationAPIView(APIView):
+        authentication_classes = [TokenAuthentication]
+        permission_classes = [IsAuthenticated]
+
+        def get(self, request):
+            config, created = MQTTConfiguration.objects.get_or_create(user=request.user)
+            serializer = MQTTConfigurationSerializer(config)
+            return Response(serializer.data)
+
+        def post(self, request):
+            config, created = MQTTConfiguration.objects.get_or_create(user=request.user)
+            serializer = MQTTConfigurationSerializer(config, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         
 
 @require_POST

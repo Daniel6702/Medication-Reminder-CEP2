@@ -41,6 +41,10 @@ class DatabaseManager:
         response = requests.get(self.base_api_url + '/api/medication-schedule/', headers=headers)
         return response
     
+    def get_mqtt_configuration(self) -> requests.Response:
+        headers = {'Authorization': f'Token {self.api_token}'}
+        response = requests.get(self.base_api_url + '/api/mqtt-configuration/', headers=headers)
+        return response
 
 
 

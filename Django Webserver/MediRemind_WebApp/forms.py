@@ -5,7 +5,7 @@ from .models import Item
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import MedicationSchedule
-
+from .models import MQTTConfiguration
 
 class ItemForm(forms.ModelForm):
     class Meta:
@@ -32,5 +32,13 @@ class MedicationScheduleForm(forms.ModelForm):
     class Meta:
         model = MedicationSchedule
         fields = ['medication_name', 'reminder_time', 'time_window', 'dosage', 'instructions']
+
+class MQTTConfigurationForm(forms.ModelForm):
+    class Meta:
+        model = MQTTConfiguration
+        fields = ['broker_address', 'port', 'username', 'password']
+        widgets = {
+            'password': forms.PasswordInput(),
+        }
 
 

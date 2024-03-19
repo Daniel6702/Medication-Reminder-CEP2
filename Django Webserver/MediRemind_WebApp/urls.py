@@ -16,8 +16,8 @@ api_urls = [
     path('api/medication-schedule/', views.APIViews.MedicationScheduleAPIView.as_view(), name='medication_schedule_api'),
     path('api/heucod-events/', views.APIViews.HeucodEventAPIView.as_view(), name='heucod_events'),
     path('api/delete_schedule/<uuid:schedule_id>/', views.delete_schedule, name='delete_schedule'),
+    path('api/mqtt-configuration/', views.APIViews.MQTTConfigurationAPIView.as_view(), name='mqtt_configuration_api'),
 ]
-
 
 urlpatterns =       \
     profile_urls +  \

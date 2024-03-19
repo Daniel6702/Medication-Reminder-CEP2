@@ -9,4 +9,12 @@
     <textarea id="apiToken" readonly>{{ token.key }}</textarea>
 </div>
 
+<h3>MQTT Configuration</h3>
+
+<form method="post">
+    {% csrf_token %}
+    {{ mqtt_form.as_p }}
+    <button type="submit">Save Configuration</button>
+</form>
+
 {% endblock %}
