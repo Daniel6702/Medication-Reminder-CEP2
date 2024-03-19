@@ -15,10 +15,12 @@ class Item(models.Model): #TEST
 class MedicationSchedule(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='medication_schedules', default=get_default_user_id)
     medication_name = models.CharField(max_length=100)
-    reminder_time = models.DateTimeField()
-    window_start = models.DateTimeField()
-    window_end = models.DateTimeField()
-
+    reminder_time = models.TimeField(default='00:00:00')
+    time_window = models.IntegerField(default=0)
+    dosage = models.CharField(max_length=100, default = '0 mg')
+    instructions = models.TextField(blank=True, null=True)  
+    schedule_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    
     def __str__(self):
         return f"{self.medication_name} Schedule for {self.user.username}"
 
@@ -26,6 +28,7 @@ class Room(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rooms', null=True, blank=True)
     room_id = models.CharField(max_length=50, primary_key=True)
     name = models.CharField(max_length=100)
+    
 
     def __str__(self):
         return self.name

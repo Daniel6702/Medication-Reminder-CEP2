@@ -64,18 +64,22 @@ environmental_data_event = HeucodEvent(
 )
 
 # API URL and token for accessing the database service.
-api_url = 'http://localhost:8000/api/heucod-events/'
+base_api_url = 'http://localhost:8000'
 api_token = '43ac84fbf3d368611f60dd24d878fe9f6b5ce635' #Specific for the user
 
 # Initialize a database manager with the given API URL and token.
-db_manager = DatabaseManager(api_url, api_token)
+db_manager = DatabaseManager(base_api_url, api_token)
 
 # Send the HeucodEvents to the database and store the response.
 # send_event can take a single HeucodEvent or a list of HeucodEvents
-response = db_manager.send_event([sensor_data_event, patient_alert_event, device_status_event, environmental_data_event]) 
+#response = db_manager.send_heucod_event([sensor_data_event, patient_alert_event, device_status_event, environmental_data_event]) 
 
-if isinstance(response, list):
-    for x in response:
-        print(x.status_code, x.text)
-else:
-    print(response.status_code, response.text)
+medication_schedules = db_manager.get_medication_schedules()
+
+print(medication_schedules.status_code, medication_schedules.text)
+
+#if isinstance(response, list):
+#    for x in response:
+#        print(x.status_code, x.text)
+#else:
+#    print(response.status_code, response.text)

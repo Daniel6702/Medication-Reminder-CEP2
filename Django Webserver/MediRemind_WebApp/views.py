@@ -3,59 +3,24 @@ from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.decorators import login_required
 from rest_framework.authtoken.models import Token
+from django.views.decorators.http import require_POST
 from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import HeucodEventSerializer
-from .models import HeucodEvent 
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-
-
 from .forms import RegisterForm
 from .models import Item
 from .forms import ItemForm
+from django.views.generic.list import ListView
+from .models import MedicationSchedule
+from .forms import MedicationScheduleForm
+from .serializers import MedicationScheduleSerializer
 
-class ProfileView():
-
-    @staticmethod
-    @login_required
-    def HomeView(request):
-        return render(request, 'profile/home.html')
-
-    @staticmethod
-    @login_required
-    def MedicationScheduleView(request):
-        return render(request, 'profile/medication_schedule.html')
-    
-    @staticmethod
-    @login_required
-    def ConfigurationView(request):
-        token, created = Token.objects.get_or_create(user=request.user)
-        context = {
-            'token': token,
-        }
-        return render(request, 'profile/configuration.html')
-    
-    @staticmethod
-    @login_required
-    def EventsView(request):
-        return render(request, 'profile/events.html')
-    
-    @staticmethod
-    @login_required
-    def DataView(request):
-        return render(request, 'profile/data.html')
-
-    @staticmethod
-    @login_required
-    def SettingsView(request):
-        return render(request, 'profile/settings.html')
-    
     
 class ProfileViews:
     class HomeView(LoginRequiredMixin, TemplateView):
@@ -87,29 +52,33 @@ class ProfileViews:
 
             return context
 
-    class MedicationScheduleView(LoginRequiredMixin, TemplateView):
+    class MedicationScheduleView(LoginRequiredMixin, ListView):
+        model = MedicationSchedule
+        context_object_name = 'schedules'
         template_name = 'profile/medication_schedule.html'
+
+        def get_queryset(self):
+            return MedicationSchedule.objects.filter(user=self.request.user)
+
+        def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            context['form'] = MedicationScheduleForm()  # Add the form to the context
+            return context
+
+        def post(self, request, *args, **kwargs):
+            form = MedicationScheduleForm(request.POST)
+            if form.is_valid():
+                schedule = form.save(commit=False)
+                schedule.user = request.user
+                schedule.save()
+                return redirect(reverse('medication_schedule'))
+            return self.get(request, *args, **kwargs)
 
     class DataView(LoginRequiredMixin, TemplateView):
         template_name = 'profile/data.html'
 
     class SettingsView(LoginRequiredMixin, TemplateView):
         template_name = 'profile/settings.html'
-
-
-@login_required
-def profile(request):
-    token, created = Token.objects.get_or_create(user=request.user)
-    user_logs = request.user.heucod_events.all()  
-    print("User logs:", user_logs)  
-
-    context = {
-        'user': request.user,
-        'token': token,
-        'logs': user_logs,  
-    }
-    return render(request, 'base_profile.html', context)
-
 
 def home(request):
     return render(request, 'MediRemind_WebApp/home_page.html')
@@ -127,9 +96,6 @@ def add_item(request):
     else:
         form = ItemForm()
     return render(request, 'MediRemind_WebApp/add_item.html', {'form': form})
-
-def index(request):
-    return render(request, 'index.html')
 
 def register(request):
     if request.method == "POST":
@@ -155,15 +121,37 @@ class CustomLoginView(LoginView):
         login(self.request, form.get_user())
         return redirect(self.get_success_url())
     
+class APIViews:
+    class HeucodEventAPIView(APIView):
+        authentication_classes = [TokenAuthentication]
+        permission_classes = [IsAuthenticated]
 
-class HeucodEventAPIView(APIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+        def post(self, request):
+            serializer = HeucodEventSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(user=request.user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def post(self, request):
-        print("Received data:", request.data)
-        serializer = HeucodEventSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    class MedicationScheduleAPIView(APIView):
+        authentication_classes = [TokenAuthentication]
+        permission_classes = [IsAuthenticated]
+
+        def get(self, request):
+            schedules = MedicationSchedule.objects.filter(user=request.user)
+            serializer = MedicationScheduleSerializer(schedules, many=True)
+            return Response(serializer.data)
+
+        def post(self, request):
+            serializer = MedicationScheduleSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(user=request.user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+
+@require_POST
+def delete_schedule(request, schedule_id):
+    schedule = MedicationSchedule.objects.get(schedule_id=schedule_id)
+    schedule.delete()
+    return redirect('/profile/medication_schedule')

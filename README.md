@@ -2,41 +2,47 @@
 
 # Useful Commands
 
-## **Web Server Management**
+## **Web Server**
+
+### **Run Django App**
+- **Connect to same local network as Pi**
+```shell
+name: Pixel_6106
+password: 11111111
+```
+
+- **Activate Virtual Python Environment:**
+```shell
+#linux:
+source ~/CEP2/venvs/Virtual_Python_Environment/bin/activate
+
+#windows (powershell):
+& ".\venvs\windows_venv\Scripts\Activate.ps1"
+```
+
+- **Start Server:**
+```shell
+cd '.\Django Webserver\'   
+python manage.py runserver 0.0.0.0:8000
+http://localhost:8000/
+```
+
+### **Server Management Commands**
+- **Database Migrations:**
+```shell
+python manage.py makemigrations
+python manage.py migrate
+```
 
 - **Test User:**
-
 ```shell
 TESTUSER1
 p8uaDACb5e.iS$i
 ```
 
-### **Virtual Environment**
-- **Activate Environment:**
-
-```shell
-source ~/CEP2/Django\ Webserver/Virtual_Python_Environment/bin/activate
-```
-
 - **Deactivate Environment:**
-  
 ```shell
 deactivate
-```
-
-### **Django Server Commands**
-- **Start Server:**
-
-```shell
-python manage.py runserver 0.0.0.0:8000
-http://localhost:8000/
-```
-
-- **Database Migrations:**
-
-```shell
-python manage.py makemigrations
-python manage.py migrate
 ```
 
 ## **Github**
@@ -62,6 +68,11 @@ git pull origin master
 ```
 
 ## **General Commands**
+
+- **Install python libraries**
+```shell
+pip install Django djangorestframework mysqlclient paho-mqtt==1.6.1
+```
 
 ### **File and Directory Operations**
 - **Allow file to be saved:**

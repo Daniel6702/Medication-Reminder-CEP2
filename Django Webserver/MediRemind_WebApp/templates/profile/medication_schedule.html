@@ -1,1 +1,63 @@
 {% extends 'base_profile.html' %}
+
+{% block profile_content %}
+<div>
+    <h2>Your Medication Schedules</h2>
+    {% if schedules %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Medication Name</th>
+                    <th>Reminder Time</th>
+                    <th>Time Window</th>
+                    <th>Dosage</th>
+                    <th>Instructions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for schedule in schedules %}
+                    <tr>
+                        <td>{{ schedule.medication_name }}</td>
+                        <td>{{ schedule.reminder_time }}</td>
+                        <td>{{ schedule.time_window }} hour(s)</td>
+                        <td>{{ schedule.dosage }}</td>
+                        <td>{{ schedule.instructions }}</td>
+                        <td>
+                            <form action="{% url 'delete_schedule' schedule.schedule_id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="submit" value="Delete">
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No medication schedules found.</p>
+    {% endif %}
+</div>
+
+<!-- Form to add new schedule -->
+<div>
+    <h2>Add New Medication Schedule</h2>
+    <form method="post">
+        {% csrf_token %}
+        <label for="id_medication_name">Medication name:</label>
+        {{ form.medication_name }}
+    
+        <label for="id_reminder_time">Reminder time:</label>
+        {{ form.reminder_time }}
+    
+        <label for="id_time_window">Time Window:</label>
+        {{ form.time_window }}
+    
+        <label for="id_dosage">Dosage:</label>
+        {{ form.dosage }}
+
+        <label for="id_instructions">Instructions:</label>
+        {{ form.instructions }}
+    
+        <input type="submit" value="Add Schedule">
+    </form>
+</div>
+{% endblock %}

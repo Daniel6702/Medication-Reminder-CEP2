@@ -2,7 +2,6 @@ from django.urls import path
 from django.contrib import admin
 from . import views
 from django.contrib.auth.views import LogoutView
-from .views import HeucodEventAPIView
 
 profile_urls = [
     path('profile/home', views.ProfileViews.HomeView.as_view(), name='profile_home'),
@@ -13,7 +12,17 @@ profile_urls = [
     path('profile/settings', views.ProfileViews.SettingsView.as_view(), name='settings'),
 ]
 
-urlpatterns = profile_urls + [
+api_urls = [
+    path('api/medication-schedule/', views.APIViews.MedicationScheduleAPIView.as_view(), name='medication_schedule_api'),
+    path('api/heucod-events/', views.APIViews.HeucodEventAPIView.as_view(), name='heucod_events'),
+    path('api/delete_schedule/<uuid:schedule_id>/', views.delete_schedule, name='delete_schedule'),
+]
+
+
+urlpatterns =       \
+    profile_urls +  \
+    api_urls +      \
+    [
     path('', views.home, name='home'),
     path('login/', views.CustomLoginView.as_view(), name='login'),
     path('items/', views.show_items, name='show_items'),
@@ -21,5 +30,4 @@ urlpatterns = profile_urls + [
     path('admin/', admin.site.urls),
     path('register/', views.register, name='register'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
-    path('api/heucod-events/', HeucodEventAPIView.as_view(), name='heucod_events'),
-]
+    ]
