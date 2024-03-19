@@ -5,13 +5,13 @@
 ## **Web Server**
 
 ### **Run Django App**
-- **Connect to same local network as Pi**
+1. **Connect to same local network as Pi**
 ```shell
 name: Pixel_6106
 password: 11111111
 ```
 
-- **Activate Virtual Python Environment:**
+2. **Activate Virtual Python Environment:**
 ```shell
 #linux:
 source ~/CEP2/venvs/Virtual_Python_Environment/bin/activate
@@ -20,7 +20,7 @@ source ~/CEP2/venvs/Virtual_Python_Environment/bin/activate
 & ".\venvs\windows_venv\Scripts\Activate.ps1"
 ```
 
-- **Start Server:**
+3. **Start Server:**
 ```shell
 cd '.\Django Webserver\'   
 python manage.py runserver 0.0.0.0:8000
