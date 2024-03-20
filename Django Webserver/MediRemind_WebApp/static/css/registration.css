@@ -1,0 +1,56 @@
+/* registration.css */
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+nav a, button {
+    margin-right: 10px;
+}
+
+form {
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9; /* Optional: Adds background color to the form */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Adds subtle shadow to the form */
+}
+
+input[type="text"], input[type="email"], input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0 20px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px; /* Adds spacing below the title */
+}
+
+/* Ensure that the form title is part of the form styling */
+.form-title {
+    margin-top: -20px; /* Adjusts the position to align with the form */
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px 5px 0 0; /* Rounds the top corners */
+    border-bottom: 1px solid #ddd; /* Adds a border to separate title from form content */
+}
