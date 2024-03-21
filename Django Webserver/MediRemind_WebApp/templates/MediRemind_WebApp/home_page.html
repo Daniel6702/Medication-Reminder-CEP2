@@ -2,50 +2,27 @@
 {% load static %}
 <html>
 <head>
-    <title>Home</title>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-        }
-        .container {
-            position: relative;
-            height: 100%;
-            background-image: url("{% static 'images/elder_care.jpg' %}");
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-        .text-over {
-            color: rgb(255, 255, 255);
-            font-size: 48px;
-            z-index: 1;
-            margin-bottom: 48px; /* Added margin to push buttons up */
-        }
-        .text-over a {
-            margin: 4x0px; /* Adjust button margins */
-        }
-
-        .container button {
-            padding: 15px 30px; /* Adjust the top and bottom padding */
-            font-size: 18px; /* Increase the font size of the button text */
-            background-color: #4CAF50; /* Set background color */
-            color: white; /* Set text color */
-            border: none; /* Remove border */
-            border-radius: 5px; /* Rounded corners */
-            cursor: pointer; /* Add cursor pointer on hover */
-            transition: background-color 0.3s; /
-            * Smooth transition for background color change */
-        }
-         /* Hover effect */
-         .container button:hover {
-            background-color: #45a049; /* Darker background color on hover */
-        }
-    </style>
+        html, body {
+           height: 100%;
+           margin: 0;
+           padding: 0;
+       }
+       
+       .container {
+           position: relative;
+           height: 100%;
+           background-image: url("{% static 'images/elder_care.jpg' %}");
+           background-size: cover;
+           background-position: center;
+           display: flex;
+           justify-content: center;
+           align-items: center;
+           text-align: center;
+       }
+   </style>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <title>Home</title>
 </head>
 <body>
     <div class="container">
@@ -53,8 +30,6 @@
             <h1>Welcome</h1>
             <a href="{% url 'login' %}"><button>Login</button></a>  
             <a href="{% url 'register' %}"><button>Register</button></a>  
-            <a href="{% url 'show_items' %}"><button>Show Item</button></a>  
-            <a href="{% url 'add_item' %}"><button>Add Item</button></a>  
             <a href="{% url 'admin:index' %}"><button>Admin</button></a>
         </div>
     </div>

@@ -13,6 +13,23 @@ body {
     text-align: center;
 }
 
+.container button {
+    padding: 15px 30px; /* Adjust the top and bottom padding */
+    font-size: 18px; /* Increase the font size of the button text */
+    background-color: #4CAF50; /* Set background color */
+    color: black; /* Set text color */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Add cursor pointer on hover */
+    transition: background-color 0.3s; 
+    /* Smooth transition for background color change */
+}
+
+/* Hover effect */
+.container button:hover {
+    background-color: #45a049; /* Darker background color on hover */
+}
+
 button[type="submit"] {
     background-color: #4CAF50;
     color: white;
@@ -24,6 +41,17 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
     background-color: #45a049;
+}
+
+.text-over {
+    color: rgb(255, 255, 255);
+    font-size: 48px;
+    z-index: 1;
+    margin-bottom: 48px; /* Added margin to push buttons up */
+}
+
+.text-over a {
+    margin: 4px 0px; /* Adjust button margins */
 }
 
 table {
@@ -41,5 +69,6 @@ th {
     text-align: left;
 }
 
-tr:nth-child(even) {background-color: #f2f2f2;}
-
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
