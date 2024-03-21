@@ -27,7 +27,7 @@ body {
 
 /* Hover effect */
 .container button:hover {
-    background-color: #45a049; /* Darker background color on hover */
+    background-color: #308034; /* Darker background color on hover */
 }
 
 button[type="submit"] {

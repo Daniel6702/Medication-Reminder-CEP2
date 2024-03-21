@@ -2,7 +2,17 @@
 {% load static %}
 <html>
 <head>
-  <title>{% block title %}My Site{% endblock %}</title>
+  <title>
+    {% block title %}
+      {% if request.path == '/login/' %}
+        Login
+      {% elif request.path == '/register/' %}
+        Register
+      {% else %}
+        My Site
+      {% endif %}
+    {% endblock %}
+  </title>
   {% block extra_css %}{% endblock %}
   {% block extra_js %}{% endblock %}
   <style>
