@@ -3,6 +3,7 @@ from heucod import HeucodEvent
 from typing import Union, List
 import json
 from heucod import HeucodEvent, HeucodEventJsonEncoder
+import Models
 
 class HeucodEventSerializer:
     @staticmethod
@@ -36,15 +37,26 @@ class DatabaseManager:
 
         return responses
     
-    def get_medication_schedules(self) -> requests.Response:
+    def get_medication_schedules(self) -> List[Models.MedicationSchedule]:
         headers = {'Authorization': f'Token {self.api_token}'}
         response = requests.get(self.base_api_url + '/api/medication-schedule/', headers=headers)
-        return response
+        schedules = []
+        for schedule in response.json():
+            schedules.append(Models.MedicationSchedule.from_json(schedule))
+        return schedules
     
-    def get_mqtt_configuration(self) -> requests.Response:
+    def get_mqtt_configuration(self) -> Models.MQTTConfiguration:
         headers = {'Authorization': f'Token {self.api_token}'}
         response = requests.get(self.base_api_url + '/api/mqtt-configuration/', headers=headers)
-        return response
+        return Models.MQTTConfiguration.from_json(response.json())
+    
+    def get_alert_configuration(self) -> List[Models.AlertType]:
+        pass
 
+    def get_rooms(self) -> List[Models.Room]:
+        pass
+
+    def get_devices(self) -> List[Models.Device]:
+        pass
 
 

@@ -24,7 +24,7 @@ from .models import MQTTConfiguration
 from .serializers import MQTTConfigurationSerializer
 from .forms import MQTTConfigurationForm
 
-    
+
 class ProfileViews:
     class HomeView(LoginRequiredMixin, TemplateView):
         template_name = 'profile/home.html'
@@ -128,7 +128,7 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('index')
+            return redirect('')
     else:
         form = RegisterForm()
     return render(request, 'registration/register.html', {'form': form})
