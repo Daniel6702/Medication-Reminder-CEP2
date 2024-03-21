@@ -1,17 +1,14 @@
 import json
 from abc import ABC, abstractmethod
+from ..Database.Models import Device as DeviceData
 
-class Device(ABC):
+class Device(ABC, DeviceData):
     def __init__(self, id, zigbee_id, name, room, type, client):
-        self.id = id
-        self.zigbee_id = zigbee_id
-        self.name = name
-        self.type = type
-        self.room = room
+        super().__init__(id, zigbee_id, name, room, type)
         self.client = client
 
     @abstractmethod
-    def recieve(self, message):
+    def receive(self, message):
         pass
 
     def send(self, topic, payload):

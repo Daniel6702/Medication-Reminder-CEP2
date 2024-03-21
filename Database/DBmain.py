@@ -74,9 +74,10 @@ db_manager = DatabaseManager(base_api_url, api_token)
 # send_event can take a single HeucodEvent or a list of HeucodEvents
 #response = db_manager.send_heucod_event([sensor_data_event, patient_alert_event, device_status_event, environmental_data_event]) 
 
-medication_schedules = db_manager.get_medication_schedules()
+#medication_schedules = db_manager.get_medication_schedules()
+conf = db_manager.get_mqtt_configuration()
 
-print(medication_schedules.status_code, medication_schedules.text)
+print(conf)
 
 #if isinstance(response, list):
 #    for x in response:

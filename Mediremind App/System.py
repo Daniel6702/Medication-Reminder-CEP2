@@ -1,15 +1,16 @@
 import Devices
 import MQTTController
-from Database import DataBaseManager
+from ..Database.DataBaseManager import DatabaseManager
 import ReminderController
+from config import base_api_url, api_token
 
 class System():
     def __init__(self):
-        self.database_manager = DataBaseManager()
+        self.database_manager = DatabaseManager(base_api_url, api_token)
 
     def start(self):
         schedules = self.database_manager.get_medication_schedules()
-        devices = self.create_devices(self.database_manager.get_devices())
+        devices = self.database_manager.get_devices()
         mqtt_configuration = self.database_manager.get_mqtt_configuration()
         alert_configuration = self.database_manager.get_alert_configuration()
         rooms = self.database_manager.get_rooms()

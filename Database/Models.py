@@ -8,7 +8,8 @@ class HeucodEvent(HeucodEvent_):
 
 @dataclass
 class MedicationSchedule:
-    id: int
+    user: str
+    schedule_id: int
     medication_name: str
     reminder_time: str
     time_window: str
@@ -20,9 +21,10 @@ class MedicationSchedule:
 
 @dataclass
 class MQTTConfiguration:
+    user: str
     id: int
     broker_address: str
-    broker_port: int
+    port: int
     username: str
     password: str
 
@@ -33,7 +35,7 @@ class MQTTConfiguration:
 class Room:
     id: int
     name: str
-    connected_rooms: list = []
+    connected_rooms: list
 
     def from_json(json_data):
         return Room(**json_data)

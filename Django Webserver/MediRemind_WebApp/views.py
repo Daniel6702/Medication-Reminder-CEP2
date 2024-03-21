@@ -191,8 +191,6 @@ class APIViews:
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        
-
 @require_POST
 def delete_schedule(request, schedule_id):
     schedule = MedicationSchedule.objects.get(schedule_id=schedule_id)

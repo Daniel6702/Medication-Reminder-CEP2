@@ -1,6 +1,4 @@
-from Cep2Model import Cep2Model, Cep2ZigbeeDevice
-from Cep2WebClient import Cep2WebClient, Cep2WebDeviceEvent
-from Cep2Zigbee2mqttClient import (Cep2Zigbee2mqttClient,
+from Zigbee2mqttClient import (Cep2Zigbee2mqttClient,
                                    Cep2Zigbee2mqttMessage, Cep2Zigbee2mqttMessageType)
 
 class Cep2Controller:
