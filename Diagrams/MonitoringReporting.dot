@@ -1,0 +1,32 @@
+digraph MonitoringReporting {
+    // Graph style
+    rankdir=TB;
+    node [shape=rect, style=filled, fillcolor=lightgrey];
+    edge [fontsize=10];
+
+    // Nodes
+    start [label="Start", shape=circle, fillcolor=black, width=0.3];
+    readSensorData [label="Read Sensor Data (PIR, Vibration)"];
+    processData [label="Process Sensor Data"];
+    checkForEvents [label="Check for Medication and User Presence Events", shape=diamond];
+    updateLocalDB [label="Update Local Database"];
+    executeControlLogic [label="Execute Local Control Logic (e.g., Visual/Audio Alert)"];
+    communicateWithCentralDB [label="Communicate with Central Database"];
+    processDataForReporting [label="Process Data for Reporting"];
+    updateDjangoAppServer [label="Update Django Application Server"];
+    generateReports [label="Generate Reports"];
+    end [label="End", shape=doublecircle, fillcolor=black, width=0.3];
+
+    // Edges
+    start -> readSensorData;
+    readSensorData -> processData;
+    processData -> checkForEvents;
+    checkForEvents -> executeControlLogic [label="Event Detected"];
+    checkForEvents -> updateLocalDB [label="No Event"];
+    executeControlLogic -> communicateWithCentralDB;
+    updateLocalDB -> communicateWithCentralDB;
+    communicateWithCentralDB -> processDataForReporting;
+    processDataForReporting -> updateDjangoAppServer;
+    updateDjangoAppServer -> generateReports;
+    generateReports -> end;
+}

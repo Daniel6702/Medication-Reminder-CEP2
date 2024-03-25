@@ -1,0 +1,33 @@
+digraph MedicationReminderWorkflow {
+    // Graph style
+    rankdir=TB;
+    node [shape=rect, style=filled, fillcolor=lightgrey];
+
+    // Nodes
+    start [label="Start", shape=circle, fillcolor=black, width=0.3];
+    detectPresence [label="Detect user presence in rooms using PIR sensors"];
+    determineRoom [label="Determine current room of the user"];
+    checkIfMedicationTime [label="Check if it's medication time", shape=diamond];
+    startVisualAlert [label="Start visual alert (yellow to reddish light)"];
+    timeWindowPasses [label="Medication Taken within time window", shape=diamond];
+    switchToRed [label="Switch to red light"];
+    switchToGreen [label="Switch to Green light"];
+    audioAlert [label="Activate audio alert and blinking lights"];
+    medicationTaken [label="Medication taken Again", shape=diamond];
+    end [label="End", shape=doublecircle, fillcolor=black, width=0.3];
+
+    // Edges
+    start -> detectPresence;
+    detectPresence -> determineRoom;
+    determineRoom -> checkIfMedicationTime;
+    checkIfMedicationTime -> startVisualAlert [label="Yes"];
+    checkIfMedicationTime -> detectPresence [label="No"];
+    startVisualAlert -> timeWindowPasses;
+    timeWindowPasses -> switchToRed [label="No"];
+    timeWindowPasses -> switchToGreen [label="Yes"];
+    switchToRed -> end;
+    switchToGreen -> medicationTaken
+    medicationTaken -> audioAlert [label="Yes"];
+    medicationTaken -> end [label="No"];
+    audioAlert -> end;
+}

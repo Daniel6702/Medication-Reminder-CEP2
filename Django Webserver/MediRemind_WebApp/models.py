@@ -26,28 +26,31 @@ class MedicationSchedule(models.Model):
 
 class Room(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rooms', null=True, blank=True)
-    room_id = models.CharField(max_length=50, primary_key=True)
+    room_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
-    
+    connected_rooms = models.ManyToManyField('self', blank=True)
 
     def __str__(self):
         return self.name
     
-class Sensor(models.Model):
-    SENSOR_TYPES = (
+class Device(models.Model):
+    DEVICE_TYPES = (
         ('PIR', 'Passive Infrared'),
         ('VIB', 'Vibration'),
+        ('RGB', 'RGB Light'),
+        ('SWITCH', 'Switch'),
     )
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sensors', null=True, blank=True)
-    sensor_id = models.CharField(max_length=50, primary_key=True)
-    type = models.CharField(max_length=3, choices=SENSOR_TYPES)
+    device_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     zigbee_id = models.CharField(max_length=50)
+    name = models.CharField(max_length=100)
+    type = models.CharField(max_length=6, choices=DEVICE_TYPES)
     status = models.CharField(max_length=50)
-    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='sensors')
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='devices', null=True, blank=True)
 
     def __str__(self):
-        return f"{self.type} Sensor {self.sensor_id} at {self.room}"
+        return f"{self.type} Device {self.device_id} at {self.room}"
     
 class AlertConfiguration(models.Model):
     ALERT_TYPES = (
@@ -55,6 +58,7 @@ class AlertConfiguration(models.Model):
         ('SOUND', 'Sound'),
     )
 
+    alert_id = models.CharField(max_length=100, primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='alert_configurations', null=True, blank=True)
     alert_type = models.CharField(max_length=5, choices=ALERT_TYPES)
     color_code = models.CharField(max_length=7, blank=True)  # For RGB color code like '#FF5733'
@@ -63,6 +67,7 @@ class AlertConfiguration(models.Model):
     
 class MQTTConfiguration(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='mqtt_configurations')
+    mqtt_id = models.CharField(max_length=100, primary_key=True)
     broker_address = models.URLField()
     port = models.IntegerField()
     username = models.CharField(max_length=100, blank=True)

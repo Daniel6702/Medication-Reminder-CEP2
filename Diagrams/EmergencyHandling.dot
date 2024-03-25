@@ -1,0 +1,65 @@
+digraph CombinedMedicationHandling {
+    rankdir=TB;
+    node [shape=rect, style=filled, fillcolor=lightgrey];
+    edge [fontsize=10];
+
+    // Starting Point
+    start [label="Start", shape=circle, fillcolor=black, width=0.3];
+
+    // Detect Medication Events
+    detectMedicationEvent [label="Detect Medication Event", shape=diamond];
+
+    // Decision Making
+    detectEmergency [label="Emergency Detected (e.g., Double Intake)", shape=diamond];
+    detectMissedMedication [label="Missed Medication Detected", shape=diamond];
+
+    // Determine Severity of Double Dose
+    determineSeverity [label="Determine Severity", shape=diamond];
+
+    // Actions Based on Severity
+    notifyCaregiversMessage [label="Notify Caregivers (Message)"];
+    notifyCaregiversCall [label="Notify Caregivers (Call)"];
+    contactEmergencyServices [label="Contact EMS"];
+
+    // Common Actions
+    triggerVisualAlert [label="Trigger Visual Alert"];
+    sendAlertToUI [label="Send Alert to UI"];
+
+    // Emergency Specific Actions
+    triggerAudibleAlert [label="Trigger Audible Alert"];
+
+    // Missed Medication Handling
+    extendReminderPeriod [label="Extend Reminder Period (Optional)", shape=diamond];
+    resendReminders [label="Resend Reminders"];
+
+    // End Point
+    end [label="End", shape=doublecircle, fillcolor=black, width=0.3];
+
+    // Edges
+    start -> detectMedicationEvent;
+    detectMedicationEvent -> detectEmergency [label="Double Intake?"];
+    detectMedicationEvent -> detectMissedMedication [label="Missed Medication?"];
+
+    detectEmergency -> determineSeverity;
+    detectEmergency -> triggerAudibleAlert;
+    triggerAudibleAlert -> triggerVisualAlert;
+    determineSeverity -> sendAlertToUI [label="Low"];
+    determineSeverity -> notifyCaregiversMessage [label="Medium (Message)"];
+    determineSeverity -> notifyCaregiversCall [label="High (Call)"];
+    determineSeverity -> contactEmergencyServices [label="Critical"];
+    notifyCaregiversMessage -> logEvent;
+    notifyCaregiversCall -> logEvent;
+    contactEmergencyServices -> logEvent;
+
+    detectMissedMedication -> triggerVisualAlert [label="Yes"];
+    detectMissedMedication -> sendAlertToUI [label="No"];
+    triggerVisualAlert -> sendAlertToUI;
+    sendAlertToUI -> logEvent;
+
+    detectMissedMedication -> extendReminderPeriod [label="Yes"];
+    extendReminderPeriod -> resendReminders [label="Extend"];
+    extendReminderPeriod -> logEvent;
+    resendReminders -> start;
+
+    logEvent -> end;
+}

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'MediRemind_WebApp',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [

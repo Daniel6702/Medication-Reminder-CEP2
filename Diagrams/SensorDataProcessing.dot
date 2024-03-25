@@ -1,0 +1,22 @@
+digraph SensorDataProcessing {
+    rankdir=TB;
+    node [shape=rect, style=filled, fillcolor=lightgrey];
+    edge [fontsize=10];
+
+    start [label="Start", shape=circle, fillcolor=black, width=0.3];
+    readSensorData [label="Read Sensor Data (Motion/Vibration)"];
+    processSensorData [label="Process Sensor Data"];
+    generateEvent [label="Generate Event"];
+    logEvent [label="Log Event in Local Database"];
+    sendEventToServer [label="Send Event to Central Database"];
+    end [label="End", shape=doublecircle, fillcolor=black, width=0.3];
+    useData [label="Use sensor data in the reminder system"];
+
+    start -> readSensorData;
+    readSensorData -> processSensorData;
+    processSensorData -> generateEvent;
+    processSensorData -> useData;
+    generateEvent -> logEvent;
+    logEvent -> sendEventToServer;
+    sendEventToServer -> end;
+}

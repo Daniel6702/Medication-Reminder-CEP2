@@ -4,10 +4,14 @@
 
 <h1>Configurations</h1>
 
+<hr>
+
 <div>
     <p>Your API Token:</p>
     <textarea id="apiToken" readonly>{{ token.key }}</textarea>
 </div>
+
+<hr>
 
 <h3>MQTT Configuration</h3>
 
@@ -17,4 +21,66 @@
     <button type="submit">Save Configuration</button>
 </form>
 
+<hr>
+
+<h3>Device Configuration</h3>
+
+<!-- Form to add new device -->
+<form method="post">
+    {% csrf_token %}
+    {{ device_form.as_p }}
+    <button type="submit" name="device_submit">Add Device</button>
+</form>
+
+<!-- List existing devices -->
+<div>
+    <h4>Your Devices</h4>
+    {% if devices %}
+        <ul>
+            {% for device in devices %}
+                <li>| Name: {{ device.name }} | Type: {{ device.type }} | room: {{ device.room }} |</li>
+                <!-- Add more details as needed -->
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No devices found.</p>
+    {% endif %}
+</div>
+
+<hr>
+
+<h3>Room Configuration</h3>
+
+<!-- Form to add new room -->
+<form method="post">
+    {% csrf_token %}
+    {{ room_form.as_p }}
+    <button type="submit" name="room_submit">Add Room</button>
+</form>
+
+<!-- List existing rooms -->
+<div>
+    <h4>Your Rooms</h4>
+    {% if rooms %}
+        <ul>
+            {% for room in rooms %}
+                <li>{{ room.name }}</li>
+                <ul>
+                    {% for device in room.devices.all %}
+                        <li>{{ device.name }} ({{ device.type }})</li>
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No rooms found.</p>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block extra_js %}
 {% endblock %}

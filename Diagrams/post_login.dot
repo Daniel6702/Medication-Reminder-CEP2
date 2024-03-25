@@ -1,0 +1,28 @@
+digraph PostLoginUserActivities {
+    // Graph style
+    rankdir=TB;
+    node [shape=rect, style=filled, fillcolor=lightgrey];
+    edge [fontsize=10];
+
+    // Nodes
+    start [label="Start", shape=circle, fillcolor=black, width=0.3];
+    loggedIn [label="User Logged In"];
+    chooseActivity [label="Choose Activity", shape=diamond];
+    viewEvents [label="View Events/Alerts"];
+    addMedication [label="Add/Edit Medication Schedules"];
+    configureSystem [label="Configure System Settings"];
+    viewReports [label="View In-depth Reports"];
+    end [label="End", shape=doublecircle, fillcolor=black, width=0.3];
+
+    // Edges
+    start -> loggedIn;
+    loggedIn -> chooseActivity;
+    chooseActivity -> viewEvents [label="View Events"];
+    chooseActivity -> addMedication [label="Medication Schedules"];
+    chooseActivity -> configureSystem [label="Configure System"];
+    chooseActivity -> viewReports [label="View Reports"];
+    viewEvents -> end;
+    addMedication -> end;
+    configureSystem -> end;
+    viewReports -> end;
+}
