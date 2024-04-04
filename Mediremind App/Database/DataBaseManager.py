@@ -4,6 +4,8 @@ from typing import Union, List
 import json
 from heucod import HeucodEvent, HeucodEventJsonEncoder
 import Models
+import threading
+import time
 
 class HeucodEventSerializer:
     @staticmethod
@@ -16,11 +18,11 @@ class HeucodEventSerializer:
 
 class DatabaseManager:
     def __init__(self, base_api_url: str, api_token: str):
+        self.instance = DatabaseManager.Instance(self)
         if base_api_url.endswith('/'):
             self.base_api_url = base_api_url[:-1]
         else:
             self.base_api_url = base_api_url
-            
         self.api_token = api_token
 
     def send_heucod_event(self, heucod_event: Union[HeucodEvent, List[HeucodEvent]]) -> list[requests.Response]:
@@ -59,4 +61,25 @@ class DatabaseManager:
     def get_devices(self) -> List[Models.Device]:
         pass
 
+    class Instance:
+        def __init__(self, database_manager: 'DatabaseManager'):
+            self.__database_manager = database_manager
+            self.medication_schedules = None
+            self.alert_configurations = None
+            self.mqtt_configuration = None
+            self.rooms = None
+            self.devices = None
+            self.__update_thread = threading.Thread(target=self.__background_update, daemon=True)
+            self.__update_thread.start()
 
+        def __background_update(self):
+            while True:
+                self.update()
+                time.sleep(1800)
+
+        def update(self):
+            self.medication_schedules = self.__database_manager.get_medication_schedules()
+            self.alert_configurations = self.__database_manager.get_alert_configuration()
+            self.mqtt_configuration = self.__database_manager.get_mqtt_configuration()
+            self.rooms = self.__database_manager.get_rooms()
+            self.devices = self.__database_manager.get_devices()

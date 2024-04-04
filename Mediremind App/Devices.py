@@ -1,7 +1,7 @@
 import json
 from abc import ABC, abstractmethod
-from Models import Device as DeviceData
-from Models import DeviceType
+from Database.Models import Device as DeviceData
+from Database.Models import DeviceType
 import uuid
 
 class Device(ABC, DeviceData):

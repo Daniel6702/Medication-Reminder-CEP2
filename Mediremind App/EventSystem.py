@@ -1,8 +1,13 @@
 import enum
 
-class EventType(enum.Enum):
+class Event(enum.Enum):
     ZigbeeMotionEvent = 1
     DEVICE_DISCOVERY = 2
+    IDLE = 3
+    ACTIVE = 4
+    MEDICATION_TAKEN = 5
+    MEDICATION_MISSED = 6
+    ALERT = 7
 
 class EventSystem:
     def __init__(self):
