@@ -1,4 +1,4 @@
-from heucod import HeucodEvent as HeucodEvent_
+from .heucod import HeucodEvent as HeucodEvent_
 from dataclasses import dataclass
 from enum import Enum
 from typing import Optional

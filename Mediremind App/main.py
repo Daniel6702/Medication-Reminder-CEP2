@@ -8,7 +8,7 @@ from ReminderController import ReminderController
 class MainSystem():
     def __init__(self):
         self.event_system = EventSystem()
-        self.mqtt_controller = MQTTController()
+        self.mqtt_controller = MQTTController(self.event_system)
         self.database_controller = DatabaseManager(base_api_url,api_token)
         self.reminder_system_controller = ReminderController(self.database_controller)
 
@@ -22,7 +22,7 @@ class MainSystem():
 
     def loop(self):
         while True:
-            self.reminder_system_controller.update()
+            #self.reminder_system_controller.update()
             sleep(1)
 
 if __name__ == "__main__":

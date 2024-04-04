@@ -1,6 +1,6 @@
-from Distributer import ZigbeeMessageDistributer
-from Zigbee2mqttClient import Cep2Zigbee2mqttClient
-from ..config import MQTT_BROKER_HOST, MQTT_BROKER_PORT
+from .Distributer import ZigbeeMessageDistributer
+from .Zigbee2mqttClient import Cep2Zigbee2mqttClient
+from config import MQTT_BROKER_HOST, MQTT_BROKER_PORT
 
 class MQTTController():
     def __init__(self, event_system):

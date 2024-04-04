@@ -1,8 +1,8 @@
-import enum
+from enum import Enum
 from EventSystem import Event
 from Database.DataBaseManager import DatabaseManager
 
-class State(enum):
+class State(Enum):
     IDLE = 1
     ACTIVE = 2
     MEDICATION_TAKEN = 3

@@ -1,11 +1,11 @@
 import requests
-from heucod import HeucodEvent
 from typing import Union, List
 import json
-from heucod import HeucodEvent, HeucodEventJsonEncoder
-import Models
+from .heucod import HeucodEvent, HeucodEventJsonEncoder
+from . import Models
 import threading
 import time
+from config import AUTO_UPDATE, UPDATE_TIME
 
 class HeucodEventSerializer:
     @staticmethod
@@ -18,12 +18,12 @@ class HeucodEventSerializer:
 
 class DatabaseManager:
     def __init__(self, base_api_url: str, api_token: str):
-        self.instance = DatabaseManager.Instance(self)
         if base_api_url.endswith('/'):
             self.base_api_url = base_api_url[:-1]
         else:
             self.base_api_url = base_api_url
         self.api_token = api_token
+        self.instance = DatabaseManager.Instance(self)
 
     def send_heucod_event(self, heucod_event: Union[HeucodEvent, List[HeucodEvent]]) -> list[requests.Response]:
         headers = {'Authorization': f'Token {self.api_token}', 'Content-Type': 'application/json'}
@@ -69,13 +69,15 @@ class DatabaseManager:
             self.mqtt_configuration = None
             self.rooms = None
             self.devices = None
-            self.__update_thread = threading.Thread(target=self.__background_update, daemon=True)
-            self.__update_thread.start()
+
+            if AUTO_UPDATE:
+                self.__update_thread = threading.Thread(target=self.__background_update, daemon=True)
+                self.__update_thread.start()
 
         def __background_update(self):
             while True:
                 self.update()
-                time.sleep(1800)
+                time.sleep(UPDATE_TIME)
 
         def update(self):
             self.medication_schedules = self.__database_manager.get_medication_schedules()
