@@ -1,6 +1,7 @@
 from heucod import HeucodEvent as HeucodEvent_
 from dataclasses import dataclass
 from enum import Enum
+from typing import Optional
 
 @dataclass
 class HeucodEvent(HeucodEvent_):
@@ -52,8 +53,8 @@ class Device:
     id: int
     zigbee_id: str
     name: str
-    room: Room
     type: DeviceType
+    room: Optional[Room] = None  # room is optional now
 
     def from_json(json_data):
         return Device(**json_data)

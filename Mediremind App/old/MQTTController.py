@@ -1,8 +1,6 @@
-from Zigbee2mqttClient import (Cep2Zigbee2mqttClient,
-                                   Cep2Zigbee2mqttMessage, Cep2Zigbee2mqttMessageType)
+from Zigbee2mqttClient import (Cep2Zigbee2mqttClient,Cep2Zigbee2mqttMessage, Cep2Zigbee2mqttMessageType)
 
 class Cep2Controller:
-    HTTP_HOST = "http://localhost:8000"
     MQTT_BROKER_HOST = "localhost"
     MQTT_BROKER_PORT = 1883
 
@@ -12,7 +10,7 @@ class Cep2Controller:
     and send an event to a remote HTTP server.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, distributer) -> None:
         """ Class initializer. The actuator and monitor devices are loaded (filtered) only when the
         class is instantiated. If the database changes, this is not reflected.
 
@@ -22,6 +20,8 @@ class Cep2Controller:
         self._z2m_client = Cep2Zigbee2mqttClient(host=self.MQTT_BROKER_HOST,
                                                   port=self.MQTT_BROKER_PORT,
                                                   on_message_clbk=self.__zigbee2mqtt_event_received)
+        
+        self.distributer = distributer
 
     def start(self) -> None:
         """ Start listening for zigbee2mqtt events.
@@ -50,12 +50,10 @@ class Cep2Controller:
         Args:
             message (Cep2Zigbee2mqttMessage): an object with the message received from zigbee2mqtt
         """
-        # If message is None (it wasn't parsed), then don't do anything.
         if not message:
             return
         
-        #Execute appropriate actions based on the type of message received
+        self.distributer.analyze_message(message)
+        
 
-        print("")
-        print(message)
-        print("")
+        
