@@ -62,7 +62,7 @@ git pull origin master
 
 - **Install python libraries**
 ```shell
-pip install Django djangorestframework mysqlclient paho-mqtt==1.6.1
+pip install Django djangorestframework mysqlclient paho-mqtt==1.6.1 django-extensions
 ```
 
 ### **File and Directory Operations**

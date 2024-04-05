@@ -2,10 +2,16 @@ from .heucod import HeucodEvent as HeucodEvent_
 from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
+from uuid import uuid4
 
 @dataclass
 class HeucodEvent(HeucodEvent_):
     pass
+
+@dataclass
+class User:
+    username: str = None
+    email: str = None
 
 @dataclass
 class MedicationSchedule:
@@ -42,18 +48,19 @@ class Room:
         return Room(**json_data)
 
 class DeviceType(Enum):
-    ACTUATOR = "ACTUATOR"
-    SENSOR = "SENSOR"
     RGB_STRIP = "RGB_STRIP"
-    MOTION_SENSOR = "MOTION_SENSOR"
-    VIBRATING_SENSOR = "VIBRATING_SENSOR"
+    PIR_SENSOR = "PIR_SENSOR"
+    SWITCH = "SWITCH"
+    VIBRATION_SENSOR = "VIBRATION_SENSOR"
 
 @dataclass
 class Device:
-    id: int
+    device_id: str
     zigbee_id: str
     name: str
     type: DeviceType
+    user: User = None
+    status: str = None
     room: Optional[Room] = None  # room is optional now
 
     def from_json(json_data):

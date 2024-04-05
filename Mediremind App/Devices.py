@@ -2,8 +2,95 @@ import json
 from abc import ABC, abstractmethod
 from Database.Models import Device as DeviceData
 from Database.Models import DeviceType
+from Database.DataBaseManager import DatabaseManager
 import uuid
+from config import DEVICE_TYPES
 
+'''
+We assume Zigbee2Mqtt and mqttbroker has been setup and is running. With the devices added.
+'''
+
+def matches_rules(message_str, rules):
+    '''
+    - If any keyword in 'must_not_have' is present in the message string, the function should return False.
+    - All keywords in 'must_have' must be present in the message string for the condition to be true.
+    - If 'or_must_have' is present, at least one of its keywords must be in the message string for the condition to be true.
+    '''
+    if 'must_not_have' in rules and any(keyword in message_str for keyword in rules['must_not_have']):
+        return False
+
+    if 'must_have' in rules and 'or_must_have' in rules:
+        return all(keyword in message_str for keyword in rules['must_have']) or any(keyword in message_str for keyword in rules['or_must_have'])
+    elif 'must_have' in rules and 'or_must_have' not in rules: 
+        return all(keyword in message_str for keyword in rules['must_have'])
+    elif 'must_have' not in rules and 'or_must_have' in rules: 
+        return any(keyword in message_str for keyword in rules['or_must_have'])
+
+class DeviceController():
+    '''
+    Contains and creates device instances. 
+    Sensor devices analyze their respective z2m messages, containing relevant data,
+    and use this information to draw conclusions, such as determining occupancy.
+    Actuator devices can sent z2m message. To for instance turning on or off a light.
+    '''
+    def __init__(self, database_controller: DatabaseManager):
+        self.database_controller = database_controller
+        self.devices = []
+
+    def get_devices(self, message: list[dict]):
+        '''
+        Subscribed to the EVENT_DISCOVERY event, occurs on initialization of system. 
+        Retrieves devices from z2m message and database.
+        Compares with current list of devices and updates list and db if necessay.  
+        '''
+        #Retrieve z2m devices
+        z2m_devices = []
+        for device in message:
+            message_str = str(json.dumps(device))
+            for device_type, rules in DEVICE_TYPES.items():
+                if matches_rules(message_str, rules):
+                    device = DeviceData(
+                        device_id=None, 
+                        zigbee_id=device.get('ieee_address', None),
+                        name=device.get('friendly_name', None),
+                        room=None,
+                        type=getattr(DeviceType, device_type),
+                    )
+                    z2m_devices.append(device)
+                    break
+        
+        #Retrieve database devices
+        db_devices = self.database_controller.get_devices()
+
+        print(db_devices)
+
+        #if there is no devices in the datebase just add devices from z2m to db
+        if not db_devices:
+            for z2m_device in z2m_devices:
+                self.database_controller.add_device(z2m_device)
+            return 
+
+        # Compare devices and update database if necessary
+        for z2m_device in z2m_devices:
+            found = False
+            for db_device in db_devices:
+                if z2m_device.zigbee_id == db_device.zigbee_id:
+                    # Fill out the None fields from the db_device
+                    z2m_device.device_id = db_device.device_id
+                    z2m_device.room = db_device.room
+                    found = True
+                    break
+            if not found:
+                # Device is in z2m but not in DB, add it to the database
+                self.database_controller.add_device(z2m_device)
+
+        # Update self.devices with newly configured devices
+        for z2m_device in z2m_devices:
+            # Check if device is already in self.devices
+            if not any(device.zigbee_id == z2m_device.zigbee_id for device in self.devices):
+                self.devices.append(z2m_device)
+
+        
 class Device(ABC, DeviceData):
     def __init__(self, id, zigbee_id, name, room, type, client):
         super().__init__(id, zigbee_id, name, room, type)

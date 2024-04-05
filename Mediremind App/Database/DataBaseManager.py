@@ -59,6 +59,14 @@ class DatabaseManager:
         pass
 
     def get_devices(self) -> List[Models.Device]:
+        headers = {'Authorization': f'Token {self.api_token}'}
+        response = requests.get(self.base_api_url + '/api/device/', headers=headers)
+        devices = []
+        for device in response.json():
+            devices.append(Models.Device.from_json(device))
+        return devices
+    
+    def add_device(self, device: Models.Device):
         pass
 
     class Instance:

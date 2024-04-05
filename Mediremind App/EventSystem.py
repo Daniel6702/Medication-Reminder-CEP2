@@ -8,6 +8,10 @@ class Event(enum.Enum):
     MEDICATION_TAKEN = 5
     MEDICATION_MISSED = 6
     ALERT = 7
+    RGB_STRIP = 8
+    PIR_SENSOR = 9
+    SWITCH = 10
+    VIBRATION_SENSOR = 11
 
 class EventSystem:
     def __init__(self):
