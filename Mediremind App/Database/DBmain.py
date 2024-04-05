@@ -1,5 +1,5 @@
 '''
-Database API Example
+This is a testing file for the database integration
 '''
 from DataBaseManager import DatabaseManager
 from heucod import HeucodEvent

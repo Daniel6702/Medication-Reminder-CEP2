@@ -30,6 +30,7 @@ class ReminderController():
     def __init__(self, database_controller: DatabaseManager):
         self.state = State.IDLE
         self.database_controller = database_controller
+        self.device_controller = None
 
     def update(self):
         if self.state == State.IDLE:

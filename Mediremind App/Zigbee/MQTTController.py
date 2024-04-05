@@ -3,6 +3,11 @@ from .Zigbee2mqttClient import Cep2Zigbee2mqttClient
 from config import MQTT_BROKER_HOST, MQTT_BROKER_PORT
 
 class MQTTController():
+    '''
+    Responsible for managing the MQTT communication within the system. 
+    Acts as a bridge between MQTT messages and the event system. 
+    By distributing the messages to their corresponding handlers.
+    '''
     def __init__(self, event_system):
         self.event_system = event_system
         self.distributer = ZigbeeMessageDistributer(self.event_system)

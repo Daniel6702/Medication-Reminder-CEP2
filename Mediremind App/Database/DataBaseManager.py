@@ -17,12 +17,18 @@ class HeucodEventSerializer:
         return HeucodEvent.from_json(json_data)
 
 class DatabaseManager:
+    '''
+    Manages interactions with the database. Responsible for sending events, 
+    retrieving medication schedules, MQTT configurations, and device details.
+    '''
     def __init__(self, base_api_url: str, api_token: str):
         if base_api_url.endswith('/'):
             self.base_api_url = base_api_url[:-1]
         else:
             self.base_api_url = base_api_url
         self.api_token = api_token
+
+        #An internal instance of the DatabaseManager for managing data.
         self.instance = DatabaseManager.Instance(self)
 
     def send_heucod_event(self, heucod_event: Union[HeucodEvent, List[HeucodEvent]]) -> list[requests.Response]:

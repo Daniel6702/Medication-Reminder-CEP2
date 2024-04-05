@@ -4,6 +4,16 @@ from enum import Enum
 from typing import Optional
 from uuid import uuid4
 
+'''
+Defines the core data structures of system. 
+- users
+- medication schedules
+- MQTT settings
+- rooms
+- devices
+- alert confs
+'''
+
 @dataclass
 class HeucodEvent(HeucodEvent_):
     pass

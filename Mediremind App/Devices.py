@@ -90,6 +90,10 @@ class DeviceController():
             if not any(device.zigbee_id == z2m_device.zigbee_id for device in self.devices):
                 self.devices.append(z2m_device)
 
+    def remind(self, room, remind_conf):
+        #uses its actuator devices to remind the user to take medication, in the given room with the given remind_conf (light color, audio, etc)
+        pass
+
         
 class Device(ABC, DeviceData):
     def __init__(self, id, zigbee_id, name, room, type, client):

@@ -13,10 +13,13 @@ class EnhancedJSONEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 class ZigbeeMessageDistributer():
+    '''Responsible for processing and routing messages from Zigbee devices through the MQTT broker to the appropriate components within the system.'''
     def __init__(self, event_system: EventSystem):
         self.event_system = event_system
 
     def analyze_message(self, message: Cep2Zigbee2mqttMessage):
+        '''Analyzes incoming messages from Zigbee2mqtt. Depending on the type of message, it publishes corresponding events to the event system. 
+        Handles the identification of device types based on predefined rules'''
         if not message:
             return
         

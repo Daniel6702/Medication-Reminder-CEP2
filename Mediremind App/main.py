@@ -15,6 +15,7 @@ Dependencies:
 ''' 
 
 class MainSystem():
+    '''Central class of the system that integrates the varioues components and controllers, and allows them to work together.'''
     def __init__(self):
         self.event_system = EventSystem()
         self.mqtt_controller = MQTTController(self.event_system)
@@ -23,14 +24,17 @@ class MainSystem():
         self.reminder_system_controller = ReminderController(self.database_controller)
 
     def setup_connections(self):
+        '''Sets up necessary connections and subscriptions between different components of the system'''
         self.event_system.subscribe(Event.DEVICE_DISCOVERY, self.device_controller.get_devices)
     
     def start(self):
+        '''Starts the main workflow of the system. It sets up connections, starts the MQTT controller, and enters the main loop.'''
         self.setup_connections()
         self.mqtt_controller.start()
         self.loop()
 
     def loop(self):
+        '''Main loop of the system, continuously updating the reminder system'''
         while True:
             #self.reminder_system_controller.update()
             sleep(1)
