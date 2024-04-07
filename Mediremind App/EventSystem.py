@@ -2,7 +2,7 @@ import enum
 
 class Event(enum.Enum):
     '''
-    Event is an enumeration representing different types of events that can be detected or generated within the system. 
+    Represents different types of events that can be detected or generated within the system. 
     Acts like topics / channels functions can subscribe to. 
     '''
     ZigbeeMotionEvent = 1
@@ -16,6 +16,7 @@ class Event(enum.Enum):
     PIR_SENSOR = 9
     SWITCH = 10
     VIBRATION_SENSOR = 11
+    SEND_ZIGBEE = 12
 
 class EventSystem:
     '''

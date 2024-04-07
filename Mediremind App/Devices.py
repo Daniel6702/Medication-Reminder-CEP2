@@ -1,10 +1,13 @@
 import json
 from abc import ABC, abstractmethod
-from Database.Models import Device as DeviceData
+from Database.Models import Device 
 from Database.Models import DeviceType
 from Database.DataBaseManager import DatabaseManager
 import uuid
 from config import DEVICE_TYPES
+from EventSystem import EventSystem, Event
+import time
+import threading
 
 '''
 We assume Zigbee2Mqtt and mqttbroker has been setup and is running. With the devices added.
@@ -33,15 +36,18 @@ class DeviceController():
     and use this information to draw conclusions, such as determining occupancy.
     Actuator devices can sent z2m message. To for instance turning on or off a light.
     '''
-    def __init__(self, database_controller: DatabaseManager):
+    def __init__(self, database_controller: DatabaseManager, event_system: EventSystem):
         self.database_controller = database_controller
+        self.event_system = event_system
         self.devices = []
+        self.actuators = []
+        self.sensors = []
 
     def get_devices(self, message: list[dict]):
         '''
         Subscribed to the EVENT_DISCOVERY event, occurs on initialization of system. 
         Retrieves devices from z2m message and database.
-        Compares with current list of devices and updates list and db if necessay.  
+        Compares with current list of devices and updates list and db if necessary.
         '''
         #Retrieve z2m devices
         z2m_devices = []
@@ -49,25 +55,25 @@ class DeviceController():
             message_str = str(json.dumps(device))
             for device_type, rules in DEVICE_TYPES.items():
                 if matches_rules(message_str, rules):
-                    device = DeviceData(
-                        device_id=None, 
-                        zigbee_id=device.get('ieee_address', None),
-                        name=device.get('friendly_name', None),
-                        room=None,
-                        type=getattr(DeviceType, device_type),
-                    )
-                    z2m_devices.append(device)
+                    device_data = {
+                        "device_id": None,
+                        "zigbee_id": device.get('ieee_address', None),
+                        "name": device.get('friendly_name', None),
+                        "room": None,
+                        "type": getattr(DeviceType, device_type)
+                    }
+                    z2m_device = self.create_device(device_data)
+                    z2m_devices.append(z2m_device)
                     break
         
         #Retrieve database devices
         db_devices = self.database_controller.get_devices()
 
-        print(db_devices)
-
         #if there is no devices in the datebase just add devices from z2m to db
         if not db_devices:
             for z2m_device in z2m_devices:
                 self.database_controller.add_device(z2m_device)
+            self.devices = z2m_devices
             return 
 
         # Compare devices and update database if necessary
@@ -75,7 +81,7 @@ class DeviceController():
             found = False
             for db_device in db_devices:
                 if z2m_device.zigbee_id == db_device.zigbee_id:
-                    # Fill out the None fields from the db_device
+                    # Update z2m_device with details from db_device
                     z2m_device.device_id = db_device.device_id
                     z2m_device.room = db_device.room
                     found = True
@@ -85,31 +91,143 @@ class DeviceController():
                 self.database_controller.add_device(z2m_device)
 
         # Update self.devices with newly configured devices
-        for z2m_device in z2m_devices:
-            # Check if device is already in self.devices
-            if not any(device.zigbee_id == z2m_device.zigbee_id for device in self.devices):
-                self.devices.append(z2m_device)
+        self.devices = z2m_devices
 
-    def remind(self, room, remind_conf):
-        #uses its actuator devices to remind the user to take medication, in the given room with the given remind_conf (light color, audio, etc)
-        pass
+        # Split devices into actuators and sensors
+        self.actuators.clear()
+        self.sensors.clear()
 
+        for device in self.devices:
+            if isinstance(device, Actuator):
+                self.actuators.append(device)
+            elif isinstance(device, Sensor):
+                self.sensors.append(device)
+
+    def create_device(self, device_data: Device):
+        '''
+        Creates specific device instances based on the provided device data.
+        Determines the type of device and instantiates the corresponding device class.
+        '''
+        device_type = device_data.type
+        # Map device type to the correct class and instantiate
+        if device_type == DeviceType.RGB_STRIP:
+            return RGBStrip(event_system=self.event_system, **device_data)
+        elif device_type == DeviceType.PIR_SENSOR:
+            return MotionSensor(event_system=self.event_system, **device_data)
+        # Add other device types here
+        else:
+            raise ValueError(f"Unsupported device type: {device_type}")
+
+    def remind(self, remind_configuration):
+        '''
+        Uses the systems actuators to remind the user. The method iterates
+        through all actuators and activates those in the specified room with the 
+        configuration provided (such as light color, audio, blinking, etc.)
+        '''
+        for actuator in self.actuators:
+            if actuator.room == remind_configuration.room:
+                actuator.turn_on()
+
+                if hasattr(actuator, 'set_color') and remind_configuration.color_code:
+                    actuator.set_color(remind_configuration.color_code)
+
+                if hasattr(actuator, 'play_sound') and remind_configuration.sound_file:
+                    actuator.play_sound(remind_configuration.sound_file)
+
+                if hasattr(actuator, 'start_blink') and remind_configuration.blink:
+                    # Check for continuous blinking or blink for a specified number of times
+                    if remind_configuration.blink_times is not None:
+                        actuator.blink_times(remind_configuration.blink_times, remind_configuration.blink_interval)
+                    else:
+                        actuator.start_blink(remind_configuration.blink_interval)
         
-class Device(ABC, DeviceData):
-    def __init__(self, id, zigbee_id, name, room, type, client):
-        super().__init__(id, zigbee_id, name, room, type)
-        self.client = client
+class z2mInteractor(ABC):
+    '''Defines a template for sending and receiving Zigbee messages via the event system.'''
+    def __init__(self, event_system: EventSystem):
+        self.event_system = event_system
+
+    def send(self, topic, payload, zigbee_id):
+        self.event_system.publish(Event.SEND_ZIGBEE, (topic, payload, zigbee_id))
 
     @abstractmethod
-    def receive(self, message):
+    def receive(self, data):
         pass
 
-    def send(self, topic, payload):
-        topic = f"zigbee2mqtt/{self.zigbee_id}/{topic}"
-        payload = json.dumps(payload)
-        self.client.publish(topic, payload)
+class Actuator(Device, z2mInteractor):
+    '''Represents actuator devices, that are capable or turning on and off'''
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.current_state = "OFF"
+        self._blinking = False
+        self._blink_thread = None
+
+    def turn_on(self):
+        self.send("set", {"state": "ON"}, self.zigbee_id)
+        self.current_state = "ON"
+
+    def turn_off(self):
+        self.send("set", {"state": "OFF"}, self.zigbee_id)
+        self.current_state = "OFF"
+
+    def get_state(self):
+        return self.current_state
+    
+    def _blink_thread_method(self, interval, times=None):
+        count = 0
+        while self._blinking and (times is None or count < times):
+            self.turn_on()
+            time.sleep(interval)
+            self.turn_off()
+            time.sleep(interval)
+            count += 1
+        self._blinking = False
+
+    def start_blink(self, interval=1):
+        if not self._blinking:
+            self._blinking = True
+            self._blink_thread = threading.Thread(target=self._blink_thread_method, args=(interval,))
+            self._blink_thread.start()
+
+    def blink_times(self, times, interval=1):
+        if not self._blinking:
+            self._blinking = True
+            self._blink_thread = threading.Thread(target=self._blink_thread_method, args=(interval, times))
+            self._blink_thread.start()
+
+    def stop_blink(self):
+        self._blinking = False
+        if self._blink_thread:
+            self._blink_thread.join()
+            self._blink_thread = None
+    
+class Sensor(Device, z2mInteractor):
+    def __init__(self, **kwargs):
+        super().__init__(id, **kwargs)
+
+class RGBStrip(Actuator):
+    def __init__(self, **kwargs):
+        super().__init__(id, **kwargs)
+        self.current_color = None
+
+    def set_color(self, color):
+        self.send("set", {"color": color}, self.zigbee_id)
+        self.current_color = color
+
+    def get_color(self):
+        return self.current_color
+    
+class MotionSensor(Sensor):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        event_type = getattr(Event, self.type.name, None)
+        self.event_system.subscribe(event_type, self.receive)
+
+    def receive(self, data):
+        print(f"Motion sensor {self.name} received data: {data}")
 
 
+
+'''
 class Actuator(Device):
     def __init__(self, id, zigbee_id, name, room, type, client):
         super().__init__(id, zigbee_id, name, room, type, client)
@@ -190,3 +308,5 @@ class DeviceDiscovery:
 
     def get_devices(self):
         return self.__devices
+
+'''

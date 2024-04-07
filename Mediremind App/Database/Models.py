@@ -87,6 +87,9 @@ class AlertConfiguration:
     color_code: str
     sound_file: str
     room: Room
+    blink: bool = False
+    blink_interval: float = 1.0  # seconds
+    blink_times: int = None
 
     def from_json(json_data):
         return AlertConfiguration(**json_data)
