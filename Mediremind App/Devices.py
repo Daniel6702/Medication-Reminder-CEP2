@@ -80,7 +80,7 @@ class DeviceController():
         for z2m_device in z2m_devices:
             found = False
             for db_device in db_devices:
-                if z2m_device.zigbee_id == db_device.zigbee_id:
+                if z2m_device.zigbee_id == db_device.zigbee_id and db_device.room is not None:
                     # Update z2m_device with details from db_device
                     z2m_device.device_id = db_device.device_id
                     z2m_device.room = db_device.room

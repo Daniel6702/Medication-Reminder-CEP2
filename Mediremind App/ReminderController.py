@@ -1,48 +1,79 @@
 from enum import Enum
 from EventSystem import Event
 from Database.DataBaseManager import DatabaseManager
+from abc import ABC, abstractmethod
+from EventSystem import EventSystem
+import datetime
+from Devices import DeviceController
 
-class State(Enum):
-    IDLE = 1
-    ACTIVE = 2
-    MEDICATION_TAKEN = 3
-    MEDICATION_MISSED = 4
-    ALERT = 5 
+class State(ABC):
+    def __init__(self, reminder_system):
+        self.reminder_system = reminder_system
 
-class UserPresenceController():
-    def __init__(self, motion_sensors):
+    @abstractmethod
+    def handle(self):
         pass
+
+class IdleState(State):
+    def handle(self):
+        # Idle state logic, waiting for the next medication time.
+        print("System is idle.")
+
+class ActiveState(State):
+    def handle(self):
+        # Active state logic, checking if medication is taken.
+        if self.reminder_system.is_medication_time():
+            self.reminder_system.change_state(MedicationMissedState(self.reminder_system))
+        else:
+            self.reminder_system.change_state(IdleState(self.reminder_system))
+
+class MedicationTakenState(State):
+    def handle(self):
+        # Medication taken logic.
+        print("Medication has been taken.")
+        # Switch to idle after medication is taken.
+        self.reminder_system.change_state(IdleState(self.reminder_system))
+
+class MedicationMissedState(State):
+    def handle(self):
+        # Medication missed logic.
+        print("Medication missed, alerting.")
+        self.reminder_system.change_state(AlertState(self.reminder_system))
+
+class AlertState(State):
+    def handle(self):
+        # Alerting logic.
+        print("Alerting the user.")
+        self.reminder_system.send_alert()
+        self.reminder_system.change_state(IdleState(self.reminder_system))
+
+class ReminderSystem:
+    def __init__(self, database_controller: DatabaseManager, event_system: EventSystem, device_controller: DeviceController):
+        self.state = IdleState(self)
+        self.event_system = event_system
+        self.database_controller = database_controller
+        self.device_controller = device_controller
+
+    def change_state(self, state):
+        self.state = state
+        self.state.handle()
 
     def update(self):
-        pass
+        self.state.handle()
 
-class AlertController():
-    def __init__(self, alert_configuration, actuator_devices):
-        pass
+    def is_medication_time(self):
+        return False
 
-    def update(self):
-        pass
 
-class MedicationIntakeMonitor():
-    pass
 
+
+
+'''
 class ReminderController():
     def __init__(self, database_controller: DatabaseManager):
         self.state = State.IDLE
         self.database_controller = database_controller
         self.device_controller = None
-
-    def update(self):
-        if self.state == State.IDLE:
-            self.idle()
-        elif self.state == State.ACTIVE:
-            self.active()
-        elif self.state == State.MEDICATION_TAKEN:
-            self.medication_taken()
-        elif self.state == State.MEDICATION_MISSED:
-            self.medication_missed()
-        elif self.state == State.ALERT:
-            self.alert()
     
     def idle(self):
         #check time and medication schedules. Change state to ACTIVE if medication is due
@@ -76,14 +107,4 @@ class ReminderController():
         #if alert resolved change to idle.
         pass
 
-    def handle_event(self, event):
-        if event == Event.MEDICATION_TAKEN:
-            self.state = State.MEDICATION_TAKEN
-        elif event == Event.MEDICATION_MISSED:
-            self.state = State.MEDICATION_MISSED
-        elif event == Event.ALERT:
-            self.state = State.ALERT
-        elif event == Event.IDLE:
-            self.state = State.IDLE
-        elif event == Event.ACTIVE:
-            self.state = State.ACTIVE
+'''
