@@ -1,9 +1,9 @@
 from time import sleep
 from Zigbee.MQTTController import MQTTController
-from EventSystem import EventSystem, Event
+from EventSystem import EventType, event_system
 from Database.DataBaseManager import DatabaseManager
 from config import base_api_url, api_token
-from ReminderController import ReminderController
+from ReminderController import ReminderSystem
 from Devices import DeviceController
 
 '''
@@ -17,15 +17,14 @@ Dependencies:
 class MainSystem():
     '''Central class of the system that integrates the varioues components and controllers, and allows them to work together.'''
     def __init__(self):
-        self.event_system = EventSystem()
-        self.mqtt_controller = MQTTController(self.event_system)
+        self.mqtt_controller = MQTTController()
         self.database_controller = DatabaseManager(base_api_url,api_token)
         self.device_controller = DeviceController(self.database_controller)
-        self.reminder_system_controller = ReminderController(self.database_controller)
+        self.reminder_system_controller = ReminderSystem(self.database_controller, self.device_controller)
 
     def setup_connections(self):
         '''Sets up necessary connections and subscriptions between different components of the system'''
-        self.event_system.subscribe(Event.DEVICE_DISCOVERY, self.device_controller.get_devices)
+        pass
     
     def start(self):
         '''Starts the main workflow of the system. It sets up connections, starts the MQTT controller, and enters the main loop.'''

@@ -6,6 +6,9 @@ from . import Models
 import threading
 import time
 from config import AUTO_UPDATE, UPDATE_TIME
+from EventSystem import event_system, EventType
+from dataclasses import asdict, is_dataclass
+from enum import Enum
 
 class HeucodEventSerializer:
     @staticmethod
@@ -16,66 +19,53 @@ class HeucodEventSerializer:
     def deserialize(json_data: str) -> HeucodEvent:
         return HeucodEvent.from_json(json_data)
 
-class DatabaseManager:
+class EnhancedJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, Enum):
+            return o.value  # Convert Enum to its value
+        if is_dataclass(o):
+            return asdict(o)  # Convert dataclass to dict
+        return super().default(o)
+
+class DatabaseManager():
     '''
     Manages interactions with the database. Responsible for sending events, 
     retrieving medication schedules, MQTT configurations, and device details.
     '''
-    def __init__(self, base_api_url: str, api_token: str):
-        if base_api_url.endswith('/'):
-            self.base_api_url = base_api_url[:-1]
-        else:
-            self.base_api_url = base_api_url
-        self.api_token = api_token
+    class EventHandler():
+        '''subscribes to various types of events and delegates the handling to the DatabaseManager methods.
+        For instance, when a component makes a database request, this event handler, having subscribed to such requests, 
+        executes the corresponding database method. It then publishes the response, 
+        to which the requesting component is already subscribed, thus completing the communication cycle.'''
+        def __init__(self, database_manager: 'DatabaseManager'):
+            self.database_manager = database_manager
+            event_system.subscribe(EventType.ADD_DEVICE, self.database_manager.add_device)
+            event_system.subscribe(EventType.HEUCOD_EVENT, self.database_manager.send_heucod_event)
+            event_system.subscribe(EventType.UPDATE_DB_INSTANCE, self.database_manager.instance.update)
+            event_system.subscribe(EventType.UPDATE_DB_ATTRIBUTE, self.database_manager.instance.update_attribute)
+            event_system.subscribe(EventType.REQUEST_SCHEDULES, self.make_request(self.database_manager.get_medication_schedules, self.database_manager.instance.medication_schedules,EventType.RESPONSE_SCHEDULES))
+            event_system.subscribe(EventType.REQUEST_DEVICES, self.make_request(self.database_manager.get_devices, self.database_manager.instance.devices, EventType.RESPONSE_DEVICES))
+            event_system.subscribe(EventType.REQUEST_MQTT_CONF, self.make_request(self.database_manager.get_mqtt_configuration, self.database_manager.instance.mqtt_configuration, EventType.RESPONSE_MQTT_CONF))
+            event_system.subscribe(EventType.REQUEST_ALERT_CONFS, self.make_request(self.database_manager.get_alert_configuration, self.database_manager.instance.alert_configurations, EventType.RESPONSE_ALERT_CONFS))
+            event_system.subscribe(EventType.REQUEST_ROOMS,self.make_request(self.database_manager.get_rooms, self.database_manager.instance.rooms, EventType.RESPONSE_ROOMS))
 
-        #An internal instance of the DatabaseManager for managing data.
-        self.instance = DatabaseManager.Instance(self)
-
-    def send_heucod_event(self, heucod_event: Union[HeucodEvent, List[HeucodEvent]]) -> list[requests.Response]:
-        headers = {'Authorization': f'Token {self.api_token}', 'Content-Type': 'application/json'}
-
-        if not isinstance(heucod_event, list):
-            heucod_event = [heucod_event]
-
-        responses = []
-        for event in heucod_event:
-            serialized_data = HeucodEventSerializer.serialize(event)
-            response = requests.post(self.base_api_url + '/api/heucod-event/', data=serialized_data, headers=headers)
-            responses.append(response)
-
-        return responses
-    
-    def get_medication_schedules(self) -> List[Models.MedicationSchedule]:
-        headers = {'Authorization': f'Token {self.api_token}'}
-        response = requests.get(self.base_api_url + '/api/medication-schedule/', headers=headers)
-        schedules = []
-        for schedule in response.json():
-            schedules.append(Models.MedicationSchedule.from_json(schedule))
-        return schedules
-    
-    def get_mqtt_configuration(self) -> Models.MQTTConfiguration:
-        headers = {'Authorization': f'Token {self.api_token}'}
-        response = requests.get(self.base_api_url + '/api/mqtt-configuration/', headers=headers)
-        return Models.MQTTConfiguration.from_json(response.json())
-    
-    def get_alert_configuration(self) -> List[Models.AlertType]:
-        pass
-
-    def get_rooms(self) -> List[Models.Room]:
-        pass
-
-    def get_devices(self) -> List[Models.Device]:
-        headers = {'Authorization': f'Token {self.api_token}'}
-        response = requests.get(self.base_api_url + '/api/device/', headers=headers)
-        devices = []
-        for device in response.json():
-            devices.append(Models.Device.from_json(device))
-        return devices
-    
-    def add_device(self, device: Models.Device):
-        pass
-
+        def make_request(self, new_method, old_method, response_type):
+            '''When making a db request you can choose between fetching new data
+            or using existing data based on the request type "new" or "old". 
+            "new" performs an api call, "old" retrieves from the "Instance" class'''
+            def request(data='old'):
+                if data == 'new':
+                    result = new_method()
+                else:  
+                    result = old_method
+                event_system.publish(response_type, result)
+            return request
+        
     class Instance:
+        '''       
+        Represents an instance of the database state within the DatabaseManager. 
+        Maintains local copies of various data elements and can update them.
+        '''
         def __init__(self, database_manager: 'DatabaseManager'):
             self.__database_manager = database_manager
             self.medication_schedules = None
@@ -93,9 +83,88 @@ class DatabaseManager:
                 self.update()
                 time.sleep(UPDATE_TIME)
 
+        def update_attribute(self, attribute_name: str):
+            update_methods = {
+                "medication_schedules": self.__database_manager.get_medication_schedules,
+                "alert_configurations": self.__database_manager.get_alert_configuration,
+                "mqtt_configuration": self.__database_manager.get_mqtt_configuration,
+                "rooms": self.__database_manager.get_rooms,
+                "devices": self.__database_manager.get_devices,
+            }
+
+            if attribute_name in update_methods:
+                updated_value = update_methods[attribute_name]()
+                setattr(self, attribute_name, updated_value)
+            else:
+                raise ValueError(f"Unknown attribute: {attribute_name}")
+
         def update(self):
             self.medication_schedules = self.__database_manager.get_medication_schedules()
             self.alert_configurations = self.__database_manager.get_alert_configuration()
             self.mqtt_configuration = self.__database_manager.get_mqtt_configuration()
             self.rooms = self.__database_manager.get_rooms()
             self.devices = self.__database_manager.get_devices()
+            
+    def __init__(self, base_api_url: str, api_token: str):
+        self.base_api_url = base_api_url
+        self.headers= {'Authorization': f'Token {api_token}'}
+        self.instance = DatabaseManager.Instance(self)
+        self.event_handler = DatabaseManager.EventHandler(self)
+
+    def get_medication_schedules(self) -> List[Models.MedicationSchedule]:
+        response = requests.get(self.base_api_url + '/api/medication-schedule/', headers=self.headers)
+        schedules = []
+        for schedule in response.json():
+            schedules.append(Models.MedicationSchedule.from_json(schedule))
+        return schedules
+    
+    def get_mqtt_configuration(self) -> Models.MQTTConfiguration:
+        response = requests.get(self.base_api_url + '/api/mqtt-configuration/', headers=self.headers)
+        return Models.MQTTConfiguration.from_json(response.json())
+    
+    def get_alert_configuration(self) -> List[Models.AlertType]:
+        pass
+
+    def get_rooms(self) -> List[Models.Room]:
+        pass
+
+    def send_heucod_event(self, heucod_event: Union[HeucodEvent, List[HeucodEvent]]) -> list[requests.Response]:
+        headers = {**self.headers, 'Content-Type': 'application/json'}
+        if not isinstance(heucod_event, list):
+            heucod_event = [heucod_event]
+        responses = []
+        for event in heucod_event:
+            serialized_data = HeucodEventSerializer.serialize(event)
+            response = requests.post(self.base_api_url + '/api/heucod-event/', data=serialized_data, headers=headers)
+            responses.append(response)
+
+        return responses
+
+    def get_devices(self) -> List[Models.Device]:
+        response = requests.get(self.base_api_url + '/api/device/', headers=self.headers)
+        devices = []
+        for device in response.json():
+            devices.append(Models.Device.from_json(device))
+        return devices
+    
+    def add_device(self, device: Models.Device):
+        # Serialize the device dataclass to a JSON string
+        serialized_device = json.dumps(device, cls=EnhancedJSONEncoder)
+
+        # Make the POST request to the API endpoint
+        response = requests.post(
+            self.base_api_url + '/api/device/', 
+            data=serialized_device, 
+            headers={**self.headers, 'Content-Type': 'application/json'}
+        )
+
+        # Error handling
+        if response.status_code == 201:
+            print("Device successfully added.")
+        else:
+            print("Error adding device:", response.text)
+
+        return response
+
+
+    

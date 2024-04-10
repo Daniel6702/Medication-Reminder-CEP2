@@ -5,7 +5,7 @@ from Database.Models import DeviceType
 from Database.DataBaseManager import DatabaseManager
 import uuid
 from config import DEVICE_TYPES
-from EventSystem import EventSystem, Event
+from EventSystem import EventType, event_system
 import time
 import threading
 
@@ -36,13 +36,16 @@ class DeviceController():
     and use this information to draw conclusions, such as determining occupancy.
     Actuator devices can sent z2m message. To for instance turning on or off a light.
     '''
-    def __init__(self, database_controller: DatabaseManager, event_system: EventSystem):
+    def __init__(self, database_controller: DatabaseManager):
         self.database_controller = database_controller
-        self.event_system = event_system
         self.devices = []
         self.actuators = []
         self.sensors = []
+        event_system.subscribe(EventType.RESPONSE_DEVICES,self.get_db_devices)
+        event_system.subscribe(EventType.DEVICE_DISCOVERY, self.get_devices)
 
+    def get_db_devices(self, devices: list): self.db_devices = devices
+    
     def get_devices(self, message: list[dict]):
         '''
         Subscribed to the EVENT_DISCOVERY event, occurs on initialization of system. 
@@ -65,10 +68,17 @@ class DeviceController():
                     z2m_device = self.create_device(device_data)
                     z2m_devices.append(z2m_device)
                     break
-        
-        #Retrieve database devices
-        db_devices = self.database_controller.get_devices()
 
+        event_system.publish(EventType.REQUEST_DEVICES,"new")
+        #print("Devices: ")
+
+        #print(self.db_devices)
+        #print(z2m_devices)
+        print("hej")
+        print(z2m_devices[0])
+        event_system.publish(EventType.ADD_DEVICE, z2m_devices[0])
+
+        '''
         #if there is no devices in the datebase just add devices from z2m to db
         if not db_devices:
             for z2m_device in z2m_devices:
@@ -102,19 +112,23 @@ class DeviceController():
                 self.actuators.append(device)
             elif isinstance(device, Sensor):
                 self.sensors.append(device)
+        
+        '''
 
     def create_device(self, device_data: Device):
         '''
         Creates specific device instances based on the provided device data.
         Determines the type of device and instantiates the corresponding device class.
         '''
-        device_type = device_data.type
-        # Map device type to the correct class and instantiate
+        device_type = device_data['type']
         if device_type == DeviceType.RGB_STRIP:
-            return RGBStrip(event_system=self.event_system, **device_data)
+            return RGBStrip(**device_data)
         elif device_type == DeviceType.PIR_SENSOR:
-            return MotionSensor(event_system=self.event_system, **device_data)
-        # Add other device types here
+            return MotionSensor(**device_data)
+        elif device_type == DeviceType.VIBRATION_SENSOR:
+            return VibrationSensor(**device_data)
+        elif device_type == DeviceType.SWITCH:
+            return Switch(**device_data)
         else:
             raise ValueError(f"Unsupported device type: {device_type}")
 
@@ -143,11 +157,8 @@ class DeviceController():
         
 class z2mInteractor(ABC):
     '''Defines a template for sending and receiving Zigbee messages via the event system.'''
-    def __init__(self, event_system: EventSystem):
-        self.event_system = event_system
-
     def send(self, topic, payload, zigbee_id):
-        self.event_system.publish(Event.SEND_ZIGBEE, (topic, payload, zigbee_id))
+        event_system.publish(EventType.SEND_ZIGBEE, (topic, payload, zigbee_id))
 
     @abstractmethod
     def receive(self, data):
@@ -202,11 +213,11 @@ class Actuator(Device, z2mInteractor):
     
 class Sensor(Device, z2mInteractor):
     def __init__(self, **kwargs):
-        super().__init__(id, **kwargs)
+        super().__init__(**kwargs)
 
 class RGBStrip(Actuator):
     def __init__(self, **kwargs):
-        super().__init__(id, **kwargs)
+        super().__init__(**kwargs)
         self.current_color = None
 
     def set_color(self, color):
@@ -216,15 +227,33 @@ class RGBStrip(Actuator):
     def get_color(self):
         return self.current_color
     
+    def receive(self, data):
+        pass
+    
 class MotionSensor(Sensor):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        event_type = getattr(Event, self.type.name, None)
-        self.event_system.subscribe(event_type, self.receive)
-
+        event_type = getattr(EventType, self.type.name, None)
+        event_system.subscribe(event_type, self.receive)
+        
     def receive(self, data):
         print(f"Motion sensor {self.name} received data: {data}")
 
+class VibrationSensor(Sensor):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        event_type = getattr(EventType, self.type.name, None)
+        event_system.subscribe(event_type, self.receive)
+        
+    def receive(self, data):
+        print(f"Motion sensor {self.name} received data: {data}")
+
+class Switch(Actuator):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def receive(self, data):
+        pass
 
 
 '''

@@ -1,4 +1,4 @@
-from EventSystem import EventSystem, Event
+from EventSystem import EventType, event_system
 from .Zigbee2mqttClient import Cep2Zigbee2mqttMessage, Cep2Zigbee2mqttMessageType
 from dataclasses import asdict
 import json
@@ -14,8 +14,6 @@ class EnhancedJSONEncoder(json.JSONEncoder):
 
 class ZigbeeMessageDistributer():
     '''Responsible for processing and routing messages from Zigbee devices through the MQTT broker to the appropriate components within the system.'''
-    def __init__(self, event_system: EventSystem):
-        self.event_system = event_system
 
     def analyze_message(self, message: Cep2Zigbee2mqttMessage):
         '''Analyzes incoming messages from Zigbee2mqtt. Depending on the type of message, it publishes corresponding events to the event system. 
@@ -24,15 +22,15 @@ class ZigbeeMessageDistributer():
             return
         
         if message.type_ == Cep2Zigbee2mqttMessageType.DEVICE_DISCOVERY:
-            self.event_system.publish(Event.DEVICE_DISCOVERY, message.data)
+            event_system.publish(EventType.DEVICE_DISCOVERY, message.data)
 
         elif message.type_ == Cep2Zigbee2mqttMessageType.DEVICE_EVENT:
             message_str = json.dumps(asdict(message), cls=EnhancedJSONEncoder)
             for device_type, rules in DEVICE_TYPES.items():
                 if matches_rules(message_str, rules):
                     print(f"DEVICE_EVENT: {device_type}")
-                    event_type = getattr(Event, device_type)
-                    self.event_system.publish(event_type, message.data)
+                    event_type = getattr(EventType, device_type)
+                    event_system.publish(event_type, message.data)
                     return
             print('Unknown Device')
             

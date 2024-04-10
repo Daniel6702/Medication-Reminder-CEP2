@@ -1,8 +1,7 @@
 from enum import Enum
-from EventSystem import Event
+from EventSystem import EventType, event_system
 from Database.DataBaseManager import DatabaseManager
 from abc import ABC, abstractmethod
-from EventSystem import EventSystem
 import datetime
 from Devices import DeviceController
 
@@ -48,9 +47,8 @@ class AlertState(State):
         self.reminder_system.change_state(IdleState(self.reminder_system))
 
 class ReminderSystem:
-    def __init__(self, database_controller: DatabaseManager, event_system: EventSystem, device_controller: DeviceController):
+    def __init__(self, database_controller: DatabaseManager, device_controller: DeviceController):
         self.state = IdleState(self)
-        self.event_system = event_system
         self.database_controller = database_controller
         self.device_controller = device_controller
 

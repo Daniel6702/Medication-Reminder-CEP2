@@ -8,9 +8,8 @@ class MQTTController():
     Acts as a bridge between MQTT messages and the event system. 
     By distributing the messages to their corresponding handlers.
     '''
-    def __init__(self, event_system):
-        self.event_system = event_system
-        self.distributer = ZigbeeMessageDistributer(self.event_system)
+    def __init__(self):
+        self.distributer = ZigbeeMessageDistributer()
         self._z2m_client = Cep2Zigbee2mqttClient(host=MQTT_BROKER_HOST, port=MQTT_BROKER_PORT, on_message_clbk=self.distributer.analyze_message)
 
     def start(self) -> None:
