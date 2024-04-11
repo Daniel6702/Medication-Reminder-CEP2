@@ -173,10 +173,3 @@ class DatabaseManager():
             print("Error adding device:", response.text)
 
         return response
-
-    
-class DeviceSerializer:
-    @staticmethod
-    def serialize(device) -> str:
-        device_dict = {attr: getattr(device, attr) for attr in dir(device) if not attr.startswith('_') and not callable(getattr(device, attr))}    
-        return json.dumps(device_dict, default=lambda o: o.__dict__ if hasattr(o, '__dict__') else str(o))

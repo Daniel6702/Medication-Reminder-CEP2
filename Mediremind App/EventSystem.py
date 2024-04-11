@@ -31,6 +31,12 @@ class EventType(enum.Enum):
     REQUEST_ROOMS = 24
     RESPONSE_ROOMS = 25
     UPDATE_DB_ATTRIBUTE = 26
+    MOTION_ALERT = 27
+    REMIND_HERE = 28
+    MEDICATION_TAKEN = 29
+    REMIND_EVERYWHERE = 30
+    NOTIFY_CAREGIVER = 31
+    ALERT_RESOLVED = 32
 
 class EventSystem:
     '''

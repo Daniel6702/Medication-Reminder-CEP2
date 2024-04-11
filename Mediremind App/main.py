@@ -35,7 +35,7 @@ class MainSystem():
     def loop(self):
         '''Main loop of the system, continuously updating the reminder system'''
         while True:
-            #self.reminder_system_controller.update()
+            self.reminder_system_controller.update()
             sleep(1)
 
 if __name__ == "__main__":
