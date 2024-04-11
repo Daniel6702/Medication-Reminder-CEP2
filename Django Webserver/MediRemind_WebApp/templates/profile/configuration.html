@@ -38,7 +38,7 @@
     {% if devices %}
         <ul>
             {% for device in devices %}
-                <li>| Name: {{ device.name }} | Type: {{ device.type }} | room: {{ device.room }} |</li>
+                <li>| Name: {{ device.name }} | Type: {{ device.type }} | room: {{ device.room }} | uuid: {{ device.device_id}} | zigbee_id: {{ device.zigbee_id}} | status: {{ device.status}} |</li>
                 <!-- Add more details as needed -->
             {% endfor %}
         </ul>

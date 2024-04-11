@@ -35,9 +35,9 @@ class Room(models.Model):
     
 class Device(models.Model):
     DEVICE_TYPES = (
-        ('PIR', 'Passive Infrared'),
-        ('VIB', 'Vibration'),
-        ('RGB', 'RGB Light'),
+        ('PIR_SENSOR', 'Passive Infrared'),
+        ('VIBRATION_SENSOR', 'Vibration'),
+        ('RGB_STRIP', 'RGB Light'),
         ('SWITCH', 'Switch'),
     )
 
@@ -45,7 +45,7 @@ class Device(models.Model):
     device_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     zigbee_id = models.CharField(max_length=50)
     name = models.CharField(max_length=100)
-    type = models.CharField(max_length=6, choices=DEVICE_TYPES)
+    type = models.CharField(max_length=100, choices=DEVICE_TYPES)
     status = models.CharField(max_length=50)
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='devices', null=True, blank=True)
 
@@ -64,6 +64,13 @@ class AlertConfiguration(models.Model):
     color_code = models.CharField(max_length=7, blank=True)  # For RGB color code like '#FF5733'
     sound_file = models.FileField(upload_to='alerts/sounds/', blank=True)
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='alert_configurations')
+
+    blink = models.BooleanField(default=False)
+    blink_interval = models.FloatField(default=1.0) 
+    blink_times = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return self.alert_id
     
 class MQTTConfiguration(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='mqtt_configurations')

@@ -122,11 +122,19 @@ class DatabaseManager():
         response = requests.get(self.base_api_url + '/api/mqtt-configuration/', headers=self.headers)
         return Models.MQTTConfiguration.from_json(response.json())
     
-    def get_alert_configuration(self) -> List[Models.AlertType]:
-        pass
+    def get_alert_configuration(self) -> list[Models.AlertType]:
+        response = requests.get(self.base_api_url + '/api/alert-configuration/', headers=self.headers)
+        alert_confs = []
+        for x in response.json():
+            alert_confs.append(Models.AlertConfiguration.from_json(x))
+        return alert_confs
 
-    def get_rooms(self) -> List[Models.Room]:
-        pass
+    def get_rooms(self) -> list[Models.Room]:
+        response = requests.get(self.base_api_url + '/api/room/', headers=self.headers)
+        rooms = []
+        for room in response.json():
+            rooms.append(Models.Room.from_json(room))
+        return rooms
 
     def send_heucod_event(self, heucod_event: Union[HeucodEvent, List[HeucodEvent]]) -> list[requests.Response]:
         headers = {**self.headers, 'Content-Type': 'application/json'}
@@ -148,17 +156,17 @@ class DatabaseManager():
         return devices
     
     def add_device(self, device: Models.Device):
-        # Serialize the device dataclass to a JSON string
+        if hasattr(device, 'status') and device.status is None:
+            device.status = 'Default status'
+
         serialized_device = json.dumps(device, cls=EnhancedJSONEncoder)
 
-        # Make the POST request to the API endpoint
         response = requests.post(
             self.base_api_url + '/api/device/', 
             data=serialized_device, 
             headers={**self.headers, 'Content-Type': 'application/json'}
         )
 
-        # Error handling
         if response.status_code == 201:
             print("Device successfully added.")
         else:
@@ -166,5 +174,9 @@ class DatabaseManager():
 
         return response
 
-
     
+class DeviceSerializer:
+    @staticmethod
+    def serialize(device) -> str:
+        device_dict = {attr: getattr(device, attr) for attr in dir(device) if not attr.startswith('_') and not callable(getattr(device, attr))}    
+        return json.dumps(device_dict, default=lambda o: o.__dict__ if hasattr(o, '__dict__') else str(o))

@@ -19,8 +19,8 @@ class MainSystem():
     def __init__(self):
         self.mqtt_controller = MQTTController()
         self.database_controller = DatabaseManager(base_api_url,api_token)
-        self.device_controller = DeviceController(self.database_controller)
-        self.reminder_system_controller = ReminderSystem(self.database_controller, self.device_controller)
+        self.device_controller = DeviceController()
+        self.reminder_system_controller = ReminderSystem(self.device_controller)
 
     def setup_connections(self):
         '''Sets up necessary connections and subscriptions between different components of the system'''

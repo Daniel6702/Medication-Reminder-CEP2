@@ -47,10 +47,22 @@ class AlertState(State):
         self.reminder_system.change_state(IdleState(self.reminder_system))
 
 class ReminderSystem:
-    def __init__(self, database_controller: DatabaseManager, device_controller: DeviceController):
+    def __init__(self, device_controller: DeviceController):
+        self.setup_connections()
         self.state = IdleState(self)
-        self.database_controller = database_controller
         self.device_controller = device_controller
+        event_system.publish(EventType.REQUEST_ROOMS,'new')
+        event_system.publish(EventType.REQUEST_ALERT_CONFS,'new')
+
+    def setup_connections(self):
+        event_system.subscribe(EventType.RESPONSE_ROOMS,self.get_rooms)
+        event_system.subscribe(EventType.RESPONSE_ALERT_CONFS,self.get_alert_configurations)
+
+    def get_rooms(self, rooms):
+        print(rooms)
+
+    def get_alert_configurations(self, alert_configurations):
+        print(f"Alert confs: {alert_configurations}")
 
     def change_state(self, state):
         self.state = state

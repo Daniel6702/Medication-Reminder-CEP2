@@ -36,8 +36,7 @@ class DeviceController():
     and use this information to draw conclusions, such as determining occupancy.
     Actuator devices can sent z2m message. To for instance turning on or off a light.
     '''
-    def __init__(self, database_controller: DatabaseManager):
-        self.database_controller = database_controller
+    def __init__(self):
         self.devices = []
         self.actuators = []
         self.sensors = []
@@ -68,29 +67,21 @@ class DeviceController():
                     z2m_device = self.create_device(device_data)
                     z2m_devices.append(z2m_device)
                     break
+        
+        event_system.publish(EventType.REQUEST_DEVICES,"new")  
 
-        event_system.publish(EventType.REQUEST_DEVICES,"new")
-        #print("Devices: ")
-
-        #print(self.db_devices)
-        #print(z2m_devices)
-        print("hej")
-        print(z2m_devices[0])
-        event_system.publish(EventType.ADD_DEVICE, z2m_devices[0])
-
-        '''
         #if there is no devices in the datebase just add devices from z2m to db
-        if not db_devices:
+        if not self.db_devices or self.db_devices == []:
             for z2m_device in z2m_devices:
-                self.database_controller.add_device(z2m_device)
+                event_system.publish(EventType.ADD_DEVICE, z2m_device)
             self.devices = z2m_devices
             return 
 
         # Compare devices and update database if necessary
         for z2m_device in z2m_devices:
             found = False
-            for db_device in db_devices:
-                if z2m_device.zigbee_id == db_device.zigbee_id and db_device.room is not None:
+            for db_device in self.db_devices:
+                if z2m_device.zigbee_id == db_device.zigbee_id:
                     # Update z2m_device with details from db_device
                     z2m_device.device_id = db_device.device_id
                     z2m_device.room = db_device.room
@@ -98,10 +89,10 @@ class DeviceController():
                     break
             if not found:
                 # Device is in z2m but not in DB, add it to the database
-                self.database_controller.add_device(z2m_device)
+                event_system.publish(EventType.ADD_DEVICE, z2m_device)
 
         # Update self.devices with newly configured devices
-        self.devices = z2m_devices
+        self.devices = [device for device in z2m_devices if device.room is not None]
 
         # Split devices into actuators and sensors
         self.actuators.clear()
@@ -113,8 +104,6 @@ class DeviceController():
             elif isinstance(device, Sensor):
                 self.sensors.append(device)
         
-        '''
-
     def create_device(self, device_data: Device):
         '''
         Creates specific device instances based on the provided device data.

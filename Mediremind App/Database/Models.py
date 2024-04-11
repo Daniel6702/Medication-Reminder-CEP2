@@ -50,7 +50,8 @@ class MQTTConfiguration:
 
 @dataclass
 class Room:
-    id: int
+    room_id: str
+    user: str
     name: str
     connected_rooms: list
 
@@ -82,7 +83,8 @@ class AlertType(Enum):
 
 @dataclass
 class AlertConfiguration:
-    id: int
+    alert_id: str
+    user: str
     alert_type: AlertType
     color_code: str
     sound_file: str
