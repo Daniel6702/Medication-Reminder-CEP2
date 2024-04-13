@@ -1,8 +1,21 @@
-# To Do
+## **TO DO**
 
 https://github.com/Daniel6702/Medication-Reminder-CEP2/issues
 
-# Useful Commands
+## **Tail Scale**
+- **download**
+```shell
+https://tailscale.com/download
+```
+- **login**
+```shell
+cep2project2024@gmail.com
+cep2project
+```
+
+- **Add your device to the 'pedersendaniel3561@gmail.com network'**
+
+- **Pi ip: 192.168.0.211**
 
 ## **Web Server**
 
@@ -33,7 +46,13 @@ TESTUSER1
 p8uaDACb5e.iS$i
 ```
 
-- **Deactivate Environment:**
+- **Virtual Python Environment:**
+
+Activate (Linux)
+```shell
+source myvenv/bin/activate
+```
+Deactivate 
 ```shell
 deactivate
 ```
