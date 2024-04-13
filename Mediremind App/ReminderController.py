@@ -3,7 +3,6 @@ from EventSystem import EventType, event_system
 from Database.DataBaseManager import DatabaseManager
 from abc import ABC, abstractmethod
 import datetime
-from Devices import DeviceController
 
 '''
 This Python module defines the core logic of the remind mechanisms. The system is structured around a state machine pattern,
@@ -12,10 +11,9 @@ allowing it to transition between various states based on medication schedules, 
 
 class ReminderSystem:
     '''Initializes the system state, handles state changes. Retrieves data from the db through events'''
-    def __init__(self, device_controller: DeviceController):
+    def __init__(self):
         self.setup_connections()
         self.state = IdleState(self)
-        self.device_controller = device_controller
         event_system.publish(EventType.REQUEST_ROOMS,'new')
         event_system.publish(EventType.REQUEST_ALERT_CONFS,'new')
         event_system.publish(EventType.REQUEST_SCHEDULES,'new')

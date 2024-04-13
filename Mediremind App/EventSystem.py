@@ -37,6 +37,8 @@ class EventType(enum.Enum):
     REMIND_EVERYWHERE = 30
     NOTIFY_CAREGIVER = 31
     ALERT_RESOLVED = 32
+    REQUEST_CAREGIVER = 33
+    RESPONSE_CAREGIVER = 34
 
 class EventSystem:
     '''
