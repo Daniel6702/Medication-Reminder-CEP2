@@ -2,7 +2,13 @@ from rest_framework import serializers
 from .models import HeucodEvent
 from .models import MedicationSchedule
 from .models import MQTTConfiguration
-from .models import Room, Device, AlertConfiguration
+from .models import Room, Device, AlertConfiguration, Notification
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'
 
 class RoomSerializer(serializers.ModelSerializer):
     class Meta:

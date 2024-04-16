@@ -2,10 +2,9 @@
 This is a testing file for the database integration
 '''
 from DataBaseManager import DatabaseManager
-from heucod import HeucodEvent
-from datetime import datetime
 import uuid
 
+'''
 #Create timestamp
 timestamp_str = "2024-03-14T10:00:00"
 timestamp_obj = datetime.strptime(timestamp_str, "%Y-%m-%dT%H:%M:%S")
@@ -62,22 +61,24 @@ environmental_data_event = HeucodEvent(
     value="45",
     unit="%"
 )
-
+'''
 # API URL and token for accessing the database service.
 base_api_url = 'http://localhost:8000'
 api_token = '43ac84fbf3d368611f60dd24d878fe9f6b5ce635' #Specific for the user
 
 # Initialize a database manager with the given API URL and token.
-db_manager = DatabaseManager(base_api_url, api_token)
+#db_manager = DatabaseManager(base_api_url, api_token)
+
+print("Hello")
 
 # Send the HeucodEvents to the database and store the response.
 # send_event can take a single HeucodEvent or a list of HeucodEvents
 #response = db_manager.send_heucod_event([sensor_data_event, patient_alert_event, device_status_event, environmental_data_event]) 
 
 #medication_schedules = db_manager.get_medication_schedules()
-conf = db_manager.get_mqtt_configuration()
+#conf = db_manager.get_mqtt_configuration()
 
-print(conf)
+#print(conf)
 
 #if isinstance(response, list):
 #    for x in response:

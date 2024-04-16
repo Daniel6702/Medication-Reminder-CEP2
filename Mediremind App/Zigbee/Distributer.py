@@ -4,7 +4,7 @@ from dataclasses import asdict
 import json
 from config import DEVICE_TYPES
 from enum import Enum
-from Devices import matches_rules
+from Devices.Device_Controller import matches_rules
 
 class EnhancedJSONEncoder(json.JSONEncoder):
     def default(self, o):

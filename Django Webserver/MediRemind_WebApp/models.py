@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 import uuid
+from enum import Enum
 
 def get_default_user_id():
     return User.objects.first().id if User.objects.exists() else None
@@ -82,6 +83,23 @@ class MQTTConfiguration(models.Model):
 
     def __str__(self):
         return f"MQTT Broker at {self.broker_address}"
+    
+class NotificationType(Enum):
+    ROUTINE = "Routine"             
+    IMPORTANT = "Important"          
+    CRITICAL = "Critical"          
+    INFO = "Informational"
+    SYSTEM = "System"
+
+class Notification(models.Model):
+    notification_id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notification')
+    type = models.CharField(max_length=20, choices=[(tag.name, tag.value) for tag in NotificationType])
+    message = models.TextField()
+    timestamp = models.DateTimeField()
+
+    def __str__(self):
+        return f"{self.notification_id} - {self.user}"
 
 class HeucodEvent(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='heucod_events', default=get_default_user_id)

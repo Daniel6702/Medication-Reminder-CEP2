@@ -4,6 +4,7 @@ from Database.DataBaseManager import DatabaseManager
 from abc import ABC, abstractmethod
 import datetime
 
+
 '''
 This Python module defines the core logic of the remind mechanisms. The system is structured around a state machine pattern,
 allowing it to transition between various states based on medication schedules, user interactions, and system events.
@@ -42,10 +43,10 @@ class ReminderSystem:
     def update(self):
         self.state.handle()
 
-    def is_time_passed(time: datetime.datetime):
+    def is_time_passed(self, time: datetime.datetime):
         now = datetime.datetime.now()
         return now.time() >= time.time()
-
+ 
 class State(ABC):
     '''It provides a common interface for all states to implement the handle
     method and allows optional setup procedures for each state.'''
@@ -63,9 +64,10 @@ class State(ABC):
 class IdleState(State):
     '''Represents the idle state of the reminder system. It checks for medication times
     and changes to ActiveState if it's time for medication.'''
+
     def is_medication_time(self):
         for schedule in self.reminder_system.schedules:
-            schedule_time = datetime.datetime.strptime(schedule.reminder_time, "%H:%M:%S").time()
+            schedule_time = datetime.datetime.strptime(schedule.reminder_time, "%H:%M:%S")
             if self.reminder_system.is_time_passed(schedule_time):
                 return True
         return False

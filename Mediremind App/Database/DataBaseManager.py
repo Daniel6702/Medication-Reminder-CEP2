@@ -9,6 +9,7 @@ from config import AUTO_UPDATE, UPDATE_TIME
 from EventSystem import event_system, EventType
 from dataclasses import asdict, is_dataclass
 from enum import Enum
+from datetime import datetime
 
 class HeucodEventSerializer:
     @staticmethod
@@ -25,6 +26,8 @@ class EnhancedJSONEncoder(json.JSONEncoder):
             return o.value  # Convert Enum to its value
         if is_dataclass(o):
             return asdict(o)  # Convert dataclass to dict
+        if isinstance(o, datetime):
+            return o.isoformat()  # Convert datetime to ISO format
         return super().default(o)
 
 class DatabaseManager():
@@ -40,6 +43,7 @@ class DatabaseManager():
         def __init__(self, database_manager: 'DatabaseManager'):
             self.database_manager = database_manager
             event_system.subscribe(EventType.ADD_DEVICE, self.database_manager.add_device)
+            event_system.subscribe(EventType.NOTIFICATION, self.database_manager.send_notification)
             event_system.subscribe(EventType.HEUCOD_EVENT, self.database_manager.send_heucod_event)
             event_system.subscribe(EventType.UPDATE_DB_INSTANCE, self.database_manager.instance.update)
             event_system.subscribe(EventType.UPDATE_DB_ATTRIBUTE, self.database_manager.instance.update_attribute)
@@ -110,6 +114,22 @@ class DatabaseManager():
         self.headers= {'Authorization': f'Token {api_token}'}
         self.instance = DatabaseManager.Instance(self)
         self.event_handler = DatabaseManager.EventHandler(self)
+
+    def send_notification(self, notification: Models.Notification):
+        serialized_notification= json.dumps(notification, cls=EnhancedJSONEncoder)
+
+        response = requests.post(
+            self.base_api_url + '/api/notification/', 
+            data=serialized_notification, 
+            headers={**self.headers, 'Content-Type': 'application/json'}
+        )
+
+        if response.status_code == 201:
+            print("Notification Sent")
+        else:
+            print("Error sending Notification:", response.text)
+
+        return response
 
     def get_medication_schedules(self) -> List[Models.MedicationSchedule]:
         response = requests.get(self.base_api_url + '/api/medication-schedule/', headers=self.headers)

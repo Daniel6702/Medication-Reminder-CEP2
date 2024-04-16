@@ -20,11 +20,10 @@ api_urls = [
     path('api/room/', APIViews.RoomAPIView.as_view(), name='room_api'),
     path('api/device/', APIViews.DeviceAPIView.as_view(), name='device_api'),
     path('api/alert-configuration/', APIViews.AlertConfigurationAPIView.as_view(), name='alert_configuration_api'),
+    path('api/notification/', APIViews.NotificationAPIView.as_view(), name='notification_api'),
 ]
 
-urlpatterns =       \
-    profile_urls +  \
-    api_urls +      \
+urlpatterns = profile_urls + api_urls + \
     [
     path('', home, name='home'),
     path('login/', CustomLoginView.as_view(), name='login'),

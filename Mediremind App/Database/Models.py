@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 from uuid import uuid4
+from datetime import datetime
 
 '''
 Defines the core data structures of system. 
@@ -95,3 +96,17 @@ class AlertConfiguration:
 
     def from_json(json_data):
         return AlertConfiguration(**json_data)
+    
+class NotificationType(Enum):
+    ROUTINE = "Routine"             
+    IMPORTANT = "Important"          
+    CRITICAL = "Critical"          
+    INFO = "Informational"
+    SYSTEM = "System"
+
+@dataclass
+class Notification:
+    notification_id: str
+    type: NotificationType
+    message: str
+    timestamp: datetime

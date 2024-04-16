@@ -23,6 +23,7 @@ from .serializers import MQTTConfigurationSerializer
 from .serializers import RoomSerializer
 from .serializers import DeviceSerializer
 from .serializers import AlertConfigurationSerializer
+from .serializers import NotificationSerializer
 
 #Models
 from .models import Item
@@ -31,6 +32,7 @@ from .models import MQTTConfiguration
 from .models import Room
 from .models import Device
 from .models import AlertConfiguration
+from .models import Notification
 
 #Forms
 from .forms import RegisterForm
@@ -47,6 +49,8 @@ class ProfileViews:
         def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
             context['user'] = self.request.user
+            context['notifications'] = Notification.objects.filter(user=self.request.user)
+            context['schedules'] = MedicationSchedule.objects.filter(user=self.request.user)
 
             return context
         
@@ -188,6 +192,31 @@ class CustomLoginView(LoginView):
         return redirect(self.get_success_url())
     
 class APIViews:
+    class NotificationAPIView(APIView):
+        authentication_classes = [TokenAuthentication]
+        permission_classes = [IsAuthenticated]
+
+        def post(self, request):
+            request.data["user"] = request.user.id  # Add logged in user to the request data
+            serializer = NotificationSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        def get(self, request):
+            notifications = Notification.objects.filter(user=request.user)
+            serializer = NotificationSerializer(notifications, many=True)
+            return Response(serializer.data)
+
+        def delete(self, request, notification_id):
+            try:
+                notification = Notification.objects.get(notification_id=notification_id, user=request.user)
+            except Notification.DoesNotExist:
+                return Response({"message": "Notification not found"}, status=status.HTTP_404_NOT_FOUND)
+            notification.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+    
     class RoomAPIView(APIView):
         authentication_classes = [TokenAuthentication]
         permission_classes = [IsAuthenticated]
