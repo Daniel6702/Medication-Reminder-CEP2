@@ -75,6 +75,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Server_Configuration.wsgi.application'
 
 
+LOGIN_URL = '/login'
+
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -86,15 +88,12 @@ DATABASES = {
         'PASSWORD': 'your_password',
         'HOST': 'localhost',
         'PORT': '3306',
-    }, 
-    'backup': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'django_db',
-        'USER': 'django_user',
-        'PASSWORD': 'your_password',
-        'HOST': '192.168.60.160',
-        'PORT': '3306',
-    }
+        'TEST': {
+            'NAME': 'test_django_db',
+            'USER': 'test_user', 
+            'PASSWORD': 'test_password', 
+        },
+    },
 }
 
 

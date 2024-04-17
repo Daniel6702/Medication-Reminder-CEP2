@@ -1,18 +1,12 @@
 # MediRemind_WebApp/forms.py
 
 from django import forms
-from .models import Item
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import MedicationSchedule
 from .models import MQTTConfiguration
 from .models import Device
 from .models import Room
-
-class ItemForm(forms.ModelForm):
-    class Meta:
-        model = Item
-        fields = ['name', 'description']  # Replace these with the actual fields of your Item model
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField()

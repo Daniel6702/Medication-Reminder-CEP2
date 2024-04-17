@@ -10,10 +10,4 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='MQTTConfiguration',
-            name='mqtt_id',
-            field=models.CharField(max_length=100, primary_key=True),
-            preserve_default=False,
-        ),
     ]

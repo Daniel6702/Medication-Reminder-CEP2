@@ -26,7 +26,6 @@ from .serializers import AlertConfigurationSerializer
 from .serializers import NotificationSerializer
 
 #Models
-from .models import Item
 from .models import MedicationSchedule
 from .models import MQTTConfiguration
 from .models import Room
@@ -38,7 +37,6 @@ from .models import Notification
 from .forms import RegisterForm
 from .forms import MQTTConfigurationForm
 from .forms import MedicationScheduleForm
-from .forms import ItemForm
 from .forms import DeviceForm
 from .forms import RoomForm
 
@@ -152,20 +150,6 @@ class ProfileViews:
 
 def home(request):
     return render(request, 'MediRemind_WebApp/home_page.html')
-
-def show_items(request):
-    items = Item.objects.all()
-    return render(request, 'MediRemind_WebApp/items.html', {'items': items})
-
-def add_item(request):
-    if request.method == 'POST':
-        form = ItemForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('/items')  # Redirect to another page after saving
-    else:
-        form = ItemForm()
-    return render(request, 'MediRemind_WebApp/add_item.html', {'form': form})
 
 def register(request):
     if request.method == "POST":

@@ -6,13 +6,6 @@ from enum import Enum
 def get_default_user_id():
     return User.objects.first().id if User.objects.exists() else None
 
-class Item(models.Model): #TEST
-    name = models.CharField(max_length=100)
-    description = models.TextField()
-
-    def __str__(self):
-        return self.name
-    
 class MedicationSchedule(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='medication_schedules', default=get_default_user_id)
     medication_name = models.CharField(max_length=100)
