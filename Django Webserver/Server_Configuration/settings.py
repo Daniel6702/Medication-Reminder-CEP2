@@ -86,15 +86,16 @@ DATABASES = {
         'NAME': 'django_db',
         'USER': 'django_user',
         'PASSWORD': 'your_password',
-        'HOST': 'localhost',
+        'HOST': '127.0.0.1',  # Change this from 'localhost' to '127.0.0.1'
         'PORT': '3306',
         'TEST': {
             'NAME': 'test_django_db',
             'USER': 'test_user', 
-            'PASSWORD': 'test_password', 
+            'PASSWORD': 'test_password',
         },
     },
 }
+
 
 
 # Password validation
