@@ -43,11 +43,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Configure MySQL
+      run: |
+        sudo apt-get install mysql-client
+        mysql -h 127.0.0.1 -u root -ppassword -e "GRANT ALL PRIVILEGES ON *.* TO 'django_user'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+
     - name: Verify Database
       run: |
-        sudo apt-get update
-        sudo apt-get install --yes mysql-client
-        mysql -h 127.0.0.1 -u django_user -pyour_password -e "SHOW DATABASES;"
+        mysql -h 127.0.0.1 -u root -ppassword -e "SHOW DATABASES;"
 
     - name: Run Tests
       working-directory: ./Django Webserver
