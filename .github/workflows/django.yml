@@ -10,19 +10,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
     services:
-      postgres:
-        image: postgres:13
+      mysql:
+        image: mysql:5.7
         env:
-          POSTGRES_DB: test_django_db
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: django_db
+          MYSQL_USER: django_user
+          MYSQL_PASSWORD: your_password
         ports:
-          - 5432:5432
+          - 3306:3306
         options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     strategy:
       max-parallel: 4
@@ -42,11 +43,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Set up Database
+    - name: Verify Database
       run: |
         sudo apt-get update
-        sudo apt-get install --yes postgresql-client
-        PGPASSWORD=postgres psql -h localhost -U postgres -c 'CREATE DATABASE test_django_db;'
+        sudo apt-get install --yes mysql-client
+        mysql -h 127.0.0.1 -u django_user -pyour_password -e "SHOW DATABASES;"
 
     - name: Run Tests
       working-directory: ./Django Webserver
