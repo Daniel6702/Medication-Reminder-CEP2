@@ -32,6 +32,7 @@ from .models import Room
 from .models import Device
 from .models import AlertConfiguration
 from .models import Notification
+from .models import ManualInput
 
 #Forms
 from .forms import RegisterForm
@@ -39,6 +40,7 @@ from .forms import MQTTConfigurationForm
 from .forms import MedicationScheduleForm
 from .forms import DeviceForm
 from .forms import RoomForm
+from .forms import ManualInputForm
 
 class ProfileViews:
     class HomeView(LoginRequiredMixin, TemplateView):
