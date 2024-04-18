@@ -1,6 +1,21 @@
-# To Do
+## **TO DO**
 
-# Useful Commands
+https://github.com/Daniel6702/Medication-Reminder-CEP2/issues
+
+## **Tail Scale**
+- **download**
+```shell
+https://tailscale.com/download
+```
+- **login**
+```shell
+cep2project2024@gmail.com
+cep2project
+```
+
+- **Add your device to the 'pedersendaniel3561@gmail.com network'**
+
+- **Pi ip: 192.168.0.211**
 
 ## **Web Server**
 
@@ -31,7 +46,13 @@ TESTUSER1
 p8uaDACb5e.iS$i
 ```
 
-- **Deactivate Environment:**
+- **Virtual Python Environment:**
+
+Activate (Linux)
+```shell
+source myvenv/bin/activate
+```
+Deactivate 
 ```shell
 deactivate
 ```
@@ -62,7 +83,7 @@ git pull origin master
 
 - **Install python libraries**
 ```shell
-pip install Django djangorestframework mysqlclient paho-mqtt==1.6.1
+pip install Django djangorestframework mysqlclient paho-mqtt==1.6.1 django-extensions
 ```
 
 ### **File and Directory Operations**

@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib import admin
-from . import views
 from django.contrib.auth.views import LogoutView
+from .views import ProfileViews, APIViews, delete_schedule, home, CustomLoginView, register
 
 profile_urls = [
     path('profile/home', views.ProfileViews.HomeView.as_view(), name='profile_home'),
@@ -14,21 +14,21 @@ profile_urls = [
 ]
 
 api_urls = [
-    path('api/medication-schedule/', views.APIViews.MedicationScheduleAPIView.as_view(), name='medication_schedule_api'),
-    path('api/heucod-events/', views.APIViews.HeucodEventAPIView.as_view(), name='heucod_events'),
-    path('api/delete_schedule/<uuid:schedule_id>/', views.delete_schedule, name='delete_schedule'),
-    path('api/mqtt-configuration/', views.APIViews.MQTTConfigurationAPIView.as_view(), name='mqtt_configuration_api'),
+    path('api/medication-schedule/', APIViews.MedicationScheduleAPIView.as_view(), name='medication_schedule_api'),
+    path('api/heucod-events/', APIViews.HeucodEventAPIView.as_view(), name='heucod_events'),
+    path('api/delete_schedule/<uuid:schedule_id>/', delete_schedule, name='delete_schedule'),
+    path('api/mqtt-configuration/', APIViews.MQTTConfigurationAPIView.as_view(), name='mqtt_configuration_api'),
+    path('api/room/', APIViews.RoomAPIView.as_view(), name='room_api'),
+    path('api/device/', APIViews.DeviceAPIView.as_view(), name='device_api'),
+    path('api/alert-configuration/', APIViews.AlertConfigurationAPIView.as_view(), name='alert_configuration_api'),
+    path('api/notification/', APIViews.NotificationAPIView.as_view(), name='notification_api'),
 ]
 
-urlpatterns =       \
-    profile_urls +  \
-    api_urls +      \
+urlpatterns = profile_urls + api_urls + \
     [
-    path('', views.home, name='home'),
-    path('login/', views.CustomLoginView.as_view(), name='login'),
-    path('items/', views.show_items, name='show_items'),
-    path('add/', views.add_item, name='add_item'),
+    path('', home, name='home'),
+    path('login/', CustomLoginView.as_view(), name='login'),
     path('admin/', admin.site.urls),
-    path('register/', views.register, name='register'),
-    path('logout/', LogoutView.as_view(next_page='login'), name='logout')
-    ]
+    path('register/', register, name='register'),
+    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
+]

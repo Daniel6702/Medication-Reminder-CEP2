@@ -1,0 +1,37 @@
+digraph CombinedMonitoringAndAnalytics {
+    rankdir=TB;
+    node [shape=rect, style=filled, fillcolor=lightgrey];
+    edge [fontsize=10];
+
+    // Nodes
+    start [label="Start", shape=circle, fillcolor=black, width=0.3];
+    readSensorData [label="Read Sensor Data (PIR, Vibration)"];
+    processData [label="Process Sensor Data"];
+    checkForEvents [label="Check for Medication Events", shape=diamond];
+    analyzeData [label="Analyze Data"];
+    identifyPatterns [label="Identify Patterns and Trends"];
+    performCalculations [label="Perform Calculations and Aggregations"];
+    executeControlLogic [label="Execute Local Control Logic (e.g., Visual/Audio Alert)"];
+    generateReports [label="Generate Reports"];
+    deriveInsights [label="Derive Insights"];
+    recommendImprovements [label="Provide Recommendations"];
+    end [label="End", shape=doublecircle, fillcolor=black, width=0.3];
+    collectUserInteractionData [label="collectUserInteractionData"];
+
+    // Edges
+    start -> readSensorData;
+    readSensorData -> processData;
+    processData -> checkForEvents;
+    processData -> collectUserInteractionData;
+    collectUserInteractionData -> analyzeData;
+    checkForEvents -> executeControlLogic [label="Event Detected"];
+    checkForEvents -> readSensorData [label="No Event"];
+    analyzeData -> identifyPatterns;
+    analyzeData -> performCalculations;
+    identifyPatterns -> generateReports;
+    performCalculations -> generateReports;
+    executeControlLogic -> collectUserInteractionData;
+    generateReports -> deriveInsights;
+    deriveInsights -> recommendImprovements;
+    recommendImprovements -> end;
+}

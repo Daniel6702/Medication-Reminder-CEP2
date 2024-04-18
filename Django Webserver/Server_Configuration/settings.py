@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-zt-t$zk%)f1ad+8f9ewd=!!rq3_z#c&vj%f#@#pg$4e#2yk!ql
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.60.160', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['192.168.60.160', 'localhost', '127.0.0.1','192.168.0.211']
 
 # Application definition
 
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'MediRemind_WebApp',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -74,6 +75,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Server_Configuration.wsgi.application'
 
 
+LOGIN_URL = '/login'
+
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -83,18 +86,16 @@ DATABASES = {
         'NAME': 'django_db',
         'USER': 'django_user',
         'PASSWORD': 'your_password',
-        'HOST': '192.168.60.160',
+        'HOST': os.getenv('DB_HOST', 'localhost'),
         'PORT': '3306',
-    }, 
-    'backup': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'django_db',
-        'USER': 'django_user',
-        'PASSWORD': 'your_password',
-        'HOST': '192.168.60.160',
-        'PORT': '3306',
-    }
+        'TEST': {
+            'NAME': 'test_django_db',
+            'USER': 'test_user', 
+            'PASSWORD': 'test_password',
+        },
+    },
 }
+
 
 
 # Password validation

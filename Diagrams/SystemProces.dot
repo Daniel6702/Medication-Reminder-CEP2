@@ -1,0 +1,63 @@
+digraph CombinedSystemProcess {
+    rankdir=TB;
+    node [shape=rect, style=filled, fillcolor=lightgrey];
+    edge [fontsize=10];
+
+    // Starting Point
+    start [label="Start", shape=circle, fillcolor=black, width=0.3];
+
+    // Zigbee Communication
+    receiveZigbeeEvent [label="Receive Zigbee Event"];
+    processZigbeeMessage [label="Process Zigbee2mqtt Message"];
+    delegateTask [label="Delegate Task", shape=diamond];
+
+    // User Presence Detection
+    detectMotion [label="Detect Motion (PIR Sensor)"];
+    identifyRoom [label="Identify Room"];
+    updateUserLocation [label="Update User Location in System"];
+
+    // Vibration Sensor Detection
+    vibrationDetected [label="Vibration Detected"];
+    processVibrationData [label="Process Vibration Data"];
+    checkMedicationIntake [label="Check Medication Intake", shape=diamond];
+    logMedicationEvent [label="Log Medication Event"];
+
+    // Actuator Control Logic
+    controlLogic [label="Control Logic (Schedules, Events)"];
+    determineActuatorAction [label="Determine Actuator Action", shape=diamond];
+    turnOnOff [label="Turn On/Off Actuator"];
+    changeColor [label="Change RGBStrip Color"];
+    
+    // Alerts and Actions
+    triggerLocalizedAlert [label="Trigger Localized Alert"];
+
+    // End Point
+    end [label="End", shape=doublecircle, fillcolor=black, width=0.3];
+
+    // Edges
+    start -> receiveZigbeeEvent;
+    receiveZigbeeEvent -> processZigbeeMessage;
+    processZigbeeMessage -> delegateTask;
+
+    delegateTask -> detectMotion [label="PIR Event"];
+    delegateTask -> vibrationDetected [label="Vibration Event"];
+
+    // User Detection Flow
+    detectMotion -> identifyRoom;
+    identifyRoom -> updateUserLocation;
+    updateUserLocation -> controlLogic;
+    
+    // Vibration Sensor Flow
+    vibrationDetected -> processVibrationData;
+    processVibrationData -> checkMedicationIntake;
+    checkMedicationIntake -> logMedicationEvent [label="Intake Confirmed"];
+    logMedicationEvent -> controlLogic;
+
+    // Control Logic to Actuator Control Flow
+    controlLogic -> triggerLocalizedAlert [label="User Alert"];
+    triggerLocalizedAlert -> determineActuatorAction;
+    determineActuatorAction -> turnOnOff [label="On/Off"];
+    determineActuatorAction -> changeColor [label="Change Color"];
+    turnOnOff -> end;
+    changeColor -> end;
+}

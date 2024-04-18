@@ -1,0 +1,25 @@
+digraph InitialUserInteraction {
+    // Graph style
+    rankdir=TB;
+    node [shape=rect, style=filled, fillcolor=lightgrey];
+    edge [fontsize=10];
+
+    // Nodes
+    start [label="Start", shape=circle, fillcolor=black, width=0.3];
+    visitFrontpage [label="Visit Frontpage"];
+    selectAction [label="Select Action", shape=diamond];
+    login [label="Login"];
+    register [label="Register"];
+    accessHelp [label="Access Help Section (FAQ)"];
+    end [label="End", shape=doublecircle, fillcolor=black, width=0.3];
+
+    // Edges
+    start -> visitFrontpage;
+    visitFrontpage -> selectAction;
+    selectAction -> login [label="Login"];
+    selectAction -> register [label="Register"];
+    selectAction -> accessHelp [label="Help/FAQ"];
+    login -> end;
+    register -> end;
+    accessHelp -> end;
+}

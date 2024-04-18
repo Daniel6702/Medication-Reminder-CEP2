@@ -2,30 +2,43 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.decorators import login_required
-from rest_framework.authtoken.models import Token
 from django.views.decorators.http import require_POST
 from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
+from django.views.generic.list import ListView
+
+#RestAPI
+from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import HeucodEventSerializer
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from .forms import RegisterForm
-from .models import Item
-from .forms import ItemForm
-from django.views.generic.list import ListView
-from .models import MedicationSchedule
-from .forms import MedicationScheduleForm
-from .serializers import MedicationScheduleSerializer
-from .models import MQTTConfiguration
-from .serializers import MQTTConfigurationSerializer
-from .forms import MQTTConfigurationForm
-from .models import ManualInput
-from .forms import ManualInputForm
 
+#Serializers
+from .serializers import HeucodEventSerializer
+from .serializers import MedicationScheduleSerializer
+from .serializers import MQTTConfigurationSerializer
+from .serializers import RoomSerializer
+from .serializers import DeviceSerializer
+from .serializers import AlertConfigurationSerializer
+from .serializers import NotificationSerializer
+
+#Models
+from .models import MedicationSchedule
+from .models import MQTTConfiguration
+from .models import Room
+from .models import Device
+from .models import AlertConfiguration
+from .models import Notification
+
+#Forms
+from .forms import RegisterForm
+from .forms import MQTTConfigurationForm
+from .forms import MedicationScheduleForm
+from .forms import DeviceForm
+from .forms import RoomForm
 
 class ProfileViews:
     class HomeView(LoginRequiredMixin, TemplateView):
@@ -34,6 +47,8 @@ class ProfileViews:
         def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
             context['user'] = self.request.user
+            context['notifications'] = Notification.objects.filter(user=self.request.user)
+            context['schedules'] = MedicationSchedule.objects.filter(user=self.request.user)
 
             return context
         
@@ -46,6 +61,10 @@ class ProfileViews:
             # Getting or creating a token for the user
             token, created = Token.objects.get_or_create(user=self.request.user)
             context['token'] = token
+            context['device_form'] = DeviceForm()
+            context['devices'] = Device.objects.filter(user=self.request.user)
+            context['room_form'] = RoomForm()
+            context['rooms'] = Room.objects.filter(user=self.request.user)
 
             # Getting or creating the MQTT configuration instance for the user
             mqtt_config, created = MQTTConfiguration.objects.get_or_create(
@@ -57,16 +76,38 @@ class ProfileViews:
             return context
 
         def post(self, request, *args, **kwargs):
-            mqtt_config, created = MQTTConfiguration.objects.get_or_create(user=request.user)
-            form = MQTTConfigurationForm(request.POST, instance=mqtt_config)
+            # Initialize both forms
+            mqtt_config, _ = MQTTConfiguration.objects.get_or_create(user=request.user)
+            mqtt_form = MQTTConfigurationForm(request.POST or None, instance=mqtt_config)
+            device_form = DeviceForm(request.POST or None)
+            room_form = RoomForm(request.POST or None)
 
-            if form.is_valid():
-                form.save()
-                # Redirect to a success page or the same configuration page
-                return redirect(reverse('configuration')) 
+            # Check if MQTT configuration form is submitted
+            if 'mqtt_submit' in request.POST:
+                if mqtt_form.is_valid():
+                    mqtt_form.save()
+                    return redirect(reverse('configuration'))  # Adjust the redirect as needed
 
-            # If the form is not valid, re-render the page with the existing form data
-            return self.render_to_response(self.get_context_data(mqtt_form=form))
+            # Check if Device form is submitted
+            elif 'device_submit' in request.POST:
+                if device_form.is_valid():
+                    device = device_form.save(commit=False)
+                    device.user = request.user
+                    device.save()
+                    return redirect(reverse('configuration'))  # Adjust the redirect as needed
+                
+            # Check if Room form is submitted
+            elif 'room_submit' in request.POST:
+                if room_form.is_valid():
+                    room = room_form.save(commit=False)
+                    room.user = request.user
+                    room.save()
+                    return redirect(reverse('configuration'))  # Adjust the redirect as needed
+
+            # If neither or forms are valid, re-render the page with existing form data
+            context = self.get_context_data(mqtt_form=mqtt_form, device_form=device_form, room_form=room_form)
+            return self.render_to_response(context)
+
 
 
     class EventsView(LoginRequiredMixin, TemplateView):
@@ -130,20 +171,6 @@ class ProfileViews:
 def home(request):
     return render(request, 'MediRemind_WebApp/home_page.html')
 
-def show_items(request):
-    items = Item.objects.all()
-    return render(request, 'MediRemind_WebApp/items.html', {'items': items})
-
-def add_item(request):
-    if request.method == 'POST':
-        form = ItemForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('/items')  # Redirect to another page after saving
-    else:
-        form = ItemForm()
-    return render(request, 'MediRemind_WebApp/add_item.html', {'form': form})
-
 def register(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
@@ -169,16 +196,93 @@ class CustomLoginView(LoginView):
         return redirect(self.get_success_url())
     
 class APIViews:
-    class HeucodEventAPIView(APIView):
+    class NotificationAPIView(APIView):
         authentication_classes = [TokenAuthentication]
         permission_classes = [IsAuthenticated]
 
         def post(self, request):
-            serializer = HeucodEventSerializer(data=request.data)
+            request.data["user"] = request.user.id  # Add logged in user to the request data
+            serializer = NotificationSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        def get(self, request):
+            notifications = Notification.objects.filter(user=request.user)
+            serializer = NotificationSerializer(notifications, many=True)
+            return Response(serializer.data)
+
+        def delete(self, request, notification_id):
+            try:
+                notification = Notification.objects.get(notification_id=notification_id, user=request.user)
+            except Notification.DoesNotExist:
+                return Response({"message": "Notification not found"}, status=status.HTTP_404_NOT_FOUND)
+            notification.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    class RoomAPIView(APIView):
+        authentication_classes = [TokenAuthentication]
+        permission_classes = [IsAuthenticated]
+
+        def get(self, request):
+            rooms = Room.objects.filter(user=request.user)
+            serializer = RoomSerializer(rooms, many=True)
+            return Response(serializer.data)
+
+        def post(self, request):
+            serializer = RoomSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save(user=request.user)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        def delete(self, request, room_id):
+            room = Room.objects.get(room_id=room_id)
+            room.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        
+    class DeviceAPIView(APIView):
+        authentication_classes = [TokenAuthentication]
+        permission_classes = [IsAuthenticated]
+
+        def get(self, request):
+            devices = Device.objects.filter(user=request.user)
+            serializer = DeviceSerializer(devices, many=True)
+            return Response(serializer.data)
+
+        def post(self, request):
+            serializer = DeviceSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(user=request.user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        def delete(self, request, device_id):
+            device = Device.objects.get(device_id=device_id)
+            device.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        
+    class AlertConfigurationAPIView(APIView):
+        authentication_classes = [TokenAuthentication]
+        permission_classes = [IsAuthenticated]
+
+        def get(self, request):
+            configs = AlertConfiguration.objects.filter(user=request.user)
+            serializer = AlertConfigurationSerializer(configs, many=True)
+            return Response(serializer.data)
+
+        def post(self, request):
+            serializer = AlertConfigurationSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(user=request.user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        def delete(self, request, config_id):
+            config = AlertConfiguration.objects.get(config_id=config_id)
+            config.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
     class MedicationScheduleAPIView(APIView):
         authentication_classes = [TokenAuthentication]
@@ -191,6 +295,22 @@ class APIViews:
 
         def post(self, request):
             serializer = MedicationScheduleSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(user=request.user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+        def delete(self, request, schedule_id):
+            schedule = MedicationSchedule.objects.get(schedule_id=schedule_id)
+            schedule.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        
+    class HeucodEventAPIView(APIView):
+        authentication_classes = [TokenAuthentication]
+        permission_classes = [IsAuthenticated]
+
+        def post(self, request):
+            serializer = HeucodEventSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save(user=request.user)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -212,8 +332,6 @@ class APIViews:
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        
 
 @require_POST
 def delete_schedule(request, schedule_id):

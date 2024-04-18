@@ -1,0 +1,60 @@
+name: Django CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DB_HOST: 127.0.0.1
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: django_db
+          MYSQL_USER: django_user
+          MYSQL_PASSWORD: your_password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.11]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Configure MySQL
+      run: |
+        sudo apt-get install mysql-client
+        mysql -h 127.0.0.1 -u root -ppassword -e "GRANT ALL PRIVILEGES ON *.* TO 'django_user'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+
+    - name: Verify Database
+      run: |
+        mysql -h 127.0.0.1 -u root -ppassword -e "SHOW DATABASES;"
+
+    - name: Run Tests
+      working-directory: ./Django Webserver
+      run: |
+        python manage.py test
