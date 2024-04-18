@@ -4,13 +4,13 @@ from django.contrib.auth.views import LogoutView
 from .views import ProfileViews, APIViews, delete_schedule, home, CustomLoginView, register
 
 profile_urls = [
-    path('profile/home', views.ProfileViews.HomeView.as_view(), name='profile_home'),
-    path('profile/medication_schedule', views.ProfileViews.MedicationScheduleView.as_view(), name='medication_schedule'),
-    path('profile/configuration', views.ProfileViews.ConfigurationView.as_view(), name='configuration'),
-    path('profile/events', views.ProfileViews.EventsView.as_view(), name='events'),
-    path('profile/data', views.ProfileViews.DataView.as_view(), name='data'),
-    path('profile/settings', views.ProfileViews.SettingsView.as_view(), name='settings'),
-    path('profile/manual_input', views.ProfileViews.ManualInputView.as_view(), name='manual_input'),
+    path('profile/home', ProfileViews.HomeView.as_view(), name='profile_home'),
+    path('profile/medication_schedule', ProfileViews.MedicationScheduleView.as_view(), name='medication_schedule'),
+    path('profile/configuration', ProfileViews.ConfigurationView.as_view(), name='configuration'),
+    path('profile/events', ProfileViews.EventsView.as_view(), name='events'),
+    path('profile/data', ProfileViews.DataView.as_view(), name='data'),
+    path('profile/settings', ProfileViews.SettingsView.as_view(), name='settings'),
+    path('profile/manual_input', ProfileViews.ManualInputView.as_view(), name='manual_input'),
 ]
 
 api_urls = [

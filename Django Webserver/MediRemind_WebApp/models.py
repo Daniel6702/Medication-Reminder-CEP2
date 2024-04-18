@@ -21,7 +21,7 @@ class MedicationSchedule(models.Model):
 class ManualInput(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='manual_inputs', default=get_default_user_id)
     medication_name = models.CharField(max_length=100)
-    dosage = models.number(max_length=100)
+    dosage = models.CharField(max_length=100, default='0 mg')
     time = models.TimeField(default='00:00:00')
     date = models.DateField(auto_now_add=True)
     notes = models.TextField(blank=True, null=True)

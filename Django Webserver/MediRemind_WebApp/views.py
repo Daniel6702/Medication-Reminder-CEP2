@@ -155,6 +155,11 @@ class ProfileViews:
         context = 'manual_input'
         template_name = 'profile/manual_input.html'
 
+        def get_user_medication(self):
+            choices = ManualInput.objects.values_list('medication_name', flat=True).distinct()
+            form = ManualInputForm(choices=choices)
+            return render('profile/manual_input.html', {'form': form})
+
         def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
             context['form'] = ManualInputForm()  # Add the form to the context

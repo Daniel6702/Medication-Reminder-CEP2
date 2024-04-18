@@ -5,14 +5,9 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import MedicationSchedule
 from .models import MQTTConfiguration
-from .models import ManualInput
-
-class ItemForm(forms.ModelForm):
-    class Meta:
-        model = Item
-        fields = ['name', 'description']  # Replace these with the actual fields of your Item model
 from .models import Device
 from .models import Room
+from .models import ManualInput
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField()
@@ -35,9 +30,9 @@ class MedicationScheduleForm(forms.ModelForm):
         model = MedicationSchedule
         fields = ['medication_name', 'reminder_time', 'time_window', 'dosage', 'instructions']
 
-class ManualInputForm(forms.Form):
-    medication_name = forms.CharField(max_length=100)
-    dosage = forms.NumberInput()
+class ManualInputForm(forms.ModelForm):
+    medication_name = forms.CharField(max_length=100) # Change to ChoiceField later
+    dosage = forms.CharField(max_length=100)
     time = forms.TimeField(
         widget=forms.TimeInput(attrs={
             'type': 'time'
@@ -49,7 +44,6 @@ class ManualInputForm(forms.Form):
         }, format='%Y-%m-%d')
     )
     notes = forms.CharField(widget=forms.Textarea, required=False)
-
     class Meta:
         model = ManualInput
         fields = ['medication_name', 'dosage', 'time', 'date', 'notes']
