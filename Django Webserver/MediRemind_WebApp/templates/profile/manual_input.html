@@ -1,0 +1,34 @@
+{% extends 'base_profile.html' %}
+
+{% block profile_content %}
+<header>
+    <h1>Manual Input</h1> 
+    <title>Manual Input</title>
+</header>
+<body>
+    <div>
+    <form method="post">
+        {% csrf_token %}
+        <fieldset>
+            <legend>Manual Input</legend>
+
+            <label for="medication">Medication: </label> <br>
+            {{ form.medication_name }} <br>
+
+            <label for="dosage">Dosage: </label> <br>
+            {{ form.dosage }} <br>
+            
+            <label for="time">Time: </label> <br>
+            {{ form.time }} <br>
+
+            <label for="date">Date: </label> <br>
+            {{ form.date }} <br>
+
+            <label for="notes">Notes: </label> <br>
+            {{ form.notes }} <br> <br>
+
+            <input type="submit" value="Submit">
+        </fieldset>
+    </div>
+</body>
+{% endblock %}

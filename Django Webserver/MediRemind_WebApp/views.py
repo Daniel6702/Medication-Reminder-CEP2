@@ -23,6 +23,8 @@ from .serializers import MedicationScheduleSerializer
 from .models import MQTTConfiguration
 from .serializers import MQTTConfigurationSerializer
 from .forms import MQTTConfigurationForm
+from .models import ManualInput
+from .forms import ManualInputForm
 
 
 class ProfileViews:
@@ -104,6 +106,26 @@ class ProfileViews:
 
     class SettingsView(LoginRequiredMixin, TemplateView):
         template_name = 'profile/settings.html'
+
+    class ManualInputView(LoginRequiredMixin, TemplateView):
+        model = ManualInput
+        context = 'manual_input'
+        template_name = 'profile/manual_input.html'
+
+        def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            context['form'] = ManualInputForm()  # Add the form to the context
+            return context
+        
+        def post(self, request, *args, **kwargs):
+            form = ManualInputForm(request.POST)
+            if form.is_valid():
+                manual_input = form.save(commit=False)
+                manual_input.user = request.user
+                manual_input.save()
+                return redirect(reverse('manual_input'))
+            return self.get(request, *args, **kwargs)
+
 
 def home(request):
     return render(request, 'MediRemind_WebApp/home_page.html')

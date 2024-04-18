@@ -24,6 +24,18 @@ class MedicationSchedule(models.Model):
     def __str__(self):
         return f"{self.medication_name} Schedule for {self.user.username}"
 
+class ManualInput(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='manual_inputs', default=get_default_user_id)
+    medication_name = models.CharField(max_length=100)
+    dosage = models.number(max_length=100)
+    time = models.TimeField(default='00:00:00')
+    date = models.DateField(auto_now_add=True)
+    notes = models.TextField(blank=True, null=True)
+    input_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    
+    def __str__(self):
+        return f"{self.medication_name} Input for {self.user.username}"
+
 class Room(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rooms', null=True, blank=True)
     room_id = models.CharField(max_length=50, primary_key=True)

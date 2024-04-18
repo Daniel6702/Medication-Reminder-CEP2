@@ -6,6 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import MedicationSchedule
 from .models import MQTTConfiguration
+from .models import ManualInput
 
 class ItemForm(forms.ModelForm):
     class Meta:
@@ -32,6 +33,25 @@ class MedicationScheduleForm(forms.ModelForm):
     class Meta:
         model = MedicationSchedule
         fields = ['medication_name', 'reminder_time', 'time_window', 'dosage', 'instructions']
+
+class ManualInputForm(forms.Form):
+    medication_name = forms.CharField(max_length=100)
+    dosage = forms.NumberInput()
+    time = forms.TimeField(
+        widget=forms.TimeInput(attrs={
+            'type': 'time'
+        }, format='%H:%M')
+    )
+    date = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'type': 'date'
+        }, format='%Y-%m-%d')
+    )
+    notes = forms.CharField(widget=forms.Textarea, required=False)
+
+    class Meta:
+        model = ManualInput
+        fields = ['medication_name', 'dosage', 'time', 'date', 'notes']
 
 class MQTTConfigurationForm(forms.ModelForm):
     class Meta:

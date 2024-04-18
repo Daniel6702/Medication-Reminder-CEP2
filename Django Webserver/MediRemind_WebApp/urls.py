@@ -10,6 +10,7 @@ profile_urls = [
     path('profile/events', views.ProfileViews.EventsView.as_view(), name='events'),
     path('profile/data', views.ProfileViews.DataView.as_view(), name='data'),
     path('profile/settings', views.ProfileViews.SettingsView.as_view(), name='settings'),
+    path('profile/manual_input', views.ProfileViews.ManualInputView.as_view(), name='manual_input'),
 ]
 
 api_urls = [
@@ -29,5 +30,5 @@ urlpatterns =       \
     path('add/', views.add_item, name='add_item'),
     path('admin/', admin.site.urls),
     path('register/', views.register, name='register'),
-    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
+    path('logout/', LogoutView.as_view(next_page='login'), name='logout')
     ]
