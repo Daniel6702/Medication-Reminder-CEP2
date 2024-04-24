@@ -19,18 +19,18 @@
                 <h1>Medication Reminder</h1>
                 <h3>{{ user.username }}</h3>
                 <ul>
-                    <li><a href="{% url 'profile_home' %}">Home</a></li>
-                    <li><a href="{% url 'medication_schedule' %}">Medication Schedule</a></li>
-                    <li><a href="{% url 'manual_input' %}">Manual Input</a></li>
-                    <li><a href="{% url 'configuration' %}">Configuration</a></li>
-                    <li><a href="{% url 'events' %}">Events</a></li>
-                    <li><a href="{% url 'data' %}">Data Analysis</a></li>
-                    <li><a href="{% url 'settings' %}">Account Settings</a></li>
+                    <li><a href="{% url 'profile_home' %}" class="sidebar-link">Home</a></li>
+                    <li><a href="{% url 'medication_schedule' %}" class="sidebar-link">Medication Schedule</a></li>
+                    <li><a href="{% url 'manual_input' %}" class="sidebar-link">Manual Input</a></li>
+                    <li><a href="{% url 'configuration' %}" class="sidebar-link">Configuration</a></li>
+                    <li><a href="{% url 'events' %}" class="sidebar-link">Events</a></li>
+                    <li><a href="{% url 'data' %}" class="sidebar-link">Data Analysis</a></li>
+                    <li><a href="{% url 'settings' %}" class="sidebar-link">Account Settings</a></li>
                     <li>
                         <form action="{% url 'logout' %}" method="post">
                             {% csrf_token %}
-                        <button type="submit1">Logout</button>
-                      </form>
+                            <button type="submit" class="sidebar-button">Logout</button>
+                        </form>                        
                     </li>
                 </ul>
             </div>
@@ -40,5 +40,4 @@
             </div>
         </div>
     </body>
-
 </html>

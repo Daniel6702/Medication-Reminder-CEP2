@@ -1,48 +1,90 @@
 /* profile_style.css */
-
-.container {
-    display: flex;
-}
-.sidebar {
-    width: 200px;
-    background-color: #f0f0f0;
-    padding: 10px;
-    height: 100vh;
-}
-.main-content {
-    flex-grow: 1;
-    padding: 20px;
-}
-.sidebar ul {
-    list-style-type: none;
+body, html {
+    margin: 0;
     padding: 0;
 }
-.sidebar ul li a {
-    text-decoration: none;
-    color: black;
-    display: block;
-    padding: 8px;
-    margin-bottom: 5px;
-    background-color: #e0e0e0;
-    border-radius: 5px;
+
+/* Ensure box-sizing includes padding and borders */
+* {
+    box-sizing: border-box;
 }
-.sidebar ul li a:hover {
-    background-color: #d0d0d0;
+/* General container styling */
+.container {
+    display: flex;              /* Use flexbox layout */
 }
 
+/* Sidebar styling */
+.sidebar {
+    width: 200px;               /* Sidebar width */
+    background-color: #f0f0f0;/* Background color */
+    padding: 10px;              /* Padding inside the sidebar */
+    height: 100vh;              /* Full height of the viewport */
+}
+
+/* Main content styling */
+.main-content {
+    flex-grow: 1;               /* Allow main content to grow and take up available space */
+    padding: 20px;              /* Padding around main content */
+}
+
+/* Sidebar list styling */
+.sidebar ul {
+    list-style-type: none;      /* Remove default list style */
+    padding: 0;                 /* Remove default padding */
+}
+
+/* Sidebar link styling */
+.sidebar ul li a {
+    text-decoration: none;      /* Remove underline from links */
+    color: black;             /* Text color */
+    display: block;             /* Display links as block elements */
+    padding: 8px;               /* Padding inside links */
+    margin-bottom: 15px;        /* Margin below links */
+    background-color: #e0e0e0;/* Background color for links */
+    border-radius: 5px;         /* Rounded corners */
+}
+
+/* Sidebar link hover styling */
+.sidebar ul li a:hover {
+    background-color: #d0d0d0;/* Background color on hover */
+}
+
+/* Table styling */
 table {
-    width: 100%;
-    border-collapse: collapse;
+    width: 100%;                /* Full width */
+    border-collapse: collapse;  /* Collapse borders */
 }
 
 th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
+    border: 1px solid #ddd;   /* Border for table cells */
+    padding: 8px;               /* Padding inside table cells */
 }
 
 th {
-    background-color: #f2f2f2;
-    text-align: left;
+    background-color: #f2f2f2;/* Background color for table headers */
+    text-align: left;           /* Left-align text in headers */
 }
 
-tr:nth-child(even) {background-color: #f2f2f2;}
+tr:nth-child(even) {
+    background-color: #f2f2f2;/* Background color for even rows */
+}
+
+/* Logout button styling */
+.sidebar button {
+    text-decoration: none;      /* Remove underline */
+    color: black;             /* Text color */
+    display: block;             /* Display as block element */
+    padding: 8px;               /* Padding */
+    margin-bottom: 5px;         /* Margin below button */
+    background-color: #e0e0e0;/* Background color */
+    border: none;               /* Remove border */
+    border-radius: 5px;         /* Rounded corners */
+    cursor: pointer;            /* Cursor pointer */
+    width: 100%;                /* Full width */
+    text-align: left;           /* Left-align text */
+}
+
+/* Logout button hover styling */
+.sidebar button:hover {
+    background-color: #d0d0d0;/* Background color on hover */
+}
