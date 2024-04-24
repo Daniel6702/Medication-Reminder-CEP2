@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 import uuid
 from enum import Enum
+from django.core.validators import MinValueValidator
+
 
 def get_default_user_id():
     return User.objects.first().id if User.objects.exists() else None
@@ -45,27 +47,52 @@ class Device(models.Model):
 
     def __str__(self):
         return f"{self.type} Device {self.device_id} at {self.room}"
-    
-class AlertConfiguration(models.Model):
-    ALERT_TYPES = (
-        ('LIGHT', 'Light'),
-        ('SOUND', 'Sound'),
-    )
 
-    alert_id = models.CharField(max_length=100, primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='alert_configurations', null=True, blank=True)
-    alert_type = models.CharField(max_length=5, choices=ALERT_TYPES)
-    color_code = models.CharField(max_length=7, blank=True)  # For RGB color code like '#FF5733'
-    sound_file = models.FileField(upload_to='alerts/sounds/', blank=True)
-    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='alert_configurations')
-
+class BlinkConfiguration(models.Model):
     blink = models.BooleanField(default=False)
-    blink_interval = models.FloatField(default=1.0) 
-    blink_times = models.IntegerField(null=True, blank=True)
+    blink_interval = models.FloatField(validators=[MinValueValidator(0.1)], default=1.0)
+    blink_times = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1)])
 
     def __str__(self):
-        return self.alert_id
-    
+        return f"Blink: {'Enabled' if self.blink else 'Disabled'}, Interval: {self.blink_interval}s, Times: {self.blink_times or 'Unlimited'}"
+
+class StateConfig(models.Model):
+    color_code = models.CharField(max_length=7, default='Yellow')  # Default for illustrative purposes, set specifically in each instance
+    sound_file = models.FileField(upload_to='sounds/', blank=True, null=True)
+    blink_config = models.ForeignKey(BlinkConfiguration, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"StateConfig {self.id} - Color: {self.color_code}"
+
+class AlertConfiguration(models.Model):
+    alert_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='alert_configurations', null=True, blank=True)
+    active_config = models.ForeignKey(StateConfig, related_name='active_config', on_delete=models.CASCADE, null=True)
+    med_taken_config = models.ForeignKey(StateConfig, related_name='med_taken_config', on_delete=models.CASCADE, null=True)
+    med_missed_config = models.ForeignKey(StateConfig, related_name='med_missed_config', on_delete=models.CASCADE, null=True)
+    alarmed_config = models.ForeignKey(StateConfig, related_name='alarmed_config', on_delete=models.CASCADE, null=True)
+
+    @classmethod
+    def create_default_configs(cls):
+        blink_default = BlinkConfiguration.objects.create()
+        active = StateConfig.objects.create(color_code='#FFFF00', blink_config=blink_default)
+        med_taken = StateConfig.objects.create(color_code='Green', blink_config=blink_default)
+        med_missed = StateConfig.objects.create(color_code='Red', blink_config=blink_default)
+        alarmed = StateConfig.objects.create(color_code='Red', blink_config=blink_default)
+        return cls.objects.create(
+            active_config=active,
+            med_taken_config=med_taken,
+            med_missed_config=med_missed,
+            alarmed_config=alarmed
+        )
+
+    def __str__(self):
+        return f"AlertConfiguration {self.alert_id}"
+
+# Remember to apply migrations
+# python manage.py makemigrations
+# python manage.py migrate
+
 class MQTTConfiguration(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='mqtt_configurations')
     mqtt_id = models.CharField(max_length=100, primary_key=True)

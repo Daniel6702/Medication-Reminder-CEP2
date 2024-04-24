@@ -77,6 +77,22 @@
     {% endif %}
 </div>
 
+<h3>Alert Configuration</h3>
+
+<!-- Form for configuring alerts -->
+<form method="post">
+    {% csrf_token %}
+    {{ state_formset.management_form }}
+    {% for form in state_formset %}
+        {{ form.as_p }}
+    {% endfor %}
+    {{ blink_formset.management_form }}
+    {% for form in blink_formset %}
+        {{ form.as_p }}
+    {% endfor %}
+    <button type="submit">Save Configurations</button>
+</form>
+
 {% endblock %}
 
 {% block extra_css %}

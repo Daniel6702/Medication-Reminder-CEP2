@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     events.forEach(function(event) {
         var top = event.getAttribute('data-top') + 'px';
         var height = event.getAttribute('data-height') + 'px';
-
+        
         event.style.top = top;
         event.style.height = height;
     });

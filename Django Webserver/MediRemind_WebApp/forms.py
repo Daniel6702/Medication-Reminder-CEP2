@@ -7,6 +7,8 @@ from .models import MedicationSchedule
 from .models import MQTTConfiguration
 from .models import Device
 from .models import Room
+from .models import StateConfig, AlertConfiguration, BlinkConfiguration
+
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField()
@@ -49,3 +51,18 @@ class RoomForm(forms.ModelForm):
         widgets = {
             'connected_rooms': forms.CheckboxSelectMultiple(),
         }
+
+class StateConfigForm(forms.ModelForm):
+    class Meta:
+        model = StateConfig
+        fields = ['color_code', 'sound_file', 'blink_config']
+
+class BlinkConfigurationForm(forms.ModelForm):
+    class Meta:
+        model = BlinkConfiguration
+        fields = ['blink', 'blink_interval', 'blink_times']
+
+class AlertConfigurationForm(forms.ModelForm):
+    class Meta:
+        model = AlertConfiguration
+        fields = ['active_config', 'med_taken_config', 'med_missed_config', 'alarmed_config']

@@ -32,6 +32,7 @@ from .models import Room
 from .models import Device
 from .models import AlertConfiguration
 from .models import Notification
+from .models import AlertConfiguration
 
 #Forms
 from .forms import RegisterForm
@@ -39,6 +40,15 @@ from .forms import MQTTConfigurationForm
 from .forms import MedicationScheduleForm
 from .forms import DeviceForm
 from .forms import RoomForm
+from .forms import AlertConfigurationForm
+
+from django.forms import modelformset_factory, inlineformset_factory
+from .models import StateConfig, BlinkConfiguration
+from .forms import StateConfigForm, BlinkConfigurationForm
+
+StateConfigFormSet = modelformset_factory(StateConfig, form=StateConfigForm, extra=4)
+BlinkConfigFormSet = inlineformset_factory(StateConfig, BlinkConfiguration, form=BlinkConfigurationForm, extra=4)
+
 
 class ProfileViews:
     class HomeView(LoginRequiredMixin, TemplateView):
@@ -73,6 +83,12 @@ class ProfileViews:
             )
             context['mqtt_form'] = MQTTConfigurationForm(instance=mqtt_config)
 
+            # StateConfig and BlinkConfiguration formsets
+            if 'state_formset' not in kwargs:  # Create formset if not in kwargs
+                context['state_formset'] = StateConfigFormSet(queryset=StateConfig.objects.filter(user=self.request.user), prefix='state')
+            if 'blink_formset' not in kwargs:  # Create formset if not in kwargs
+                context['blink_formset'] = BlinkConfigFormSet(queryset=BlinkConfiguration.objects.filter(stateconfig__user=self.request.user), prefix='blink')
+
             return context
 
         def post(self, request, *args, **kwargs):
@@ -81,6 +97,9 @@ class ProfileViews:
             mqtt_form = MQTTConfigurationForm(request.POST or None, instance=mqtt_config)
             device_form = DeviceForm(request.POST or None)
             room_form = RoomForm(request.POST or None)
+            state_formset = StateConfigFormSet(request.POST, request.FILES, prefix='state')
+            blink_formset = BlinkConfigFormSet(request.POST, request.FILES, prefix='blink')
+
 
             # Check if MQTT configuration form is submitted
             if 'mqtt_submit' in request.POST:
@@ -103,6 +122,11 @@ class ProfileViews:
                     room.user = request.user
                     room.save()
                     return redirect(reverse('configuration'))  # Adjust the redirect as needed
+
+            elif 'state_blink_submit' in request.POST and state_formset.is_valid() and blink_formset.is_valid():
+                state_formset.save()
+                blink_formset.save()
+                return redirect(reverse('configuration'))
 
             # If neither or forms are valid, re-render the page with existing form data
             context = self.get_context_data(mqtt_form=mqtt_form, device_form=device_form, room_form=room_form)
