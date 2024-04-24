@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 import uuid
 from enum import Enum
+from django.core.validators import MinValueValidator
 
 def get_default_user_id():
     return User.objects.first().id if User.objects.exists() else None
@@ -58,6 +59,28 @@ class Device(models.Model):
     def __str__(self):
         return f"{self.type} Device {self.device_id} at {self.room}"
     
+class StateConfig(models.Model):
+    STATE_NAMES = (
+        ('IDLE', 'IdleState'),
+        ('ACTIVE', 'ActiveState'),
+        ('MEDICATION_TAKEN', 'MedicationTakenState'),
+        ('MEDICATION_MISSED', 'MedicationMissedState'),
+        ('ALERT', 'AlertState')
+    )
+        
+    state_config_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='state_configs', null=True, blank=True)
+    state_name = models.CharField(max_length=100, choices=STATE_NAMES)
+    color_code = models.CharField(max_length=7, blank=True)  # For RGB color code like '#FF5733'
+    sound_file = models.FileField(upload_to='sounds/', blank=True, null=True)
+    blink = models.BooleanField(default=False)
+    blink_interval = models.FloatField(validators=[MinValueValidator(0.1)], default=1.0)
+    blink_times = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1)])
+    care_giver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='care_giver_configs', null=True, blank=True)
+
+    def __str__(self):
+        return f"StateConfig {self.state_config_id} - Color: {self.color_code}"
+        
 class AlertConfiguration(models.Model):
     ALERT_TYPES = (
         ('LIGHT', 'Light'),

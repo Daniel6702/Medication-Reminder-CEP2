@@ -1,8 +1,15 @@
 from django.test import TestCase
+from rest_framework.authtoken.models import Token
+from rest_framework.test import APIClient
+from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.contrib.auth.models import User
 from .models import MedicationSchedule
 from django.utils import timezone
+from unittest.mock import patch
+from .models import Notification, Device, Room, MQTTConfiguration
+from .forms import MQTTConfigurationForm, DeviceForm, RoomForm
+from .models import Notification, NotificationType
 
 #python manage.py test
 
@@ -62,3 +69,57 @@ class MedicationScheduleViewTests(TestCase):
         self.assertEqual(response.status_code, 302)  
         self.assertTrue(response.url.startswith('/login'))
 
+class ConfigurationViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='12345')
+        self.client.login(username='testuser', password='12345')
+        self.url = reverse('configuration')  # Make sure this matches the actual URL name
+
+        # Ensuring that an MQTTConfiguration exists for the user
+        MQTTConfiguration.objects.create(user=self.user, broker_address='http://defaultaddress.com', port=1883)
+
+    def test_configuration_view_loads_forms(self):
+        self.client.login(username='testuser', password='12345')
+        response = self.client.get(self.url)
+        self.assertIsInstance(response.context['mqtt_form'], MQTTConfigurationForm)
+        self.assertIsInstance(response.context['device_form'], DeviceForm)
+        self.assertIsInstance(response.context['room_form'], RoomForm)
+
+    def test_post_valid_mqtt_data_redirects(self):
+        # Data to update
+        post_data = {
+            'mqtt_submit': 'Submit',
+            'broker_address': 'http://newaddress.com',
+            'port': 1884
+        }
+        response = self.client.post(self.url, post_data)
+        self.assertRedirects(response, self.url)  # Checking for the redirect after post
+
+        # Verify that data was updated correctly
+        mqtt_config = MQTTConfiguration.objects.get(user=self.user)
+        self.assertEqual(mqtt_config.broker_address, 'http://newaddress.com')
+        self.assertEqual(mqtt_config.port, 1884)
+
+#python manage.py test MediRemind_WebApp.tests.NotificationAPIViewTests
+class NotificationAPIViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='12345')
+        # Create a token for the test user
+        self.token = Token.objects.create(user=self.user)
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        self.url = reverse('notification_api')
+
+    def test_post_notification(self):
+        data = {'message': 'Test Notification', 'type': NotificationType.INFO.name, 'timestamp': timezone.now()}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Notification.objects.count(), 1)
+        self.assertEqual(Notification.objects.first().message, 'Test Notification')
+
+    def test_get_notifications(self):
+        Notification.objects.create(user=self.user, message='Test 1', type=NotificationType.INFO.name, timestamp=timezone.now())
+        Notification.objects.create(user=self.user, message='Test 2', type=NotificationType.CRITICAL.name, timestamp=timezone.now())
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)
