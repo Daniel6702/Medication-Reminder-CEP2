@@ -33,6 +33,11 @@ class MedicationScheduleForm(forms.ModelForm):
 class ManualInputForm(forms.ModelForm):
     medication_name = forms.CharField(max_length=100)
     dosage = forms.CharField(max_length=100)
+    date = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'type': 'date'
+        }, format='%Y-%m-%d')
+    )
     time = forms.TimeField(
         widget=forms.TimeInput(attrs={
             'type': 'time'
@@ -42,6 +47,7 @@ class ManualInputForm(forms.ModelForm):
 
     class Meta:
         model = ManualInput
+        fields = ['medication_name', 'dosage', 'date', 'time', 'notes']
         exclude = ['date']  # Exclude the non-editable 'date' field
 
 class MQTTConfigurationForm(forms.ModelForm):
