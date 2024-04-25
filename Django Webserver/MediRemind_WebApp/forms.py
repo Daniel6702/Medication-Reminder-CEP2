@@ -8,6 +8,12 @@ from .models import MQTTConfiguration
 from .models import Device
 from .models import Room
 from .models import ManualInput
+from .models import StateConfig
+
+class StateConfigForm(forms.ModelForm):
+    class Meta:
+        model = StateConfig
+        fields = ['color_code', 'sound_file', 'blink', 'blink_interval', 'blink_times', 'care_giver']
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField()

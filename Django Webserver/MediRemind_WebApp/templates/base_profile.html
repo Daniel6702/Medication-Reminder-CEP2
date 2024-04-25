@@ -4,6 +4,15 @@
 
 <html>
     <head>
+        <style>
+           .container {
+               position: relative;
+               height: 100%;
+               /*background-image: url("{% static 'images/elder_care.jpg' %}");
+               background-size: cover;
+               background-position: center;*/
+           }
+       </style>
     <title>{% block title %}My Site{% endblock %}</title>
         <link rel="stylesheet" type="text/css" href="{% static 'css/profile_style.css' %}">
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
@@ -29,7 +38,7 @@
                     <li>
                         <form action="{% url 'logout' %}" method="post">
                             {% csrf_token %}
-                            <button type="submit" class="sidebar-button">Logout</button>
+                            <button type="submit" class="sidebar-link">Logout</button>
                         </form>                        
                     </li>
                 </ul>

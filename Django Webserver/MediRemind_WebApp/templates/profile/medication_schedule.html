@@ -1,10 +1,12 @@
 {% extends 'base_profile.html' %}
+{% load static %}
+{% load custom_filters %}
 
 {% block profile_content %}
 <div>
     <h2>Your Medication Schedules</h2>
     {% if schedules %}
-        <table>
+        <table class="medication_schedule">
             <thead>
                 <tr>
                     <th>Medication Name</th>
@@ -12,6 +14,7 @@
                     <th>Time Window</th>
                     <th>Dosage</th>
                     <th>Instructions</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -25,7 +28,7 @@
                         <td>
                             <form action="{% url 'delete_schedule' schedule.schedule_id %}" method="post" style="display:inline;">
                                 {% csrf_token %}
-                                <input type="submit" value="Delete">
+                                <input type="submit" value="Delete" class="delete-button">
                             </form>
                         </td>
                     </tr>
@@ -38,26 +41,31 @@
 </div>
 
 <!-- Form to add new schedule -->
-<div>
+<div class="add-medication-section">
     <h2>Add New Medication Schedule</h2>
-    <form method="post">
+    <form method="post" class="form">
         {% csrf_token %}
+        
         <label for="id_medication_name">Medication name:</label>
-        {{ form.medication_name }}
+        <input type="text" id="id_medication_name" name="medication_name" placeholder="Medication Name">
     
         <label for="id_reminder_time">Reminder time:</label>
-        {{ form.reminder_time }}
+        <input type="time" id="id_reminder_time" name="reminder_time">
     
         <label for="id_time_window">Time Window:</label>
-        {{ form.time_window }}
+        <input type="number" id="id_time_window" name="time_window" placeholder="Time Window (hours)">
     
         <label for="id_dosage">Dosage:</label>
-        {{ form.dosage }}
+        <input type="text" id="id_dosage" name="dosage" placeholder="Dosage">
 
         <label for="id_instructions">Instructions:</label>
-        {{ form.instructions }}
+        <textarea id="id_instructions" name="instructions" rows="4" placeholder="Instructions"></textarea>
     
-        <input type="submit" value="Add Schedule">
+        <button type="submit" class="add-button">Add Schedule</button>
     </form>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/medication_schedule_style.css' %}">
 {% endblock %}
