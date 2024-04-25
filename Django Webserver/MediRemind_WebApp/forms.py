@@ -31,22 +31,18 @@ class MedicationScheduleForm(forms.ModelForm):
         fields = ['medication_name', 'reminder_time', 'time_window', 'dosage', 'instructions']
 
 class ManualInputForm(forms.ModelForm):
-    medication_name = forms.CharField(max_length=100) # Change to ChoiceField later
+    medication_name = forms.CharField(max_length=100)
     dosage = forms.CharField(max_length=100)
     time = forms.TimeField(
         widget=forms.TimeInput(attrs={
             'type': 'time'
         }, format='%H:%M')
     )
-    date = forms.DateField(
-        widget=forms.DateInput(attrs={
-            'type': 'date'
-        }, format='%Y-%m-%d')
-    )
     notes = forms.CharField(widget=forms.Textarea, required=False)
+
     class Meta:
         model = ManualInput
-        fields = ['medication_name', 'dosage', 'time', 'date', 'notes']
+        exclude = ['date']  # Exclude the non-editable 'date' field
 
 class MQTTConfigurationForm(forms.ModelForm):
     class Meta:

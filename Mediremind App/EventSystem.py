@@ -39,6 +39,7 @@ class EventType(enum.Enum):
     REQUEST_CAREGIVER = 33
     RESPONSE_CAREGIVER = 34
     NOTIFICATION = 35
+    SEND_NOTIFICATION = 36
 
 class EventSystem:
     '''
