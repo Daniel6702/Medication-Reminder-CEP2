@@ -1,5 +1,27 @@
 /* styles.css */
 
+:root[data-theme="light"] {
+    --text: #10150f;
+    --background: #fafbf9;
+    --primary: #799d72;
+    --secondary: #aac4b7;
+    --accent: #92b3a7;
+}
+:root[data-theme="dark"] {
+    --text: #ebf0ea;
+    --background: #050604;
+    --primary: #698d62;
+    --secondary: #3b5447;
+    --accent: #4b6c60;
+}
+:root[data-theme="barbie"] {
+    --text: #040316;
+    --background: #fbfbfe;
+    --primary: #ff00ee;
+    --secondary: #fac2ff;
+    --accent: #ff00bb;
+}
+
 body {
     font-family: Arial, sans-serif;
 }

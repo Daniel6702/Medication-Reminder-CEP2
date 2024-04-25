@@ -1,0 +1,94 @@
+:root {
+    --text: #10150f;
+    --background: #fafbf9;
+    --primary: #799d72;
+    --secondary: #aac4b7;
+    --accent: #92b3a7;
+}
+
+body {
+    background-color: var(--primary);
+}
+
+.navbar ul {
+    margin: 0;
+    padding: 0;
+}
+
+.navbar {
+    width: 100%;
+    overflow: auto;
+    background-color: var(--primary);
+    display: flex;
+}
+
+.navbar li {
+    float: left;
+    list-style-type: none;
+    height: 50px;
+}
+
+.navbar li:hover {
+    color: #3b5447;
+}
+
+.navbar a {
+    float: left;
+    display: block;
+    color: var(--text);
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.navbar button {
+    float: left;
+    padding: 14px 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.navbar button:hover {
+    color: #3b5447;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.row ul {
+    display: flex; /* Use flexbox */
+    flex-wrap: wrap; /* Allow items to wrap to the next row if needed */
+    justify-content: center; /* Horizontally center the items */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+}
+
+.row li {
+    display: flex;
+    flex-direction: row;
+    list-style-type: none;
+    border-radius: 10px;
+}
+
+.row a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-decoration: none;
+    list-style-type: none;
+    height: 200px;
+    width: 200px;
+    margin: 25px;
+    padding: 10px;
+    background-color: var(--secondary);
+    border-radius: 10px;
+    color: var(--text);
+}
+
+.row a:hover {
+    background-color: var(--accent);
+}

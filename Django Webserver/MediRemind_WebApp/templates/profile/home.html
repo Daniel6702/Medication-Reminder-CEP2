@@ -1,55 +1,63 @@
-{% extends 'base_profile.html' %}
+<!DOCTYPE html>
+
 {% load static %}
-{% load custom_filters %}
 
-{% block profile_content %}
-<div class="content-container" style="display: flex; justify-content: space-between;">
-    <div class="notification-container" style="flex: 1;">
-        <h4>Notifications</h4>
-        {% if notifications %}
-            <ul class="notification-list">
-                {% for notification in notifications %}
-                    <li class="notification-item {{ notification.type|lower }}">
-                        <span class="notification-message">{{ notification.message }}</span>
-                        <span class="notification-timestamp">{{ notification.timestamp|date:"M d, Y H:i" }}</span>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No notifications found.</p>
-        {% endif %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/styles_home.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>Medication reminder</title>
+</head>
+<body>
+    <div class="navbar">
+        <ul>
+            <li>
+                <a href="{% url 'profile_home' %}"><i class="fas fa-home"></i>Home</a>
+            </li>
+            <li>
+                <a href="{% url 'settings' %}""><i class="fas fa-cog"></i>Settings</a>
+            </li>
+            <li>
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit"><i class="fas fa-door-open"></i>Logout</button>
+                </form>
+            </li>
+        </ul>
     </div>
 
-    <div class="medication-calendar" style="flex: 1;">
-        <h4>Today's Medication Schedule</h4>
-        {% if schedules %}
-                <div class="time-columns">
-                    {% for hour in "00:01|02:03|04:05|06:07|08:09|10:11|12:13|14:15|16:17|18:19|20:21|22:23"|split:"|" %}
-                        <div class="hour-mark">{{ hour|replace:":, - " }}</div>
-                    {% endfor %}
-                </div>
-            <div class="medication-events">
-                {% for schedule in schedules %}
-                    <div class="medication-event"
-                        data-top="{{ schedule.reminder_time.hour|multiply:30 }}"
-                        data-height="{{ schedule.time_window|multiply:30 }}">
-                        <span class="medication-name">{{ schedule.medication_name }}</span><br>
-                        <span class="medication-info">Time: {{ schedule.reminder_time|date:"H:i" }} - Duration: {{ schedule.time_window }} hrs</span><br>
-                        <span class="medication-dosage">{{ schedule.dosage }}</span>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p>No medication events scheduled for today.</p>
-        {% endif %}
+    <br><br><br>
+
+    <div class="row">
+        <ul>
+            <li>
+                <a href="dashboard.html">
+                    <i class="fas fa-border-all"></i> <br>Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="calendar.html">
+                    <i class="fas fa-calendar-alt"></i> <br>Schedule
+                </a>
+            </li>
+            <li>
+                <a href="events.html">
+                    <i class="fas fa-circle-exclamation"></i> <br>Events
+                </a>
+            </li>
+            <li>
+                <a href="analysis.html">
+                    <i class="fas fa-chart-line"></i> <br> Analysis
+                </a>
+            </li>
+            <li>
+                <a href="configuration.html">
+                    <i class="fas fa-sliders"></i> <br>Configuration
+                </a>
+            </li>
+        </ul>
     </div>
-</div>
-{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}">
-{% endblock %}
-
-{% block extra_js %}
-<script src="{% static 'js/home.js' %}" type="text/javascript"></script>
-{% endblock %}
+</body>
+</html>
