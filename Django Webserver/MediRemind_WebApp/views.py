@@ -7,6 +7,9 @@ from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.views.generic.list import ListView
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserChangeForm, PasswordChangeForm
+
 
 #RestAPI
 from rest_framework.authtoken.models import Token
@@ -146,6 +149,15 @@ class ProfileViews:
 
     class DataView(LoginRequiredMixin, TemplateView):
         template_name = 'profile/data.html'
+
+    
+    class CustomUserChangeForm(UserChangeForm):
+        class Meta:
+            model = User
+            fields = ['username', 'email', 'first_name', 'last_name']
+
+    class CustomPasswordChangeForm(PasswordChangeForm):
+        pass
 
     class SettingsView(LoginRequiredMixin, TemplateView):
         template_name = 'profile/settings.html'

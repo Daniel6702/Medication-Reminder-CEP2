@@ -1,5 +1,6 @@
 /* profile_style.css */
 body, html {
+    height: 100%;
     margin: 0;
     padding: 0;
 }
@@ -34,19 +35,19 @@ body, html {
 }
 
 /* Sidebar link styling */
-.sidebar ul li a {
-    text-decoration: none;      /* Remove underline from links */
-    color: black;             /* Text color */
-    display: block;             /* Display links as block elements */
-    padding: 8px;               /* Padding inside links */
-    margin-bottom: 15px;        /* Margin below links */
-    background-color: #e0e0e0;/* Background color for links */
-    border-radius: 5px;         /* Rounded corners */
+.sidebar ul li a.sidebar-link {
+    text-decoration: none;  
+    color: black;           
+    display: block;         
+    padding: 8px;           
+    margin-bottom: 15px;    
+    background-color: #e0e0e0;  
+    border-radius: 5px;     
 }
 
 /* Sidebar link hover styling */
-.sidebar ul li a:hover {
-    background-color: #d0d0d0;/* Background color on hover */
+.sidebar ul li a.sidebar-link:hover {
+    background-color: #d0d0d0;  
 }
 
 /* Table styling */
@@ -88,3 +89,5 @@ tr:nth-child(even) {
 .sidebar button:hover {
     background-color: #d0d0d0;/* Background color on hover */
 }
+
+
