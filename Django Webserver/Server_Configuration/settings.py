@@ -86,7 +86,7 @@ DATABASES = {
         'NAME': 'django_db',
         'USER': 'django_user',
         'PASSWORD': 'your_password',
-        'HOST': os.getenv('DB_HOST', '192.168.158.160'),
+        'HOST': os.getenv('DB_HOST', '100.124.121.25'),
         'PORT': '3306',
         'TEST': {
             'NAME': 'test_django_db',
