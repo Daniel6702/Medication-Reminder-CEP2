@@ -56,16 +56,14 @@
     background-color: #e2e2e2;
 }
 
-
-
 .time-columns {
+    margin-top: 60px;
     position: absolute;
     left: 0;
     top: 0;
-    right: 0;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 90%;
 }
 
 .hour-mark {

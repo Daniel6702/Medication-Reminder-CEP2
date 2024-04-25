@@ -33,6 +33,7 @@ from .models import Device
 from .models import AlertConfiguration
 from .models import Notification
 from .models import ManualInput
+from .models import StateConfig
 
 #Forms
 from .forms import RegisterForm
@@ -40,6 +41,7 @@ from .forms import MQTTConfigurationForm
 from .forms import MedicationScheduleForm
 from .forms import DeviceForm
 from .forms import RoomForm
+from .forms import StateConfigForm
 from .forms import ManualInputForm
 
 class ProfileViews:
@@ -75,7 +77,37 @@ class ProfileViews:
             )
             context['mqtt_form'] = MQTTConfigurationForm(instance=mqtt_config)
 
+            # Ensure default StateConfig exists
+            if not StateConfig.objects.filter(user=self.request.user).exists():
+                self.create_default_state_configs(self.request.user)
+
+            state_name = self.request.GET.get('state', 'IDLE')  # Default to 'IDLE' or use the state passed in GET parameters
+            state_config, _ = StateConfig.objects.get_or_create(
+                user=self.request.user,
+                state_name=state_name,
+                defaults={'color_code': '#FFFFFF'}  # Default color code if not exists
+            )
+            context['state_config_form'] = StateConfigForm(instance=state_config)
+            context['current_state'] = state_name
+            context['state_names'] = StateConfig.STATE_NAMES
+            
             return context
+
+        def create_default_state_configs(self, user):
+            default_configs = [
+                {'state_name': 'IDLE', 'color_code': '#FFFFFF'},
+                {'state_name': 'ACTIVE', 'color_code': '#00FF00'},
+                {'state_name': 'MEDICATION_TAKEN', 'color_code': '#0000FF'},
+                {'state_name': 'MEDICATION_MISSED', 'color_code': '#FF0000'},
+                {'state_name': 'ALERT', 'color_code': '#FFFF00'},
+            ]
+            
+            for config in default_configs:
+                StateConfig.objects.create(
+                    user=user,
+                    state_name=config['state_name'],
+                    color_code=config['color_code']
+                )
 
         def post(self, request, *args, **kwargs):
             # Initialize both forms
@@ -83,6 +115,7 @@ class ProfileViews:
             mqtt_form = MQTTConfigurationForm(request.POST or None, instance=mqtt_config)
             device_form = DeviceForm(request.POST or None)
             room_form = RoomForm(request.POST or None)
+            state_config_form = StateConfigForm(request.POST, request.FILES, instance=StateConfig.objects.get(user=request.user, state_name=request.POST.get('state_name')))
 
             # Check if MQTT configuration form is submitted
             if 'mqtt_submit' in request.POST:
@@ -105,12 +138,12 @@ class ProfileViews:
                     room.user = request.user
                     room.save()
                     return redirect(reverse('configuration'))  # Adjust the redirect as needed
+            elif 'state_config_submit' in request.POST and state_config_form.is_valid():
+                state_config_form.save()
 
             # If neither or forms are valid, re-render the page with existing form data
             context = self.get_context_data(mqtt_form=mqtt_form, device_form=device_form, room_form=room_form)
             return self.render_to_response(context)
-
-
 
     class EventsView(LoginRequiredMixin, TemplateView):
         template_name = 'profile/events.html'
