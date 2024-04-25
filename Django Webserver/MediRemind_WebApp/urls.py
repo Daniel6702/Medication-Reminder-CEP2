@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib import admin
 from django.contrib.auth.views import LogoutView
-from .views import ProfileViews, APIViews, delete_schedule, home, CustomLoginView, register
+from .views import ProfileViews, APIViews, delete_schedule, home, CustomLoginView, register, connect_rooms
 
 profile_urls = [
     path('profile/home', ProfileViews.HomeView.as_view(), name='profile_home'),
@@ -31,4 +31,5 @@ urlpatterns = profile_urls + api_urls + \
     path('admin/', admin.site.urls),
     path('register/', register, name='register'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
+    path('profile/connect_rooms/', connect_rooms, name='connect_rooms'),
 ]

@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.views.generic.list import ListView
+from django.http import JsonResponse
 
 #RestAPI
 from rest_framework.authtoken.models import Token
@@ -44,6 +45,32 @@ from .forms import RoomForm
 from .forms import StateConfigForm
 from .forms import ManualInputForm
 
+import json
+
+@login_required
+@require_POST
+def connect_rooms(request):
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        room1_id = data['room1_id']
+        room2_id = data['room2_id']
+        
+        room1 = Room.objects.get(pk=room1_id, user=request.user)
+        room2 = Room.objects.get(pk=room2_id, user=request.user)
+        
+        room1.connected_rooms.add(room2)  # Add connection
+        room1.save()
+        
+        return JsonResponse({'status': 'success', 'message': 'Rooms connected successfully.'})
+    except json.JSONDecodeError as e:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+    except Room.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Room not found.'}, status=404)
+    except KeyError:
+        return JsonResponse({'status': 'error', 'message': 'Missing data.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
 class ProfileViews:
     class HomeView(LoginRequiredMixin, TemplateView):
         template_name = 'profile/home.html'
@@ -76,6 +103,20 @@ class ProfileViews:
                 defaults={'port': 1883, 'broker_address': 'http://defaultaddress.com'}  # Default values
             )
             context['mqtt_form'] = MQTTConfigurationForm(instance=mqtt_config)
+
+            room_connections = []
+            for room in context['rooms']:
+                connected_rooms = room.connected_rooms.all()
+                for connected_room in connected_rooms:
+                    room_connections.append({
+                        'source': str(room.room_id),
+                        'target': str(connected_room.room_id),
+                    })
+            json_rooms = json.dumps(room_connections)
+            print(json_rooms)
+            
+            # Serialize the room_connections list to a JSON string
+            context['room_connections_json'] = json_rooms
 
             # Ensure default StateConfig exists
             if not StateConfig.objects.filter(user=self.request.user).exists():
@@ -136,10 +177,23 @@ class ProfileViews:
                 if room_form.is_valid():
                     room = room_form.save(commit=False)
                     room.user = request.user
-                    room.save()
+                    room.save() 
                     return redirect(reverse('configuration'))  # Adjust the redirect as needed
             elif 'state_config_submit' in request.POST and state_config_form.is_valid():
                 state_config_form.save()
+
+            elif 'connect_rooms' in request.POST:
+                room1_id = request.POST.get('room1_id')
+                room2_id = request.POST.get('room2_id')
+                try:
+                    room1 = Room.objects.get(pk=room1_id, user=request.user)
+                    room2 = Room.objects.get(pk=room2_id, user=request.user)
+                    room1.connected_rooms.add(room2)  # Add connection
+                    room1.save()
+                    return JsonResponse({'status': 'success', 'message': 'Rooms connected successfully.'})
+                except Room.DoesNotExist:
+                    return JsonResponse({'status': 'error', 'message': 'Room not found.'}, status=404)
+
 
             # If neither or forms are valid, re-render the page with existing form data
             context = self.get_context_data(mqtt_form=mqtt_form, device_form=device_form, room_form=room_form)
