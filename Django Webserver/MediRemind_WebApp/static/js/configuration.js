@@ -29,27 +29,39 @@ document.addEventListener('DOMContentLoaded', function() {
         roomDiv.innerHTML = `
             <span style="position: relative; z-index: 1;">${room.name}</span>
             <div class="controls" style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: flex; align-items: center; justify-content: space-between;">
-                <div class="connect" style="width: 10px; height: 10px; background-color: red;"></div>
-                <div class="connect" style="width: 10px; height: 10px; background-color: red;"></div>
-                <div class="connect" style="width: 10px; height: 10px; background-color: red;"></div>
-                <div class="connect" style="width: 10px; height: 10px; background-color: red;"></div>
-                <button class="delete-room" style="position: absolute; top: 5px; right: 5px; background: none; border: none; color: red; cursor: pointer;">
+                <div class="connect" style="width: 10px; height: 10px; background-color: black;"></div>
+                <div class="connect" style="width: 10px; height: 10px; background-color: black;"></div>
+                <div class="connect" style="width: 10px; height: 10px; background-color: black;"></div>
+                <div class="connect" style="width: 10px; height: 10px; background-color: black;"></div>
+                <button class="delete-room" style="position: absolute; top: -5px; right: -10px; background: none; border: none; color: red; cursor: pointer;">
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </div>`;
     
         // Adjusting connect div positions for each side of the room
         const connects = roomDiv.querySelectorAll('.connect');
-        connects.forEach(connect => {
-            connect.style.backgroundColor = 'black';
-            connect.style.borderRadius = '50%';
-        });
+        connects.forEach(connect => {connect.style.borderRadius = '50%';});
+        connects[0].style.position = 'absolute';
+        connects[0].style.left = '50%';
+        connects[0].style.top = '-5px'; // Top connector
         connects[0].style.transform = 'translateX(-50%)';
-        connects[1].style.transform = 'translateX(775%)';
-        connects[2].style.transform = 'translateY(495%) translateX(-160%)';
-        connects[3].style.transform = 'translateY(-495%) translateX(-540%)';
+        connects[1].style.position = 'absolute';
+        connects[1].style.right = '-5px';
+        connects[1].style.top = '50%'; // Right connector
+        connects[1].style.transform = 'translateY(-50%)';
+        connects[2].style.position = 'absolute';
+        connects[2].style.bottom = '-5px';
+        connects[2].style.left = '50%'; // Bottom connector
+        connects[2].style.transform = 'translateX(-50%)';
+        connects[2].style.top = 'auto';
+        connects[3].style.position = 'absolute';
+        connects[3].style.left = '-5px';
+        connects[3].style.top = '50%'; // Left connector
+        connects[3].style.transform = 'translateY(-50%)';
     
         // Random positioning
+        const containerWidth = 800; // Assuming the room container width is known
+        const containerHeight = 600; // Assuming the room container height is known
         const xPosition = room.position_x !== 0.0 ? room.position_x : Math.floor(Math.random() * (containerWidth - roomDiv.offsetWidth));
         const yPosition = room.position_y !== 0.0 ? room.position_y : Math.floor(Math.random() * (containerHeight - roomDiv.offsetHeight));
         roomDiv.style.left = xPosition + 'px';

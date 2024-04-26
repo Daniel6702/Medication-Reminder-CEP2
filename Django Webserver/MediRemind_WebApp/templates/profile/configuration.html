@@ -7,6 +7,101 @@
 
 <hr>
 
+<div class="configurations">
+    <!-- Room Configuration -->
+    <div class="configuration-section">
+        <h3>Room Configuration</h3>
+        <form id="add-room-form">
+            <input type="text" id="room-name-input" placeholder="Enter room name" required>
+            <button type="submit">Add Room</button>
+        </form>
+
+        <script>
+            var roomConnections = JSON.parse("{{room_connections_json|escapejs}}"); 
+            var rooms = JSON.parse("{{ rooms_json|escapejs }}");
+        </script>
+
+        <div id="room-container">
+            {% for room in rooms %}
+            <div class="room" id="room-{{ room.room_id }}" style="position: absolute; padding: 10px; border: 1px solid black;">
+                {{ room.name }}
+                <div class="connect" style="width: 10px; height: 10px; background-color: red; position: absolute; right: -5px; top: 50%;"></div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <!-- Device Configuration -->
+    <div class="configuration-section">
+        <h3>Device Configuration</h3>
+        <div>
+            <h4>Your Devices</h4>
+            {% if devices %}
+            <div class="device-list">
+                {% for device in devices %}
+                <div class="device">
+                    <div class="device-info">
+                        <div class="device-detail"><strong>Name:</strong> {{ device.name }}</div>
+                        <div class="device-detail"><strong>Type:</strong> {{ device.type }}</div>
+                        <div class="device-detail"><strong>Status:</strong> {{ device.status }}</div>
+                    </div>
+                    <div class="device-form">
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="update_device_room" value="{{ device.device_id }}">
+                            <label for="room-select-{{ device.device_id }}">Room:</label>
+                            <select id="room-select-{{ device.device_id }}" name="room" onchange="this.form.submit()">
+                                <option value="">Select a Room</option>
+                                {% for room in rooms %}
+                                <option value="{{ room.room_id }}" {% if device.room == room %} selected {% endif %}>{{ room.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p>No devices found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<hr>
+
+<div class="configurations">
+    <!-- State Configuration -->
+    <div class="configuration-section">
+        <h3>State Configuration</h3>
+        <form method="get" action="">
+            <label for="state">Select State:</label>
+            <select name="state" onchange="this.form.submit()">
+                {% for state, name in state_names %}
+                <option value="{{ state }}" {% if state == current_state %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            </select>
+        </form>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ state_config_form.as_p }}
+            <input type="hidden" name="state_name" value="{{ current_state }}">
+            <button type="submit" name="state_config_submit">Save State Configuration</button>
+        </form>
+    </div>
+    
+    <!-- MQTT Configuration -->
+    <div class="configuration-section">
+        <h3>MQTT Configuration</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ mqtt_form.as_p }}
+            <button type="submit">Save Configuration</button>
+        </form>
+    </div>
+</div>
+
+<hr>
+
 <div>
     <p>Your API Token:</p>
     <textarea id="apiToken" readonly>{{ token.key }}</textarea>
@@ -14,87 +109,12 @@
 
 <hr>
 
-<h3>MQTT Configuration</h3>
-
-<form method="post">
-    {% csrf_token %}
-    {{ mqtt_form.as_p }}
-    <button type="submit">Save Configuration</button>
-</form>
-
-<hr>
-
-<h3>Device Configuration</h3>
-
-<!-- Form to add new device -->
-<form method="post">
-    {% csrf_token %}
-    {{ device_form.as_p }}
-    <button type="submit" name="device_submit">Add Device</button>
-</form>
-
-<!-- List existing devices -->
-<div>
-    <h4>Your Devices</h4>
-    {% if devices %}
-        <ul>
-            {% for device in devices %}
-                <li>| Name: {{ device.name }} | Type: {{ device.type }} | room: {{ device.room }} | uuid: {{ device.device_id}} | zigbee_id: {{ device.zigbee_id}} | status: {{ device.status}} |</li>
-                <!-- Add more details as needed -->
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No devices found.</p>
-    {% endif %}
-</div>
-
-<hr>
-
-<h3>Room Configuration</h3>
-<form id="add-room-form">
-    <input type="text" id="room-name-input" placeholder="Enter room name" required>
-    <button type="submit">Add Room</button>
-</form>
-
-<script> 
-    var roomConnections = JSON.parse("{{room_connections_json|escapejs}}"); 
-    var rooms = JSON.parse("{{ rooms_json|escapejs }}");
-</script>
-
-<div id="room-container" style="width: 800px; height: 600px; position: relative; border: 1px solid #666;">
-    {% for room in rooms %}
-    <div class="room" id="room-{{ room.room_id }}" style="position: absolute; padding: 10px; border: 1px solid black;">
-        {{ room.name }}
-        <div class="connect" style="width: 10px; height: 10px; background-color: red; position: absolute; right: -5px; top: 50%;"></div>
-    </div>
-    {% endfor %}
-</div>
-
-
-<hr>
-
-<h3>State Configuration</h3>
-
-<form method="get" action="">
-    <label for="state">Select State:</label>
-    <select name="state" onchange="this.form.submit()">
-        {% for state, name in state_names %}
-            <option value="{{ state }}" {% if state == current_state %}selected{% endif %}>{{ name }}</option>
-        {% endfor %}
-    </select>
-</form>
-
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ state_config_form.as_p }}
-    <input type="hidden" name="state_name" value="{{ current_state }}">
-    <button type="submit" name="state_config_submit">Save State Configuration</button>
-</form>
-
 {% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="{% static 'css/configuration.css' %}">
+
 {% endblock %}
 
 {% block extra_js %}
