@@ -23,7 +23,6 @@ from .serializers import MedicationScheduleSerializer
 from .serializers import MQTTConfigurationSerializer
 from .serializers import RoomSerializer
 from .serializers import DeviceSerializer
-from .serializers import AlertConfigurationSerializer
 from .serializers import NotificationSerializer
 
 #Models
@@ -31,7 +30,6 @@ from .models import MedicationSchedule
 from .models import MQTTConfiguration
 from .models import Room
 from .models import Device
-from .models import AlertConfiguration
 from .models import Notification
 from .models import ManualInput
 from .models import StateConfig
@@ -46,6 +44,56 @@ from .forms import StateConfigForm
 from .forms import ManualInputForm
 
 import json
+import uuid
+
+@login_required
+@require_POST
+def delete_room(request):
+    try:
+        room_id = request.POST.get('room_id')
+        room = Room.objects.get(room_id=room_id, user=request.user)
+        room.delete()
+        return JsonResponse({'status': 'success', 'message': 'Room deleted successfully.'})
+    except Room.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Room not found.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    
+@login_required
+@require_POST
+def add_room(request):
+    print(request)
+    if request.method == 'POST':
+        room_name = request.POST.get('room_name')
+        if room_name:
+            try:
+                # Attempt to create the room
+                new_room = Room.objects.create(name=room_name, user=request.user)
+                return JsonResponse({'status': 'success', 'room_id': str(new_room.room_id), 'room_name': new_room.name})
+            except Exception as e:
+                # Handle any exceptions that occur and return a JSON error response
+                return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Room name is required'}, status=400)
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=405) 
+    
+@login_required
+@require_POST
+def update_room_position(request):
+    try:
+        room_id = request.POST.get('room_id')
+        position_x = request.POST.get('position_x')
+        position_y = request.POST.get('position_y')
+        room = Room.objects.get(room_id=room_id, user=request.user)
+        room.position_x = position_x
+        room.position_y = position_y
+        room.save()
+        return JsonResponse({'status': 'success', 'message': 'Room position updated successfully.'})
+    except Room.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Room not found.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 @login_required
 @require_POST
@@ -95,7 +143,6 @@ class ProfileViews:
             context['device_form'] = DeviceForm()
             context['devices'] = Device.objects.filter(user=self.request.user)
             context['room_form'] = RoomForm()
-            context['rooms'] = Room.objects.filter(user=self.request.user)
 
             # Getting or creating the MQTT configuration instance for the user
             mqtt_config, created = MQTTConfiguration.objects.get_or_create(
@@ -103,7 +150,11 @@ class ProfileViews:
                 defaults={'port': 1883, 'broker_address': 'http://defaultaddress.com'}  # Default values
             )
             context['mqtt_form'] = MQTTConfigurationForm(instance=mqtt_config)
-
+            
+            rooms = Room.objects.filter(user=self.request.user)
+            context['rooms'] = rooms
+            rooms_data = [{'room_id': str(room.room_id), 'name': room.name, 'position_x': room.position_x, 'position_y': room.position_y} for room in rooms]
+            context['rooms_json'] = json.dumps(rooms_data)
             room_connections = []
             for room in context['rooms']:
                 connected_rooms = room.connected_rooms.all()
@@ -113,9 +164,6 @@ class ProfileViews:
                         'target': str(connected_room.room_id),
                     })
             json_rooms = json.dumps(room_connections)
-            print(json_rooms)
-            
-            # Serialize the room_connections list to a JSON string
             context['room_connections_json'] = json_rooms
 
             # Ensure default StateConfig exists
@@ -124,7 +172,7 @@ class ProfileViews:
 
             state_name = self.request.GET.get('state', 'IDLE')  # Default to 'IDLE' or use the state passed in GET parameters
             state_config, _ = StateConfig.objects.get_or_create(
-                user=self.request.user,
+                user=self.request.user, 
                 state_name=state_name,
                 defaults={'color_code': '#FFFFFF'}  # Default color code if not exists
             )
@@ -141,7 +189,7 @@ class ProfileViews:
                 {'state_name': 'MEDICATION_TAKEN', 'color_code': '#0000FF'},
                 {'state_name': 'MEDICATION_MISSED', 'color_code': '#FF0000'},
                 {'state_name': 'ALERT', 'color_code': '#FFFF00'},
-            ]
+            ] 
             
             for config in default_configs:
                 StateConfig.objects.create(
@@ -356,27 +404,6 @@ class APIViews:
             device = Device.objects.get(device_id=device_id)
             device.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        
-    class AlertConfigurationAPIView(APIView):
-        authentication_classes = [TokenAuthentication]
-        permission_classes = [IsAuthenticated]
-
-        def get(self, request):
-            configs = AlertConfiguration.objects.filter(user=request.user)
-            serializer = AlertConfigurationSerializer(configs, many=True)
-            return Response(serializer.data)
-
-        def post(self, request):
-            serializer = AlertConfigurationSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save(user=request.user)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        def delete(self, request, config_id):
-            config = AlertConfiguration.objects.get(config_id=config_id)
-            config.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
 
     class MedicationScheduleAPIView(APIView):
         authentication_classes = [TokenAuthentication]
@@ -398,7 +425,7 @@ class APIViews:
             schedule = MedicationSchedule.objects.get(schedule_id=schedule_id)
             schedule.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        
+         
     class HeucodEventAPIView(APIView):
         authentication_classes = [TokenAuthentication]
         permission_classes = [IsAuthenticated]

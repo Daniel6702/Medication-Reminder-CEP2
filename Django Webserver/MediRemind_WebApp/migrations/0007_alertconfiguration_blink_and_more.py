@@ -10,19 +10,4 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='alertconfiguration',
-            name='blink',
-            field=models.BooleanField(default=False),
-        ),
-        migrations.AddField(
-            model_name='alertconfiguration',
-            name='blink_interval',
-            field=models.FloatField(default=1.0),
-        ),
-        migrations.AddField(
-            model_name='alertconfiguration',
-            name='blink_times',
-            field=models.IntegerField(blank=True, null=True),
-        ),
     ]

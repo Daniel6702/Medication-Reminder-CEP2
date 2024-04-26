@@ -116,15 +116,4 @@ class Migration(migrations.Migration):
                 ('room', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='devices', to='MediRemind_WebApp.room')),
             ],
         ),
-        migrations.CreateModel(
-            name='AlertConfiguration',
-            fields=[
-                ('alert_id', models.CharField(max_length=100, primary_key=True, serialize=False)),
-                ('alert_type', models.CharField(choices=[('LIGHT', 'Light'), ('SOUND', 'Sound')], max_length=5)),
-                ('color_code', models.CharField(blank=True, max_length=7)),
-                ('sound_file', models.FileField(blank=True, upload_to='alerts/sounds/')),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='alert_configurations', to=settings.AUTH_USER_MODEL)),
-                ('room', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='alert_configurations', to='MediRemind_WebApp.room')),
-            ],
-        ),
     ]

@@ -51,9 +51,14 @@
 <hr>
 
 <h3>Room Configuration</h3>
+<form id="add-room-form">
+    <input type="text" id="room-name-input" placeholder="Enter room name" required>
+    <button type="submit">Add Room</button>
+</form>
 
 <script> 
-    var data = JSON.parse("{{room_connections_json|escapejs}}"); 
+    var roomConnections = JSON.parse("{{room_connections_json|escapejs}}"); 
+    var rooms = JSON.parse("{{ rooms_json|escapejs }}");
 </script>
 
 <div id="room-container" style="width: 800px; height: 600px; position: relative; border: 1px solid #666;">
@@ -89,6 +94,7 @@
 {% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 {% endblock %}
 
 {% block extra_js %}

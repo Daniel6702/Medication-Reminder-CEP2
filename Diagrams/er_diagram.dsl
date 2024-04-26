@@ -62,7 +62,6 @@ Ref: Room.user_id > User.id
 Ref: Device.user_id > User.id
 Ref: Device.room_id > Room.room_id
 Ref: AlertConfiguration.user_id > User.id
-Ref: AlertConfiguration.room_id > Room.room_id
 Ref: MQTTConfiguration.user_id > User.id
 Ref: HeucodEvent.user_id > User.id
 

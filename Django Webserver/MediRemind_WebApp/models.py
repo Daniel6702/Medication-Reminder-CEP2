@@ -36,6 +36,8 @@ class Room(models.Model):
     room_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
     connected_rooms = models.ManyToManyField('self', blank=True)
+    position_x = models.FloatField(default=0.0)
+    position_y = models.FloatField(default=0.0)
 
     def __str__(self):
         return self.name
@@ -80,26 +82,6 @@ class StateConfig(models.Model):
 
     def __str__(self):
         return f"StateConfig {self.state_config_id} - Color: {self.color_code}"
-        
-class AlertConfiguration(models.Model):
-    ALERT_TYPES = (
-        ('LIGHT', 'Light'),
-        ('SOUND', 'Sound'),
-    )
-
-    alert_id = models.CharField(max_length=100, primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='alert_configurations', null=True, blank=True)
-    alert_type = models.CharField(max_length=5, choices=ALERT_TYPES)
-    color_code = models.CharField(max_length=7, blank=True)  # For RGB color code like '#FF5733'
-    sound_file = models.FileField(upload_to='alerts/sounds/', blank=True)
-    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='alert_configurations')
-
-    blink = models.BooleanField(default=False)
-    blink_interval = models.FloatField(default=1.0) 
-    blink_times = models.IntegerField(null=True, blank=True)
-
-    def __str__(self):
-        return self.alert_id
     
 class MQTTConfiguration(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='mqtt_configurations')
