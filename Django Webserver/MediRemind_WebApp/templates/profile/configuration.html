@@ -95,9 +95,11 @@
         <form method="post">
             {% csrf_token %}
             {{ mqtt_form.as_p }}
-            <button type="submit">Save Configuration</button>
+            <button type="submit" name="mqtt_submit">Save Configuration</button>
         </form>
     </div>
+
+
 </div>
 
 <hr>
@@ -114,7 +116,6 @@
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <link rel="stylesheet" type="text/css" href="{% static 'css/configuration.css' %}">
-
 {% endblock %}
 
 {% block extra_js %}

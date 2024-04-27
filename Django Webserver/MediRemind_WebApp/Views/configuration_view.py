@@ -48,11 +48,11 @@ class ConfigurationView(LoginRequiredMixin, TemplateView):
         if not StateConfig.objects.filter(user=self.request.user).exists():
             self.create_default_state_configs(self.request.user)
 
-        state_name = self.request.GET.get('state', 'IDLE')  # Default to 'IDLE' or use the state passed in GET parameters
+        state_name = self.request.GET.get('state', 'IDLE')  
         state_config, _ = StateConfig.objects.get_or_create(
             user=self.request.user, 
             state_name=state_name,
-            defaults={'color_code': '#FFFFFF'}  # Default color code if not exists
+            defaults={'color_code': '#FFFFFF'}  
         )
         context['state_config_form'] = StateConfigForm(instance=state_config)
         context['current_state'] = state_name
@@ -78,12 +78,16 @@ class ConfigurationView(LoginRequiredMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         # Initialize both forms
-        mqtt_config, _ = MQTTConfiguration.objects.get_or_create(user=request.user)
-        mqtt_form = MQTTConfigurationForm(request.POST or None, instance=mqtt_config)
+        mqtt_config, created = MQTTConfiguration.objects.get_or_create(
+            user=request.user,
+            defaults={'port': 1883, 'broker_address': 'localhost'}
+        )
+        mqtt_form = MQTTConfigurationForm(request.POST, instance=mqtt_config)
+
         device_form = DeviceForm(request.POST or None)
         room_form = RoomForm(request.POST or None)
 
-        # Check if MQTT configuration form is submitted
+        # Check if MQTT configuration form is submitted 
         if 'mqtt_submit' in request.POST:
             if mqtt_form.is_valid():
                 mqtt_form.save()
