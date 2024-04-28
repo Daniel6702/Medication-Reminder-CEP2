@@ -55,6 +55,8 @@ class Room:
     user: str
     name: str
     connected_rooms: list
+    position_x: float
+    position_y: float
 
     def from_json(json_data):
         return Room(**json_data)
@@ -78,24 +80,27 @@ class Device:
     def from_json(json_data):
         return Device(**json_data)
 
-class AlertType(Enum):
-    LIGHT = "LIGHT"
-    SOUND = "SOUND"
+class State(Enum):
+    IDLE = 'IDLE'
+    ACTIVE = 'ACTIVE'
+    MEDICATION_TAKEN = 'MEDICATION_TAKEN'
+    MEDICATION_MISSED = 'MEDICATION_MISSED'
+    ALERT = 'ALERT'
 
 @dataclass
-class AlertConfiguration:
-    alert_id: str
+class StateConfig:
+    state_config_id: str
     user: str
-    alert_type: AlertType
+    state_name: State
     color_code: str
     sound_file: str
-    room: Room
     blink: bool = False
     blink_interval: float = 1.0  # seconds
     blink_times: int = None
+    care_giver: str = None
 
     def from_json(json_data):
-        return AlertConfiguration(**json_data)
+        return StateConfig(**json_data)
     
 class NotificationType(Enum):
     ROUTINE = "Routine"             

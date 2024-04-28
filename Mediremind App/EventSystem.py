@@ -40,6 +40,11 @@ class EventType(enum.Enum):
     RESPONSE_CAREGIVER = 34
     NOTIFICATION = 35
     SEND_NOTIFICATION = 36
+    REQUEST_STATE_CONFS = 37
+    RESPONSE_STATE_CONFS = 38
+    CHANGE_COLOR = 39
+    SWITCH_LIGHT = 40
+    PLAY_SOUND = 41
 
 class EventSystem:
     '''

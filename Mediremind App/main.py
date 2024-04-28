@@ -15,6 +15,13 @@ Dependencies:
     - For simplicity, it should be run on the Pi
 ''' 
 
+'''
+TODO
+update models
+update db manager
+implement stateconfig in rc 
+'''
+
 class MainSystem():
     '''Central class of the system that integrates the varioues components and controllers, and allows them to work together.'''
     def __init__(self):

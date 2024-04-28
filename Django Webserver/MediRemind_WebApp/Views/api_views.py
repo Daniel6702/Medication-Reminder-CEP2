@@ -3,8 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from ..models import Notification, Room, Device, MedicationSchedule, HeucodEvent, MQTTConfiguration
-from ..serializers import NotificationSerializer, RoomSerializer, DeviceSerializer, MedicationScheduleSerializer, HeucodEventSerializer, MQTTConfigurationSerializer
+from ..models import Notification, Room, Device, MedicationSchedule, HeucodEvent, MQTTConfiguration, StateConfig
+from ..serializers import NotificationSerializer, RoomSerializer, DeviceSerializer, MedicationScheduleSerializer, HeucodEventSerializer, MQTTConfigurationSerializer, StateConfigSerializer
 
 class NotificationAPIView(APIView):
     authentication_classes = [TokenAuthentication]
@@ -71,6 +71,27 @@ class DeviceAPIView(APIView):
     def delete(self, request, device_id):
         device = Device.objects.get(device_id=device_id)
         device.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class StateConfigAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        state_configs = StateConfig.objects.filter(user=request.user)
+        serializer = StateConfigSerializer(state_configs, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = StateConfigSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, state_config_id):
+        state_config = StateConfig.objects.get(state_config_id=state_config_id)
+        state_config.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class MedicationScheduleAPIView(APIView):

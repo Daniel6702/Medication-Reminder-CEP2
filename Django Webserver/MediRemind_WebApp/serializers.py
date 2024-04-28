@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import HeucodEvent
 from .models import MedicationSchedule
 from .models import MQTTConfiguration
-from .models import Room, Device, Notification
+from .models import Room, Device, Notification, StateConfig
 
 
 class NotificationSerializer(serializers.ModelSerializer):
@@ -20,7 +20,10 @@ class DeviceSerializer(serializers.ModelSerializer):
         model = Device
         fields = '__all__'
 
-
+class StateConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StateConfig
+        fields = '__all__' 
 
 class HeucodEventSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(read_only=True)
