@@ -8,6 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'css/styles_home.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <title>Medication reminder</title>
 </head>
 <body>
@@ -19,7 +22,7 @@
             <li>
                 <a href="{% url 'settings' %}""><i class="fas fa-cog"></i>Settings</a>
             </li>
-            <li>
+            <li class="end">
                 <form action="{% url 'logout' %}" method="post">
                     {% csrf_token %}
                     <button type="submit"><i class="fas fa-door-open"></i>Logout</button>
@@ -27,8 +30,6 @@
             </li>
         </ul>
     </div>
-
-    <br><br><br>
 
     <div class="row">
         <ul>
