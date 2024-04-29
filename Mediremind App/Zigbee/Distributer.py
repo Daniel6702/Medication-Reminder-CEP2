@@ -28,9 +28,8 @@ class ZigbeeMessageDistributer():
             message_str = json.dumps(asdict(message), cls=EnhancedJSONEncoder)
             for device_type, rules in DEVICE_TYPES.items():
                 if matches_rules(message_str, rules):
-                    print(f"DEVICE_EVENT: {device_type}")
                     event_type = getattr(EventType, device_type)
-                    event_system.publish(event_type, message.data)
+                    event_system.publish(event_type, asdict(message))
                     return
             print('Unknown Device')
-            
+

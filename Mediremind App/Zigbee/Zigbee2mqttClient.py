@@ -8,6 +8,7 @@ from time import sleep
 from typing import Any, Callable, List, Optional
 from paho.mqtt.client import Client as MqttClient, MQTTMessage
 from paho.mqtt import publish, subscribe
+from EventSystem import event_system, EventType
 
 
 class Cep2Zigbee2mqttMessageType(Enum):
@@ -165,6 +166,7 @@ class Cep2Zigbee2mqttClient:
         self.__subscriber_thread = Thread(target=self.__worker,
                                           daemon=True)
         self.__topics = topics
+        event_system.subscribe(EventType.SEND_ZIGBEE, self.publish_)
 
     def connect(self) -> None:
         """ Connects to the MQTT broker specified in the initializer. This is a blocking function.
@@ -189,6 +191,13 @@ class Cep2Zigbee2mqttClient:
 
         self.__client.publish(topic=f"zigbee2mqtt/{device_id}/set",
                               payload=json.dumps({"state": f"{state}"}))
+        
+    def publish_(self, data):
+        topic = data[0]
+        payload = data[1]
+        zigbee_id = data[2]
+        self.__client.publish(topic=f"zigbee2mqtt/{zigbee_id}/{topic}",payload=json.dumps(payload))
+        
 
     def check_health(self) -> str:
         """ Allows to check whether zigbee2mqtt is healthy, i.e. the service is running properly.

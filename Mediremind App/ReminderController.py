@@ -4,7 +4,7 @@ from Database.DataBaseManager import DatabaseManager
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from Database.Models import StateConfig
-
+from time import sleep
 '''
 This Python module defines the core logic of the remind mechanisms. The system is structured around a state machine pattern,
 allowing it to transition between various states based on medication schedules, user interactions, and system events.
@@ -28,7 +28,7 @@ class ReminderSystem:
         event_system.subscribe(EventType.RESPONSE_STATE_CONFS,self.get_state_configurations)
         event_system.subscribe(EventType.RESPONSE_SCHEDULES, self.get_medication_schedules)
 
-    def get_rooms(self, rooms): self.rooms = rooms; print(f"ROOMS: {rooms}")
+    def get_rooms(self, rooms): self.rooms = rooms; print(f"\nROOMS:\n {rooms}\n")
 
     def get_state_configurations(self, state_configurations): 
         self.state_configurations = state_configurations
@@ -37,9 +37,9 @@ class ReminderSystem:
         self.medication_taken_conf = state_configurations[2]
         self.medication_missed_conf = state_configurations[3]
         self.alert_conf = state_configurations[4]
-        print(f"ALERT CONFS: {state_configurations}")
+        print(f"\nALERT CONFS:\n {state_configurations}\n")
 
-    def get_medication_schedules(self,schedules): self.schedules = schedules; print(f"SCHEDULES: {schedules}")
+    def get_medication_schedules(self,schedules): self.schedules = schedules; print(f"\nSCHEDULES:\n {schedules}\n")
 
     def change_state(self, state):
         self.state = state
@@ -47,7 +47,7 @@ class ReminderSystem:
 
     def update(self):
         self.state.handle()
-        print(self.state.__class__.__name__)
+        #print(self.state.__class__.__name__)
     
     def get_reminder_datetime(self, schedule):
         current_date = datetime.now().date()
@@ -96,10 +96,19 @@ class IdleState(State):
         conf: StateConfig = self.reminder_system.idle_conf
         if conf.color_code is not None or conf.color_code != "#000000":
             event_system.publish(EventType.REMIND_EVERYWHERE, conf)
+        self.x = 0
 
     def handle(self):
-        if self.reminder_system.is_medication_time():
+        if self.reminder_system.is_medication_time() and False:
             self.reminder_system.change_state(ActiveState(self.reminder_system))
+        sleep(2)
+        if self.x % 2 == 0:
+            print("turn on 1")
+            event_system.publish(EventType.TURN_ON, None)
+        else:
+            event_system.publish(EventType.TURN_OFF, None)
+            print("turn off 1")
+        self.x+=1
 
 class ActiveState(State):
     def setup(self):
@@ -114,17 +123,8 @@ class ActiveState(State):
         #TODO: use data from vibration sensor to ensure medication has been taken
         self.reminder_system.change_state(MedicationTakenState(self.reminder_system))
 
-    def is_medication_time_missed(self):
-        for schedule in self.reminder_system.schedules:            
-            window_end_time = datetime.datetime.strptime(schedule.reminder_time, "%H:%M:%S") + datetime.timedelta(hours=schedule.time_window)
-            if self.reminder_system.is_time_passed(window_end_time):
-                return True
-        return False
-
     def handle(self):
-        print("IT WORKED")
-        if self.is_medication_time_missed():
-            self.reminder_system.change_state(MedicationMissedState(self.reminder_system))
+        pass
 
 class MedicationTakenState(State):
     def setup(self):

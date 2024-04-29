@@ -9,6 +9,11 @@ from Database.Models import Device
 We assume Zigbee2Mqtt and mqttbroker has been setup and is running. With the devices added.
 '''
 
+'''
+BUG
+We have more than one virtual device instance for each real world device. Results in double signaling
+'''
+
 def matches_rules(message_str, rules):
     '''
     - If any keyword in 'must_not_have' is present in the message string, the function should return False.
@@ -42,6 +47,9 @@ class DeviceController():
     def get_db_devices(self, devices: list): self.db_devices = devices
     
     def get_devices(self, message: list[dict]):
+        self.devices = []
+        self.actuators = []
+        self.sensors = []
         '''
         Subscribed to the EVENT_DISCOVERY event, occurs on initialization of system. 
         Retrieves devices from z2m message and database.
@@ -93,12 +101,14 @@ class DeviceController():
         # Split devices into actuators and sensors
         self.actuators.clear()
         self.sensors.clear()
-
+        print("\nDEVICES: ")
         for device in self.devices:
+            print(f'{device}')
             if isinstance(device, Actuator):
                 self.actuators.append(device)
             elif isinstance(device, Sensor):
                 self.sensors.append(device)
+        print("")
         
     def create_device(self, device_data: Device):
         '''

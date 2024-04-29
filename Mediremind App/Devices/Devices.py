@@ -20,12 +20,20 @@ class Actuator(Device, z2mInteractor):
         self.current_state = "OFF"
         self._blinking = False
         self._blink_thread = None
+        event_system.subscribe(EventType.TURN_ON, self.turn_on)
+        event_system.subscribe(EventType.TURN_OFF, self.turn_off)
 
-    def turn_on(self):
+    def turn_on(self, room):
+        if room is not None and room != self.room:
+            return
+        print("on")
         self.send("set", {"state": "ON"}, self.zigbee_id)
         self.current_state = "ON"
 
-    def turn_off(self):
+    def turn_off(self, room):
+        if room is not None and room != self.room:
+            return
+        print("off")
         self.send("set", {"state": "OFF"}, self.zigbee_id)
         self.current_state = "OFF"
 
@@ -84,26 +92,61 @@ class MotionSensor(Sensor):
         super().__init__(**kwargs)
         event_type = getattr(EventType, self.type.name, None)
         event_system.subscribe(event_type, self.receive)
+        self.lock = threading.Lock()
+        self.last_medication_time = None
+        self.min_time_between_motion_events = 30 #Seconds
+        self.occupancy = False
         
-    def receive(self, data):
-        print(f"Motion sensor {self.name} received data: {data}")
+    def receive(self, data: dict):
+        topic: str = data.get('topic', None)
+        parts = topic.split("zigbee2mqtt/")
+        name = parts[1] if len(parts) > 1 else None
+        if name == self.name:
+            with self.lock:
+                current_time = time.time()
+                if self.last_medication_time is None or (current_time - self.last_medication_time >= self.min_time_between_motion_events):
+                    event: dict = data.get('event', False)
+                    if event:
+                        if event.get('occupancy', False) == True:
+                            event_system.publish(EventType.MOTION_ALERT, (self.room, True))
+                            print(f'\nMOTION {self.name} True\n')
+                        else:
+                            event_system.publish(EventType.MOTION_ALERT, (self.room, False)) 
+                            print(f'\nMOTION {self.name} False\n')
+                    self.last_medication_time = current_time
 
 class VibrationSensor(Sensor):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs):   
         super().__init__(**kwargs)
         event_type = getattr(EventType, self.type.name, None)
         event_system.subscribe(event_type, self.receive)
+        self.lock = threading.Lock()
+        self.last_medication_time = None
+        self.min_time_between_medication_events = 30 #Seconds
         
-    def receive(self, data):
-        print(f"Motion sensor {self.name} received data: {data}")
+    def receive(self, data: dict):
+        #print(f"{self.name} received data: {data['event']}")
+        event = data.get('event', False)
+        if event and event.get('action') == 'vibration' and event.get('vibration', False):
+            with self.lock:
+                current_time = time.time()
+                if self.last_medication_time is None or (current_time - self.last_medication_time >= self.min_time_between_medication_events):
+                    print("MEDICATION TAKEN")
+                    event_system.publish(EventType.MEDICATION_TAKEN, self.room)
+                    self.last_medication_time = current_time
+                else:
+                    print("MEDICATION EVENT BLOCKED: Less than 30 seconds since last event.")
 
 class Switch(Actuator):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        
 
     def receive(self, data):
         pass
 
+'''Motion sensor vibration received data: {'topic': 'zigbee2mqtt/vibration', 'type_': <Cep2Zigbee2mqttMessageType.DEVICE_EVENT: 'device_event'>, 'data': None, 'event': {'action': 'vibration', 'angle': 20, 'angle_x': 2, 'angle_x_absolute': 88, 'angle_y': -1, 'angle_y_absolute': 91, 'angle_z': -88, 'battery': 100, 'device_temperature': 30, 'linkquality': 51, 'power_outage_count': 6, 'strength': 38, 'vibration': True, 'voltage': 3055, 'x_axis': 24, 'y_axis': -18, 'z_axis': -734}, 'message': None, 'meta': None, 'status': None, 'state': None}'''
+'''Motion sensor vibration received data: {'topic': 'zigbee2mqtt/vibration', 'type_': <Cep2Zigbee2mqttMessageType.DEVICE_EVENT: 'device_event'>, 'data': None, 'event': {'angle': 20, 'angle_x': 2, 'angle_x_absolute': 88, 'angle_y': -1, 'angle_y_absolute': 91, 'angle_z': -88, 'battery': 100, 'device_temperature': 30, 'linkquality': 84, 'power_outage_count': 6, 'strength': 38, 'vibration': True, 'voltage': 3055, 'x_axis': 24, 'y_axis': -18, 'z_axis': -734}, 'message': None, 'meta': None, 'status': None, 'state': None}'''
 
 '''
 class Actuator(Device):

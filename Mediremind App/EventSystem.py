@@ -46,6 +46,8 @@ class EventType(enum.Enum):
     SWITCH_LIGHT = 40
     PLAY_SOUND = 41
     SEND_EVENTS = 42
+    TURN_ON = 43
+    TURN_OFF = 44
 
 class EventSystem:
     '''
