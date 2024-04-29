@@ -3,7 +3,9 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, time
+from EventSystem import EventType
+from typing import Any
 
 '''
 Defines the core data structures of system. 
@@ -115,3 +117,10 @@ class Notification:
     type: NotificationType
     message: str
     timestamp: datetime
+
+@dataclass 
+class Event:
+    event_id: str
+    type: EventType
+    data: Any
+    time: time

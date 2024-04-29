@@ -52,6 +52,7 @@ class DatabaseManager():
             event_system.subscribe(EventType.REQUEST_MQTT_CONF, self.make_request(self.database_manager.get_mqtt_configuration, self.database_manager.instance.mqtt_configuration, EventType.RESPONSE_MQTT_CONF))
             event_system.subscribe(EventType.REQUEST_STATE_CONFS, self.make_request(self.database_manager.get_state_configs, self.database_manager.instance.alert_configurations, EventType.RESPONSE_STATE_CONFS))
             event_system.subscribe(EventType.REQUEST_ROOMS,self.make_request(self.database_manager.get_rooms, self.database_manager.instance.rooms, EventType.RESPONSE_ROOMS))
+            event_system.subscribe(EventType.SEND_EVENTS,self.database_manager.send_events)
 
         def make_request(self, new_method, old_method, response_type):
             '''When making a db request you can choose between fetching new data
@@ -114,6 +115,22 @@ class DatabaseManager():
         self.headers= {'Authorization': f'Token {api_token}'}
         self.instance = DatabaseManager.Instance(self)
         self.event_handler = DatabaseManager.EventHandler(self)
+
+    def send_events(self, events: list):
+        serialized_events = json.dumps(events, cls=EnhancedJSONEncoder)
+
+        response = requests.post(
+            self.base_api_url + '/api/event/',
+            data=serialized_events,
+            headers={**self.headers, 'Content-Type': 'application/json'}
+        )
+
+        if response.status_code == 201:
+            print("Events Sent")
+        else:
+            print("Error sending Events:", response.text)
+
+        return response
 
     def send_notification(self, notification: Models.Notification):
         serialized_notification= json.dumps(notification, cls=EnhancedJSONEncoder)

@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import HeucodEvent
 from .models import MedicationSchedule
 from .models import MQTTConfiguration
-from .models import Room, Device, Notification, StateConfig
+from .models import Room, Device, Notification, StateConfig, Event
 
 
 class NotificationSerializer(serializers.ModelSerializer):
@@ -43,3 +43,9 @@ class MQTTConfigurationSerializer(serializers.ModelSerializer):
     class Meta:
         model = MQTTConfiguration
         fields = ['id', 'user', 'broker_address', 'port', 'username', 'password']
+
+class EventSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    class Meta:
+        model = Event
+        fields = '__all__' 
