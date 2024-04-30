@@ -21,10 +21,9 @@ body {
     justify-content: space-between;
     align-items: center;
     background-color: var(--background);
-    padding: 20px;
-    box-shadow: 0 4px 8px 0 var(--shadow), 0 6px 20px 0 var(--shadow);
+    padding: 1.25em; /* Convert 20px to em */
+    box-shadow: 0 0.32em 0.64em 0 var(--shadow), 0 0.48em 1.6em 0 var(--shadow); /* Convert px to em */
 }
-
 .navbar ul {
     list-style: none;
     margin: 0;
@@ -33,9 +32,10 @@ body {
 }
 
 .navbar li {
-    margin-left: 20px;
-    margin-right: 30px;
+    margin-left: 1.25em; /* Convert 20px to em */
+    margin-right: 1.875em; /* Convert 30px to em */
 }
+
 
 .navbar li.end {
     margin-right: 0;
@@ -54,7 +54,7 @@ body {
     color: var(--text);
     font-family: "Roboto", sans-serif;
     font-weight: 500;
-    font-size: 16px;
+    font-size: 1em; /* Convert 16px to em */
 }
 
 .navbar button:hover {
@@ -66,7 +66,7 @@ body {
     flex-wrap: wrap;
     justify-content: center;
     align-items: center; /* Center items vertically */
-    min-height: calc(100vh - 120px); /* Set minimum height to fill viewport minus navbar height */
+    min-height: calc(100vh - 7.5em); /* Convert 120px to em */
 }
 
 .row ul {
@@ -85,26 +85,35 @@ body {
 }
 
 .row i {
-    margin-bottom: 5px;
-    height: 20px;
-    font-size: 45px; /* Increase font size for the text in the buttons */
+    margin-bottom: 0.25em; /* Adjusted from 0.3125em */
+    height: 0.25em; /* Adjusted from 1.25em */
+    font-size: 2.25em; /* Adjusted from 2.8125em */
+    text-align: center; /* Center align text */
 }
 
 .row a {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
     text-decoration: none;
     list-style-type: none;
-    height: 200px;
-    width: 200px;
-    margin: 25px;
-    padding: 10px;
+    height: 10em; /* Convert 200px to em */
+    width: 10em; /* Convert 200px to em */
+    margin: 1.5625em; /* Convert 25px to em */
+    padding: 0.625em; /* Convert 10px to em */
+    font-size: 1.25em; /* Convert 20px to em */
     background-color: var(--primary);
     border-radius: 10px;
     color: var(--text);
-    font-size: 20px; /* Increase font size for the icons */
+    text-align: center; /* Center align text */
+}
+
+/* Media query for smaller screens */
+@media screen and (max-width: 768px) {
+    .row i {
+        margin-bottom: 0.3em; /* Adjust margin for smaller screens */
+    }
 }
 
 .row a:hover {
