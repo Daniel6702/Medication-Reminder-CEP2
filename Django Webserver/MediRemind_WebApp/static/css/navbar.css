@@ -53,8 +53,13 @@
     font-family: "Roboto", sans-serif;
     font-weight: 500;
     font-size: 1em; /* Convert 16px to em */
+    padding: 8px 12px; /* Adjust padding as needed */
+    border-radius: 4px; /* Add border radius for rounded corners */
+    transition: background-color 0.3s, color 0.3s; /* Add transition for smooth effect */
 }
 
-.navbar button:hover {
-    color: #3b5447;
+.navbar button:hover,
+.navbar a:hover {
+    background-color: var(--accent); /* Change background color on hover */
+    color: var(--background); /* Change text color on hover */
 }
