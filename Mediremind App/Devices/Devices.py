@@ -14,55 +14,65 @@ class z2mInteractor(ABC):
         pass
 
 class Actuator(Device, z2mInteractor):
-    '''Represents actuator devices, that are capable or turning on and off'''
+    '''Represents actuator devices, capable of turning on and off.'''
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.current_state = "OFF"
         self._blinking = False
         self._blink_thread = None
+        self._lock = threading.Lock()
         event_system.subscribe(EventType.TURN_ON, self.turn_on)
         event_system.subscribe(EventType.TURN_OFF, self.turn_off)
+        event_system.subscribe(EventType.BLINK_TIMES, self.blink)
+        event_system.subscribe(EventType.START_BLINK, self.start_blink)
+        event_system.subscribe(EventType.STOP_BLINK, self.stop_blink)
 
+    def event_is_not_for_this_device(self, data: DeviceEvent):
+        return data.name and self.name != data.name or data.room and self.room.room_id != data.room
+    
     def turn_on(self, data: DeviceEvent):
-        if data.name and self.name != data.name or data.room and self.room.room_id != data.room: return
+        if self.event_is_not_for_this_device(data): return
         self.send("set", {"state": "ON"}, self.zigbee_id)
         self.current_state = "ON"
 
     def turn_off(self, data: DeviceEvent):
-        if data.name and self.name != data.name or data.room and self.room.room_id != data.room: return
+        if self.event_is_not_for_this_device(data): return
         self.send("set", {"state": "OFF"}, self.zigbee_id)
         self.current_state = "OFF"
 
-    def get_state(self):
-        return self.current_state
-    
-    def _blink_thread_method(self, interval, times=None):
+    def blink(self, data: DeviceEvent):
+        if self.event_is_not_for_this_device(data): return
+        if data.blink_interval and data.blink_times:
+            self.start_blink(data)
+
+    def _blink_thread_method(self, data: DeviceEvent):
         count = 0
-        while self._blinking and (times is None or count < times):
-            self.turn_on()
-            time.sleep(interval)
-            self.turn_off()
-            time.sleep(interval)
+        while self._blinking and (data.blink_times is None or count < data.blink_times):
+            if not self._blinking: 
+                break
+            self.turn_on(data)
+            time.sleep(data.blink_interval)
+            self.turn_off(data)
+            time.sleep(data.blink_interval)
             count += 1
-        self._blinking = False
 
-    def start_blink(self, interval=1):
-        if not self._blinking:
-            self._blinking = True
-            self._blink_thread = threading.Thread(target=self._blink_thread_method, args=(interval,))
-            self._blink_thread.start()
+    def start_blink(self, data: DeviceEvent):
+        if self.event_is_not_for_this_device(data): return
+        if data.blink_interval:
+            with self._lock:
+                if not self._blinking:
+                    self._blinking = True
+                    self._blink_thread = threading.Thread(target=self._blink_thread_method, args=(data,))
+                    self._blink_thread.start()
 
-    def blink_times(self, times, interval=1):
-        if not self._blinking:
-            self._blinking = True
-            self._blink_thread = threading.Thread(target=self._blink_thread_method, args=(interval, times))
-            self._blink_thread.start()
-
-    def stop_blink(self):
-        self._blinking = False
-        if self._blink_thread:
-            self._blink_thread.join()
-            self._blink_thread = None
+    def stop_blink(self, data: DeviceEvent):
+        if self.event_is_not_for_this_device(data): return
+        with self._lock:
+            if self._blinking:
+                self._blinking = False
+                if self._blink_thread.is_alive():
+                    self._blink_thread.join()
+                self._blink_thread = None
     
 class Sensor(Device, z2mInteractor):
     def __init__(self, **kwargs):

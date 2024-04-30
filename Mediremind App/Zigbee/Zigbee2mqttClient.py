@@ -81,7 +81,6 @@ class Cep2Zigbee2mqttMessage:
         try:
             message_json = json.loads(message)
         except json.JSONDecodeError as e:
-            print(f"Error decoding JSON from message: {e}")
             return None
 
         if not message.strip():

@@ -159,11 +159,10 @@ class DatabaseManager():
         response = requests.get(self.base_api_url + '/api/mqtt-configuration/', headers=self.headers)
         return Models.MQTTConfiguration.from_json(response.json())
     
-    def get_state_configs(self) -> list[Models.StateConfig]:
+    def get_state_configs(self) -> List[Models.StateConfig]:
         response = requests.get(self.base_api_url + '/api/state_config/', headers=self.headers)
-        configs = []
-        for conf in response.json():
-            configs.append(Models.StateConfig.from_json(conf))
+        response.raise_for_status()  
+        configs = [Models.StateConfig.from_json(conf) for conf in response.json()]
         return configs
 
     def get_rooms(self) -> list[Models.Room]:

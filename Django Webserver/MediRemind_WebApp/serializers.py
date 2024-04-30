@@ -3,6 +3,7 @@ from .models import HeucodEvent
 from .models import MedicationSchedule
 from .models import MQTTConfiguration
 from .models import Room, Device, Notification, StateConfig, Event
+from django.conf import settings
 
 
 class NotificationSerializer(serializers.ModelSerializer):
@@ -21,9 +22,16 @@ class DeviceSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class StateConfigSerializer(serializers.ModelSerializer):
+    sound_file = serializers.SerializerMethodField()
+
     class Meta:
         model = StateConfig
-        fields = '__all__' 
+        fields = '__all__'
+
+    def get_sound_file(self, obj):
+        if obj.sound_file:
+            return self.context['request'].build_absolute_uri(obj.sound_file.url)
+        return None
 
 class HeucodEventSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(read_only=True)

@@ -31,5 +31,5 @@ class ZigbeeMessageDistributer():
                     event_type = getattr(EventType, device_type)
                     event_system.publish(event_type, asdict(message))
                     return
-            print('Unknown Device')
+            
 
