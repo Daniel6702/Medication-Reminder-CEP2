@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from Database.Models import Device 
+from Database.Models import Device, DeviceEvent
 from EventSystem import EventType, event_system
 import time
 import threading
@@ -23,17 +23,13 @@ class Actuator(Device, z2mInteractor):
         event_system.subscribe(EventType.TURN_ON, self.turn_on)
         event_system.subscribe(EventType.TURN_OFF, self.turn_off)
 
-    def turn_on(self, room):
-        if room is not None and room != self.room:
-            return
-        print("on")
+    def turn_on(self, data: DeviceEvent):
+        if data.name and self.name != data.name or data.room and self.room.room_id != data.room: return
         self.send("set", {"state": "ON"}, self.zigbee_id)
         self.current_state = "ON"
 
-    def turn_off(self, room):
-        if room is not None and room != self.room:
-            return
-        print("off")
+    def turn_off(self, data: DeviceEvent):
+        if data.name and self.name != data.name or data.room and self.room.room_id != data.room: return
         self.send("set", {"state": "OFF"}, self.zigbee_id)
         self.current_state = "OFF"
 
@@ -75,11 +71,14 @@ class Sensor(Device, z2mInteractor):
 class RGBStrip(Actuator):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        event_system.subscribe(EventType.CHANGE_COLOR, self.set_color)
         self.current_color = None
 
-    def set_color(self, color):
-        self.send("set", {"color": color}, self.zigbee_id)
-        self.current_color = color
+    def set_color(self, data: DeviceEvent):
+        if data.name and self.name != data.name or data.room and self.room.room_id != data.room: return
+        if data.color:
+            self.send("set", {"color": data.color}, self.zigbee_id)
+            self.current_color = data.color
 
     def get_color(self):
         return self.current_color
@@ -140,7 +139,6 @@ class VibrationSensor(Sensor):
 class Switch(Actuator):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        
 
     def receive(self, data):
         pass

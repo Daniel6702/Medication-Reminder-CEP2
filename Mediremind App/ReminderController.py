@@ -3,7 +3,7 @@ from EventSystem import EventType, event_system
 from Database.DataBaseManager import DatabaseManager
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
-from Database.Models import StateConfig
+from Database.Models import StateConfig, DeviceEvent
 from time import sleep
 '''
 This Python module defines the core logic of the remind mechanisms. The system is structured around a state machine pattern,
@@ -41,7 +41,7 @@ class ReminderSystem:
 
     def get_medication_schedules(self,schedules): self.schedules = schedules; print(f"\nSCHEDULES:\n {schedules}\n")
 
-    def change_state(self, state):
+    def change_state(self, state: 'State'):
         self.state = state
         self.state.handle()
 
@@ -101,12 +101,14 @@ class IdleState(State):
     def handle(self):
         if self.reminder_system.is_medication_time() and False:
             self.reminder_system.change_state(ActiveState(self.reminder_system))
-        sleep(2)
+        sleep(3)
         if self.x % 2 == 0:
             print("turn on 1")
-            event_system.publish(EventType.TURN_ON, None)
+            #event_system.publish(EventType.TURN_ON, DeviceEvent)
+            event_system.publish(EventType.CHANGE_COLOR, DeviceEvent(color={"r":46,"g":102,"b":150}))
         else:
-            event_system.publish(EventType.TURN_OFF, None)
+            event_system.publish(EventType.CHANGE_COLOR, DeviceEvent(color={"r":200,"g":75,"b":56}))
+            #event_system.publish(EventType.TURN_OFF, DeviceEvent)
             print("turn off 1")
         self.x+=1
 

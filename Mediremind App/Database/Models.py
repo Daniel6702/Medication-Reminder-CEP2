@@ -124,3 +124,9 @@ class Event:
     type: EventType
     data: Any
     time: time
+
+@dataclass
+class DeviceEvent:
+    name: str = None
+    room: str = None
+    color: str = None
