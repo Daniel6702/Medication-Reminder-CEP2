@@ -1,12 +1,3 @@
-:root {
-    --text: #10150f;
-    --background: #fafbf9;
-    --primary: #799d72;
-    --secondary: #aac4b7;
-    --accent: #92b3a7;
-    --shadow: rgba(125, 125, 125, 0.2);
-}
-
 body {
     font-family: "Roboto", sans-serif;
     font-weight: 500;

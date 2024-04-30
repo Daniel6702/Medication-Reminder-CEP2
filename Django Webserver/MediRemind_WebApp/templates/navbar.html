@@ -9,16 +9,34 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 
+
 <body>
 <div class="navbar">
-    <ul>
+    <ul class="left">
         <li>
             <a href="{% url 'profile_home' %}"><i class="fas fa-home"></i>Home</a>
         </li>
         <li>
+            <a href="dashboard.html"> <i class="fas fa-border-all"></i>Dashboard</a>
+        </li>
+        <li>
+            <a href="calendar.html"><i class="fas fa-calendar-alt"></i>Schedule</a>
+        </li>
+        <li>
+            <a href="events.html"><i class="fas fa-star"></i>Events</a>
+        </li>
+        <li>
+            <a href="analysis.html"><i class="fas fa-chart-bar"></i>Analysis</a>
+        </li>
+        <li>
+            <a href="configuration.html"><i class="fas fa-sliders-h"></i>Configuration</a>
+        </li>
+    </ul>
+    <ul class="right">
+        <li>
             <a href="{% url 'settings' %}"><i class="fas fa-cog"></i>Settings</a>
         </li>
-        <li class="end">
+        <li>
             <form action="{% url 'logout' %}" method="post">
                 {% csrf_token %}
                 <button type="submit"><i class="fas fa-door-open"></i>Logout</button>
@@ -26,3 +44,5 @@
         </li>
     </ul>
 </div>
+</body>
+</html>
