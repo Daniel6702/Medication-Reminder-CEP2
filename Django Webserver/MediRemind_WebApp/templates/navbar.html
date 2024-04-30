@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+
+<body>
+<div class="navbar">
+    <ul>
+        <li>
+            <a href="{% url 'profile_home' %}"><i class="fas fa-home"></i>Home</a>
+        </li>
+        <li>
+            <a href="{% url 'settings' %}"><i class="fas fa-cog"></i>Settings</a>
+        </li>
+        <li class="end">
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit"><i class="fas fa-door-open"></i>Logout</button>
+            </form>
+        </li>
+    </ul>
+</div>
