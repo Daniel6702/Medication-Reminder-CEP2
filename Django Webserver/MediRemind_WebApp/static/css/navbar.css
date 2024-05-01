@@ -1,0 +1,75 @@
+:root {
+    --text: #10150f;
+    --background: #fafbf9;
+    --primary: #799d72;
+    --secondary: #aac4b7;
+    --accent: #92b3a7;
+    --shadow: rgba(125, 125, 125, 0.2);
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 1,
+  'wght' 300,
+  'GRAD' 0,
+  'opsz' 24
+}
+
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--background);
+    padding: 1.25em; /* Convert 20px to em */
+    box-shadow: 0 0.32em 0.64em 0 var(--shadow), 0 0.48em 1.6em 0 var(--shadow); /* Convert px to em */
+}
+
+.navbar .left,
+.navbar .right {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.navbar .left li:not(:last-child),
+.navbar .right li:not(:last-child) {
+    margin-right: 1.875em; /* Convert 30px to em */
+}
+
+.navbar .left li.end {
+    margin-right: auto;
+}
+
+.navbar .right li.end {
+    margin-left: auto;
+}
+
+.navbar span {
+    margin-right: 5px;
+}
+
+.navbar button,
+.navbar a {
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text);
+    font-family: "Roboto", sans-serif;
+    font-weight: 500;
+    font-size: 1em; /* Convert 16px to em */
+    padding: 8px 12px; /* Adjust padding as needed */
+    border-radius: 4px; /* Add border radius for rounded corners */
+    transition: background-color 0.3s, color 0.3s; /* Add transition for smooth effect */
+    display: flex;
+    align-items: center;
+}
+
+.navbar button:hover,
+.navbar a:hover {
+    background-color: var(--accent); /* Change background color on hover */
+    color: var(--background); /* Change text color on hover */
+}

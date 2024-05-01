@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+</head>
+
+
+<body>
+<div class="navbar">
+    <ul class="left">
+        <li>
+            <a href="{% url 'profile_home' %}">
+            <span class="material-symbols-outlined"> home </span>
+            Home
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'dashboard' %}">
+            <span class="material-symbols-outlined"> apps </span>
+            Dashboard
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'medication_schedule' %}">
+            <span class="material-symbols-outlined"> calendar_today </span>
+            Schedule
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'manual_input' %}">
+            <span class="material-symbols-outlined"> edit </span>
+            Manual Input
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'events' %}">
+            <span class="material-symbols-outlined"> list </span>
+            Events
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'data' %}">
+            <span class="material-symbols-outlined"> equalizer </span>
+            Analysis
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'configuration' %}">
+            <span class="material-symbols-outlined"> tune </span>
+            Configuration
+            </a>
+        </li>
+    </ul>
+    <ul class="right">
+        <li>
+            <a href="{% url 'settings' %}"><span class="material-symbols-outlined"> manage_accounts </span>{{ user.username }}</a>
+        </li>
+        <li>
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit"><span class="material-symbols-outlined"> logout </span>Logout</button>
+            </form>
+        </li>
+    </ul>
+</div>
+</body>
+</html>

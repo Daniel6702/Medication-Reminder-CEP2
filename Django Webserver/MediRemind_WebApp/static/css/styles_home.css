@@ -1,0 +1,90 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+
+body {
+    font-family: "Roboto", sans-serif;
+    font-weight: 500;
+    background-color: var(--background);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+    line-height: 1;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center; /* Center items vertically */
+    min-height: calc(100vh - 7.5em); /* Convert 120px to em */
+}
+
+.row ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+}
+
+.row li {
+    display: flex;
+    flex-direction: row;
+    list-style-type: none;
+}
+
+.row span {
+    margin-bottom: 40px;
+    height: 0.25em; /* Adjusted from 1.25em */
+    font-size: 2.25em; /* Adjusted from 2.8125em */
+    text-align: center; /* Center align text */
+}
+
+.row a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    list-style-type: none;
+    height: 10em; /* Convert 200px to em */
+    width: 10em; /* Convert 200px to em */
+    margin: 1.5625em; /* Convert 25px to em */
+    padding: 0.625em; /* Convert 10px to em */
+    font-size: 1.25em; /* Convert 20px to em */
+    background-color: var(--primary);
+    border-radius: 20px;
+    color: var(--text);
+    text-align: center; /* Center align text */
+    box-shadow: 0 0.32em 0.64em 0 var(--shadow), 0 0.48em 1.6em 0 var(--shadow); /* Convert px to em */
+    transition: background-color 0.3s, color 0.3s; /* Add transition for smooth effect */
+}
+
+/* Media query for smaller screens */
+@media screen and (max-width: 768px) {
+    .row i {
+        margin-bottom: 0.3em; /* Adjust margin for smaller screens */
+    }
+}
+
+.row a:hover {
+    background-color: var(--secondary);
+}

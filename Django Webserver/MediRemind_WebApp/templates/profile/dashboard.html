@@ -1,0 +1,55 @@
+{% extends 'base_profile.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block profile_content %}
+<div class="content-container" style="display: flex; justify-content: space-between;">
+    <div class="notification-container" style="flex: 1;">
+        <h4>Notifications</h4>
+        {% if notifications %}
+            <ul class="notification-list">
+                {% for notification in notifications %}
+                    <li class="notification-item {{ notification.type|lower }}">
+                        <span class="notification-message">{{ notification.message }}</span>
+                        <span class="notification-timestamp">{{ notification.timestamp|date:"M d, Y H:i" }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No notifications found.</p>
+        {% endif %}
+    </div>
+
+    <div class="medication-calendar" style="flex: 1;">
+        <h4>Today's Medication Schedule</h4>
+        {% if schedules %}
+                <div class="time-columns">
+                    {% for hour in "00:01|02:03|04:05|06:07|08:09|10:11|12:13|14:15|16:17|18:19|20:21|22:23"|split:"|" %}
+                        <div class="hour-mark">{{ hour|replace:":, - " }}</div>
+                    {% endfor %}
+                </div>
+            <div class="medication-events">
+                {% for schedule in schedules %}
+                    <div class="medication-event"
+                        data-top="{{ schedule.reminder_time.hour|multiply:30 }}"
+                        data-height="{{ schedule.time_window|multiply:30 }}">
+                        <span class="medication-name">{{ schedule.medication_name }}</span><br>
+                        <span class="medication-info">Time: {{ schedule.reminder_time|date:"H:i" }} - Duration: {{ schedule.time_window }} hrs</span><br>
+                        <span class="medication-dosage">{{ schedule.dosage }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No medication events scheduled for today.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/home.js' %}" type="text/javascript"></script>
+{% endblock %}
