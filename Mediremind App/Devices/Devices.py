@@ -28,7 +28,7 @@ class Actuator(Device, z2mInteractor):
         event_system.subscribe(EventType.STOP_BLINK, self.stop_blink)
 
     def event_is_not_for_this_device(self, data: DeviceEvent):
-        return data.name and self.name != data.name or data.room and self.room.room_id != data.room
+        return data.name and self.name != data.name or data.room and self.room != data.room
     
     def turn_on(self, data: DeviceEvent):
         if self.event_is_not_for_this_device(data): return
@@ -86,7 +86,7 @@ class RGBStrip(Actuator):
         self.current_color = None
 
     def set_color(self, data: DeviceEvent):
-        if data.name and self.name != data.name or data.room and self.room.room_id != data.room: return
+        if data.name and self.name != data.name or data.room and self.room != data.room: return
         if data.color:
             self.send("set", {"color": data.color}, self.zigbee_id)
             self.current_color = data.color
@@ -108,7 +108,8 @@ class MotionSensor(Sensor):
         self.occupancy = False
         
     def receive(self, data: dict):
-        print(f'data: {data}')
+        print(f"MOTION EVENT: {self.name}   occupancy: {data.get('event', None).get('occupancy', None)}")
+
         topic: str = data.get('topic', None)
         parts = topic.split("zigbee2mqtt/")
         name = parts[1] if len(parts) > 1 else None
@@ -120,10 +121,8 @@ class MotionSensor(Sensor):
                     if event:
                         if event.get('occupancy', False) == True:
                             event_system.publish(EventType.MOTION_ALERT, (self.room, True))
-                            print(f'\nMOTION {self.name} True\n')
                         else:
                             event_system.publish(EventType.MOTION_ALERT, (self.room, False)) 
-                            print(f'\nMOTION {self.name} False\n')
                     self.last_medication_time = current_time
 
 class VibrationSensor(Sensor):
@@ -136,8 +135,7 @@ class VibrationSensor(Sensor):
         self.min_time_between_medication_events = 30 #Seconds
         
     def receive(self, data: dict):
-        print(data)
-        #print(f"{self.name} received data: {data['event']}")
+        print(f'VIBRATION: {self.name}')
         event = data.get('event', False)
         if event and event.get('action') == 'vibration' and event.get('vibration', False):
             with self.lock:
