@@ -53,6 +53,7 @@ class EventType(enum.Enum):
     STOP_BLINK = 47
     SETUP_FINISHED = 48
     STOP_SOUND = 49
+    ROOM_EMPTY = 50
 
 class EventSystem:
     '''

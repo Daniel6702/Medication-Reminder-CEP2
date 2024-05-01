@@ -96,34 +96,43 @@ class RGBStrip(Actuator):
     
     def receive(self, data):
         pass
-    
+
 class MotionSensor(Sensor):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        event_type = getattr(EventType, self.type.name, None)
-        event_system.subscribe(event_type, self.receive)
+        self.event_type = getattr(EventType, self.type.name, None)
+        event_system.subscribe(self.event_type, self.receive)
         self.lock = threading.Lock()
         self.last_medication_time = None
-        self.min_time_between_motion_events = 30 #Seconds
+        self.min_time_between_motion_events = 30  # Seconds
         self.occupancy = False
-        
-    def receive(self, data: dict):
-        print(f"MOTION EVENT: {self.name}   occupancy: {data.get('event', None).get('occupancy', None)}")
+        self.occupancy_timer = None  # Timer for resetting occupancy
 
+    def reset_occupancy(self):
+        with self.lock:
+            self.occupancy = False
+            event_system.publish(EventType.ROOM_EMPTY, self.room)
+            print(f"Reset occupancy for {self.name}")
+
+    def receive(self, data: dict):
+        print(f"MOTION EVENT: {self.name}   occupancy: {data.get('event', {}).get('occupancy', None)}")
         topic: str = data.get('topic', None)
         parts = topic.split("zigbee2mqtt/")
         name = parts[1] if len(parts) > 1 else None
+
         if name == self.name:
             with self.lock:
                 current_time = time.time()
                 if self.last_medication_time is None or (current_time - self.last_medication_time >= self.min_time_between_motion_events):
-                    event: dict = data.get('event', False)
-                    if event:
-                        if event.get('occupancy', False) == True:
-                            event_system.publish(EventType.MOTION_ALERT, (self.room, True))
-                        else:
-                            event_system.publish(EventType.MOTION_ALERT, (self.room, False)) 
+                    if data.get('event', {}).get('occupancy', False) and not self.occupancy:
+                        self.occupancy = True
+                        event_system.publish(EventType.MOTION_ALERT, self.room)
+                        if self.occupancy_timer is not None:
+                            self.occupancy_timer.cancel()
+                        self.occupancy_timer = threading.Timer(120, self.reset_occupancy)
+                        self.occupancy_timer.start()
                     self.last_medication_time = current_time
+
 
 class VibrationSensor(Sensor):
     def __init__(self, **kwargs):   
@@ -135,6 +144,7 @@ class VibrationSensor(Sensor):
         self.min_time_between_medication_events = 30 #Seconds
         
     def receive(self, data: dict):
+        print(data)
         print(f'VIBRATION: {self.name}')
         event = data.get('event', False)
         if event and event.get('action') == 'vibration' and event.get('vibration', False):
