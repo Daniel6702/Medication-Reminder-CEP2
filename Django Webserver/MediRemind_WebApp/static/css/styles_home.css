@@ -1,3 +1,24 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+
 body {
     font-family: "Roboto", sans-serif;
     font-weight: 500;
@@ -5,6 +26,7 @@ body {
     margin: 0;
     padding: 0;
     overflow-x: hidden; /* Hide horizontal scrollbar */
+    line-height: 1;
 }
 
 .row {
@@ -27,12 +49,10 @@ body {
     display: flex;
     flex-direction: row;
     list-style-type: none;
-    border-radius: 10px;
-    line-height: 4.5em; /* Adjusted from 1.5625em */
 }
 
 .row span {
-    margin-bottom: 0.25em; /* Adjusted from 0.3125em */
+    margin-bottom: 40px;
     height: 0.25em; /* Adjusted from 1.25em */
     font-size: 2.25em; /* Adjusted from 2.8125em */
     text-align: center; /* Center align text */
@@ -51,7 +71,7 @@ body {
     padding: 0.625em; /* Convert 10px to em */
     font-size: 1.25em; /* Convert 20px to em */
     background-color: var(--primary);
-    border-radius: 10px;
+    border-radius: 20px;
     color: var(--text);
     text-align: center; /* Center align text */
 }
