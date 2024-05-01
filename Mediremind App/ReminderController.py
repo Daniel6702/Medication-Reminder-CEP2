@@ -116,9 +116,8 @@ class IdleState(State):
         #    event_system.publish(EventType.REMIND_EVERYWHERE, conf)
         self.x = 0
         #event_system.publish(EventType.BLINK_TIMES, DeviceEvent(blink_times=2, blink_interval=2))
-        print("fuck")
         #event_system.publish(EventType.BLINK_TIMES, DeviceEvent(blink_times=2, blink_interval=2))
-        event_system.publish(EventType.START_BLINK, DeviceEvent(blink_interval=2))
+        #event_system.publish(EventType.START_BLINK, DeviceEvent(blink_interval=2))
 
 
     def handle(self):
@@ -135,8 +134,8 @@ class IdleState(State):
             #event_system.publish(EventType.TURN_OFF, DeviceEvent)
             #print("turn off 1")
             pass
-        if self.x == 6:
-            event_system.publish(EventType.STOP_BLINK, DeviceEvent())
+        #if self.x == 6:
+        #    event_system.publish(EventType.STOP_BLINK, DeviceEvent())
 
         self.x+=1
 

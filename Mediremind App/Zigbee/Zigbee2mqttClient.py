@@ -78,6 +78,8 @@ class Cep2Zigbee2mqttMessage:
         #     - Class methods: https://stackabuse.com/pythons-classmethod-and-staticmethod-explained/
         #     - Factory design pattern: https://refactoring.guru/design-patterns/factory-method
 
+        print(message)
+
         try:
             message_json = json.loads(message)
         except json.JSONDecodeError as e:
@@ -252,6 +254,7 @@ class Cep2Zigbee2mqttClient:
     def disconnect(self) -> None:
         """ Disconnects from the MQTT broker.
         """
+        print("Disconnect")
         self.__stop_worker.set()
         self.__client.loop_stop()
         # Unsubscribe from all topics given in the initializer.
@@ -277,6 +280,7 @@ class Cep2Zigbee2mqttClient:
         print("MQTT client connected")
 
     def __on_disconnect(self, client, userdata, rc) -> None:
+        print("on_disconnect")
         """ Callback invoked when the client disconnects from the MQTT broker occurs.
 
         Refer to paho-mqtt documentation for more information on this callback:
@@ -296,7 +300,10 @@ class Cep2Zigbee2mqttClient:
         """
 
         # Push a message to the queue. This will later be processed by the worker.
+        print(message)
         self.__events_queue.put(message)
+        #if message:
+        #    self.__on_message_clbk(Cep2Zigbee2mqttMessage.parse(message.topic,message.payload.decode("utf-8")))
 
     def __worker(self) -> None:
         """ This method pulls zigbee2mqtt messages from the queue of received messages, pushed when
@@ -304,11 +311,13 @@ class Cep2Zigbee2mqttClient:
         the instance of zigbee2mqttClient disconnects, i.e. disconnect() is called and sets the
         __stop_worker event.
         """
-        while not self.__stop_worker.is_set():
+        while True:
+            print("ajshbd")
             try:
                 # Pull a message from the queue.
                 message = self.__events_queue.get(timeout=1)
             except Empty:
+                print("hello")
                 # This exception is raised when the queue pull times out. Ignore it and retry a new
                 # pull.
                 pass

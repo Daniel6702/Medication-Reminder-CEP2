@@ -107,6 +107,7 @@ class MotionSensor(Sensor):
         self.occupancy = False
         
     def receive(self, data: dict):
+        print(data)
         topic: str = data.get('topic', None)
         parts = topic.split("zigbee2mqtt/")
         name = parts[1] if len(parts) > 1 else None
@@ -134,6 +135,7 @@ class VibrationSensor(Sensor):
         self.min_time_between_medication_events = 30 #Seconds
         
     def receive(self, data: dict):
+        print(data)
         #print(f"{self.name} received data: {data['event']}")
         event = data.get('event', False)
         if event and event.get('action') == 'vibration' and event.get('vibration', False):
