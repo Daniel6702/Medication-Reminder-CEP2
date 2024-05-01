@@ -7,7 +7,6 @@ body {
     overflow-x: hidden; /* Hide horizontal scrollbar */
 }
 
-
 .row {
     display: flex;
     flex-wrap: wrap;
@@ -29,9 +28,10 @@ body {
     flex-direction: row;
     list-style-type: none;
     border-radius: 10px;
+    line-height: 4.5em; /* Adjusted from 1.5625em */
 }
 
-.row i {
+.row span {
     margin-bottom: 0.25em; /* Adjusted from 0.3125em */
     height: 0.25em; /* Adjusted from 1.25em */
     font-size: 2.25em; /* Adjusted from 2.8125em */
