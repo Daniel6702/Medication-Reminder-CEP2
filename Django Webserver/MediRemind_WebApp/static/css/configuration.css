@@ -1,5 +1,21 @@
-.sidebar {
-    height: 150vh;
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+ul.content {
+    flex-flow: column wrap;
+    justify-content: space-between;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+li {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
 }
 
 .device-list {
@@ -66,12 +82,6 @@
     }
 }
 
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-}
-
 #add-room-form {
     margin-bottom: 20px;
 }
@@ -85,7 +95,7 @@ input[type="text"] {
 
 button {
     padding: 10px 20px;
-    background-color: #4CAF50;
+    background-color: var(--primary);
     color: white;
     border: none;
     cursor: pointer;
@@ -132,4 +142,10 @@ button:hover {
     padding: 10px; /* Adds padding inside each section */
     border: 1px solid #ccc; /* Adds a border for visual separation */
     box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Optional: Adds shadow for better visual emphasis */
+}
+
+#apiToken {
+    font-family: monospace; /* Uses a monospace font for better readability */
+    height: fit-content;
+    width: 100%;
 }

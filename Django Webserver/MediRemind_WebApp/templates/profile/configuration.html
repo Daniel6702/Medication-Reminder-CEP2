@@ -3,13 +3,9 @@
 
 {% block profile_content %}
 
-<h1>Configurations</h1>
-
-<hr>
-
-<div class="configurations">
+<ul class="content">
     <!-- Room Configuration -->
-    <div class="configuration-section">
+    <li class="configuration-section">
         <h3>Room Configuration</h3>
         <form id="add-room-form">
             <input type="text" id="room-name-input" placeholder="Enter room name" required>
@@ -29,9 +25,9 @@
             </div>
             {% endfor %}
         </div>
-    </div>
+    </li>
     <!-- Device Configuration -->
-    <div class="configuration-section">
+    <li class="configuration-section">
         <h3>Device Configuration</h3>
         <div>
             <h4>Your Devices</h4>
@@ -64,14 +60,10 @@
             <p>No devices found.</p>
             {% endif %}
         </div>
-    </div>
-</div>
+    </li>
 
-<hr>
-
-<div class="configurations">
     <!-- State Configuration -->
-    <div class="configuration-section">
+    <li class="configuration-section">
         <h3>State Configuration</h3>
         <form method="get" action="">
             <label for="state">Select State:</label>
@@ -87,29 +79,23 @@
             <input type="hidden" name="state_name" value="{{ current_state }}">
             <button type="submit" name="state_config_submit">Save State Configuration</button>
         </form>
-    </div>
+    </li>
     
     <!-- MQTT Configuration -->
-    <div class="configuration-section">
+    <li class="configuration-section">
         <h3>MQTT Configuration</h3>
         <form method="post">
             {% csrf_token %}
             {{ mqtt_form.as_p }}
             <button type="submit" name="mqtt_submit">Save Configuration</button>
         </form>
-    </div>
+    </li>
 
-
-</div>
-
-<hr>
-
-<div>
-    <p>Your API Token:</p>
-    <textarea id="apiToken" readonly>{{ token.key }}</textarea>
-</div>
-
-<hr>
+    <li class="configuration-section">
+        <p>Your API Token:</p>
+        <textarea id="apiToken" readonly>{{ token.key }}</textarea>
+    </li>
+</ul>
 
 {% endblock %}
 
