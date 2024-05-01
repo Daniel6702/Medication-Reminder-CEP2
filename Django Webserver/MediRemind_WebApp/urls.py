@@ -11,6 +11,7 @@ profile_urls = [
     path('profile/data', ProfileViews.DataView.as_view(), name='data'),
     path('profile/settings', ProfileViews.SettingsView.as_view(), name='settings'),
     path('profile/manual_input', ProfileViews.ManualInputView.as_view(), name='manual_input'),
+    path('profile/dashboard.html', ProfileViews.DashView.as_view(), name='dashboard'),
 ]
 
 api_urls = [

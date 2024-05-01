@@ -59,6 +59,17 @@ class ProfileViews:
 
             return context
         
+    class DashView(LoginRequiredMixin, TemplateView):
+        template_name = 'profile/dashboard.html'
+
+        def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            context['user'] = self.request.user
+            context['notifications'] = Notification.objects.filter(user=self.request.user)
+            context['schedules'] = MedicationSchedule.objects.filter(user=self.request.user)
+
+            return context
+        
     class ConfigurationView(LoginRequiredMixin, TemplateView):
         template_name = 'profile/configuration.html'
 
