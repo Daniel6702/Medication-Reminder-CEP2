@@ -6,11 +6,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="{% static 'css/styles_home.css' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <title>Medication reminder</title>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />    <title>Medication reminder</title>
 </head>
 <body>
     {% include 'navbar.html' %}
@@ -18,27 +18,32 @@
         <ul>
             <li>
                 <a href="dashboard.html">
-                    <i class="fas fa-border-all"></i> <br>Dashboard
+                    <span class="material-symbols-outlined"> apps </span>
+					<br>Dashboard
                 </a>
             </li>
             <li>
                 <a href="calendar.html">
-                    <i class="fas fa-calendar-alt"></i> <br>Schedule
+                    <span class="material-symbols-outlined"> calendar_today </span>
+					<br>Schedule
                 </a>
             </li>
             <li>
                 <a href="events.html">
-                    <i class="fas fa-star"></i> <br>Events
+                    <span class="material-symbols-outlined"> list </span>
+					<br>Events
                 </a>
             </li>
             <li>
                 <a href="analysis.html">
-                    <i class="fas fa-chart-bar"></i> <br> Analysis
+                    <span class="material-symbols-outlined"> equalizer </span>
+					<br>Analysis
                 </a>
             </li>
             <li>
                 <a href="configuration.html">
-                    <i class="fas fa-sliders-h"></i> <br>Configuration
+                    <span class="material-symbols-outlined"> tune </span>
+					<br>Configuration
                 </a>
             </li>
         </ul>
