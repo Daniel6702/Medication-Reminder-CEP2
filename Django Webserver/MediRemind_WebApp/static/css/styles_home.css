@@ -74,6 +74,8 @@ body {
     border-radius: 20px;
     color: var(--text);
     text-align: center; /* Center align text */
+    box-shadow: 0 0.32em 0.64em 0 var(--shadow), 0 0.48em 1.6em 0 var(--shadow); /* Convert px to em */
+    transition: background-color 0.3s, color 0.3s; /* Add transition for smooth effect */
 }
 
 /* Media query for smaller screens */
