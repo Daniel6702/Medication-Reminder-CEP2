@@ -17,31 +17,31 @@
     <div class="row">
         <ul>
             <li>
-                <a href="dashboard.html">
+                <a href="{% url 'profile_home' %}">
                     <span class="material-symbols-outlined"> apps </span>
 					<br>Dashboard
                 </a>
             </li>
             <li>
-                <a href="calendar.html">
+                <a href="{% url 'medication_schedule' %}">
                     <span class="material-symbols-outlined"> calendar_today </span>
 					<br>Schedule
                 </a>
             </li>
             <li>
-                <a href="events.html">
+                <a href="{% url 'events' %}">
                     <span class="material-symbols-outlined"> list </span>
 					<br>Events
                 </a>
             </li>
             <li>
-                <a href="analysis.html">
+                <a href="{% url 'data' %}">
                     <span class="material-symbols-outlined"> equalizer </span>
 					<br>Analysis
                 </a>
             </li>
             <li>
-                <a href="configuration.html">
+                <a href="{% url 'configuration' %}">
                     <span class="material-symbols-outlined"> tune </span>
 					<br>Configuration
                 </a>
