@@ -48,6 +48,10 @@ class EventType(enum.Enum):
     SEND_EVENTS = 42
     TURN_ON = 43
     TURN_OFF = 44
+    BLINK_TIMES = 45
+    START_BLINK = 46
+    STOP_BLINK = 47
+    SETUP_FINISHED = 48
 
 class EventSystem:
     '''

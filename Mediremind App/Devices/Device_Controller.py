@@ -109,6 +109,7 @@ class DeviceController():
             elif isinstance(device, Sensor):
                 self.sensors.append(device)
         print("")
+        event_system.publish(EventType.SETUP_FINISHED, None)
         
     def create_device(self, device_data: Device):
         '''

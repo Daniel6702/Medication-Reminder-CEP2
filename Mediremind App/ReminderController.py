@@ -10,6 +10,15 @@ This Python module defines the core logic of the remind mechanisms. The system i
 allowing it to transition between various states based on medication schedules, user interactions, and system events.
 '''
 
+def hex_to_rgb(hex_color: str) -> dict:
+    hex_color = hex_color.lstrip('#')
+
+    r = int(hex_color[0:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+
+    return {"r": r, "g": g, "b": b}
+
 class ReminderSystem:
     '''Initializes the system state, handles state changes. Retrieves data from the db through events'''
     def __init__(self):
@@ -73,6 +82,15 @@ class ReminderSystem:
                 if not self.is_medication_time():  # Check if no other schedule is active
                     return True
         return False
+
+    def apply_config(self, config: StateConfig, room = None):
+        if config.color_code:
+            color = hex_to_rgb(config.color_code)
+            event_system.publish(EventType.CHANGE_COLOR, DeviceEvent(room=room, color=color))
+        if config.blink:
+            pass
+        if config.sound_file:
+            event_system.publish(EventType.PLAY_SOUND, config.sound_file)
  
 class State(ABC):
     '''It provides a common interface for all states to implement the handle
@@ -93,24 +111,26 @@ class IdleState(State):
     and changes to ActiveState if it's time for medication.'''
 
     def setup(self):
-        conf: StateConfig = self.reminder_system.idle_conf
-        if conf.color_code is not None or conf.color_code != "#000000":
-            event_system.publish(EventType.REMIND_EVERYWHERE, conf)
-        self.x = 0
+        #conf: StateConfig = self.reminder_system.idle_conf
+        #if conf.color_code is not None or conf.color_code != "#000000":
+        #    event_system.publish(EventType.REMIND_EVERYWHERE, conf)
+        #self.x = 0
+        print("setup")
 
     def handle(self):
         if self.reminder_system.is_medication_time() and False:
             self.reminder_system.change_state(ActiveState(self.reminder_system))
-        sleep(3)
-        if self.x % 2 == 0:
-            print("turn on 1")
-            #event_system.publish(EventType.TURN_ON, DeviceEvent)
-            event_system.publish(EventType.CHANGE_COLOR, DeviceEvent(color={"r":46,"g":102,"b":150}))
-        else:
-            event_system.publish(EventType.CHANGE_COLOR, DeviceEvent(color={"r":200,"g":75,"b":56}))
-            #event_system.publish(EventType.TURN_OFF, DeviceEvent)
-            print("turn off 1")
-        self.x+=1
+        print("handle")
+        #sleep(3)
+        #if self.x % 2 == 0:
+        #    print("turn on 1")
+        #    #event_system.publish(EventType.TURN_ON, DeviceEvent)
+        #    event_system.publish(EventType.CHANGE_COLOR, DeviceEvent(color={"r":46,"g":102,"b":150}))
+        #else:
+        #    event_system.publish(EventType.CHANGE_COLOR, DeviceEvent(color={"r":200,"g":75,"b":56}))
+        #    #event_system.publish(EventType.TURN_OFF, DeviceEvent)
+        #    print("turn off 1")
+        #self.x+=1
 
 class ActiveState(State):
     def setup(self):

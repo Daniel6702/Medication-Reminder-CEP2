@@ -130,3 +130,5 @@ class DeviceEvent:
     name: str = None
     room: str = None
     color: str = None
+    blink_times: int = None
+    blink_interval: int = None
