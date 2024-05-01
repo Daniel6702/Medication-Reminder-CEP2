@@ -78,8 +78,6 @@ class Cep2Zigbee2mqttMessage:
         #     - Class methods: https://stackabuse.com/pythons-classmethod-and-staticmethod-explained/
         #     - Factory design pattern: https://refactoring.guru/design-patterns/factory-method
 
-        print(message)
-
         try:
             message_json = json.loads(message)
         except json.JSONDecodeError as e:
@@ -300,7 +298,6 @@ class Cep2Zigbee2mqttClient:
         """
 
         # Push a message to the queue. This will later be processed by the worker.
-        print(message)
         self.__events_queue.put(message)
         #if message:
         #    self.__on_message_clbk(Cep2Zigbee2mqttMessage.parse(message.topic,message.payload.decode("utf-8")))
@@ -312,12 +309,10 @@ class Cep2Zigbee2mqttClient:
         __stop_worker event.
         """
         while True:
-            print("ajshbd")
             try:
                 # Pull a message from the queue.
                 message = self.__events_queue.get(timeout=1)
             except Empty:
-                print("hello")
                 # This exception is raised when the queue pull times out. Ignore it and retry a new
                 # pull.
                 pass
