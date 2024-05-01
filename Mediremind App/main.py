@@ -23,9 +23,6 @@ update db manager
 implement stateconfig in rc 
 '''
 
-import threading
-from time import sleep
-
 class MainSystem():
     '''Central class of the system that integrates the various components and controllers, and allows them to work together.'''
     def __init__(self):
@@ -39,12 +36,13 @@ class MainSystem():
         self.notification_controller = NotificationController()
 
     def start(self, a):
-        '''This method will be called when the SETUP_FINISHED event is triggered.'''
-        self.reminder_system_controller = ReminderSystem()
-        self.running = True
-        self.setup_finished.set()
-        self.thread = threading.Thread(target=self.loop)  # Create a thread for the loop
-        self.thread.start()  # Start the loop thread
+        if self.running is False:
+            print("Setup finished. Starting the system...")
+            self.reminder_system_controller = ReminderSystem()
+            self.running = True
+            self.setup_finished.set()
+            self.thread = threading.Thread(target=self.loop)
+            self.thread.start()
 
     def loop(self):
         '''Main loop of the system, continuously updating the reminder system.'''
@@ -56,6 +54,7 @@ class MainSystem():
         '''Stop the system by terminating the loop and joining the thread.'''
         self.running = False
         self.thread.join()
+
 
 if __name__ == "__main__":
     reminder_system = MainSystem()

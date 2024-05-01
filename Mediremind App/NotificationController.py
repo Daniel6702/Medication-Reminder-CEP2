@@ -10,6 +10,7 @@ class NotificationController():
         event_system.subscribe(EventType.RESPONSE_CAREGIVER,self.get_caregivers)
         event_system.publish(EventType.REQUEST_CAREGIVER,'new')
         event_system.subscribe(EventType.SEND_NOTIFICATION, self.new_notification)
+        self.care_givers = []
 
     def get_caregivers(self, data):
         self.care_givers = data

@@ -50,17 +50,17 @@ class ReminderSystem:
     def get_state_configurations(self, state_configurations): 
         self.state_configurations = state_configurations
         self.idle_conf = state_configurations[0]
-        self.active_conf = state_configurations[1]
-        self.medication_taken_conf = state_configurations[2]
-        self.medication_missed_conf = state_configurations[3]
-        self.alert_conf = state_configurations[4]
+        self.active_conf = state_configurations[4]
+        self.medication_taken_conf = state_configurations[1]
+        self.medication_missed_conf = state_configurations[2]
+        self.alert_conf = state_configurations[3]
         print(f"\nALERT CONFS:\n {state_configurations}\n")
 
     def get_medication_schedules(self,schedules): self.schedules = schedules; print(f"\nSCHEDULES:\n {schedules}\n")
 
     def change_state(self, state: 'State'):
+        print(f'change state {state}')
         self.state = state
-        self.state.handle()
 
     def update(self):
         self.state.handle()
@@ -92,11 +92,10 @@ class ReminderSystem:
         return False
 
     def activate_room(self, config: StateConfig, room = None):
+        print("KHSAJDNFKSJNDFKNSKDJFN")
         event_system.publish(EventType.TURN_ON, DeviceEvent(room=room))
         if config.color_code:
             color = hex_to_rgb(config.color_code)
-            print(f'\nHEX COLOR: {config.color_code}')
-            print(f'RGB COLOR: {color}\n')
             event_system.publish(EventType.CHANGE_COLOR, DeviceEvent(room=room, color=color))
         if config.blink:
             interval = 1
@@ -150,8 +149,8 @@ class ActiveState(State):
         self.reminder_system.activate_room(self.reminder_system.active_conf, self.room.room_id)
 
     def get_motion_alert(self, room):
-        self.reminder_system.activate_room(self.reminder_system.active_conf, room[0].room_id)
-        self.reminder_system.deactivate_room(self.room)
+        #self.reminder_system.activate_room(self.reminder_system.active_conf, room[0])
+        #self.reminder_system.deactivate_room(self.room)
         self.room = room
 
     def medication_event(self, data):
@@ -160,24 +159,32 @@ class ActiveState(State):
     def handle(self):
         if self.reminder_system.is_x_time_passed_since_medication_time(1):
             self.reminder_system.change_state(MedicationMissedState(self.reminder_system))
-
+        
 class MedicationTakenState(State):
     def setup(self):
         log("Entering Medication Taken State")
         event_system.subscribe(EventType.MEDICATION_TAKEN, self.medication_event)
         event_system.subscribe(EventType.MOTION_ALERT, self.get_motion_alert)
+        self.room = self.reminder_system.rooms[0]
+        self.reminder_system.activate_room(self.reminder_system.medication_taken_conf, self.room.room_id)
+        self.n_meds = 0
+
 
     def medication_event(self, data):
-        self.reminder_system.change_state(AlertState(self.reminder_system))
+        self.n_meds += 1
+        if self.n_meds > 4:
+            self.reminder_system.change_state(AlertState(self.reminder_system))
 
     def get_motion_alert(self, room):
-        self.reminder_system.activate_room(self.reminder_system.active_conf, room.room_id)
-        self.reminder_system.deactivate_room(self.room)
-        self.room = room
-
+        #self.reminder_system.activate_room(self.reminder_system.active_conf, room.room_id)
+        #self.reminder_system.deactivate_room(self.room)
+        #self.room = room
+        pass
+ 
     def handle(self):
-        if not self.reminder_system.is_x_time_passed_since_medication_time(1) or not self.reminder_system.is_medication_time():
-            self.reminder_system.change_state(IdleState(self.reminder_system))
+        #if not self.reminder_system.is_x_time_passed_since_medication_time(1) or not self.reminder_system.is_medication_time():
+         #   self.reminder_system.change_state(IdleState(self.reminder_system))
+         pass
 
 
 
@@ -202,9 +209,9 @@ class MedicationMissedState(State):
         return current_date > self.last_reminder_date
 
     def handle(self):
-        if self.is_next_day():
-            self.reminder_system.change_state(IdleState(self.reminder_system))
-
+        #if self.is_next_day():
+        #    self.reminder_system.change_state(IdleState(self.reminder_system))
+        pass
 class AlertState(State):
     def setup(self):
         log("Entering Alert State")
