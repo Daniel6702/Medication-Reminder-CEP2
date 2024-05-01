@@ -10,6 +10,13 @@ from random import randint
 This Python module defines the core logic of the remind mechanisms. The system is structured around a state machine pattern,
 allowing it to transition between various states based on medication schedules, user interactions, and system events.
 '''
+def log(message):
+    # Get the current time
+    current_time = datetime.datetime.now()
+
+    # Format the current time as "%H:%M:%S"
+    formatted_time = current_time.strftime("%H:%M:%S")
+    print(f"[{formatted_time}] {message}\n")
 
 def hex_to_rgb(hex_color: str) -> dict:
     hex_color = hex_color.lstrip('#')
@@ -126,6 +133,7 @@ class IdleState(State):
     and changes to ActiveState if it's time for medication.'''
 
     def setup(self):    
+        log("Entering Idle State")
         for room in self.reminder_system.rooms:
             self.reminder_system.activate_room(self.reminder_system.idle_conf, room.room_id)
 
@@ -135,6 +143,7 @@ class IdleState(State):
 
 class ActiveState(State):
     def setup(self):
+        log("Entering Active State")
         event_system.subscribe(EventType.MOTION_ALERT, self.get_motion_alert)
         event_system.subscribe(EventType.MEDICATION_TAKEN, self.medication_event)
         self.room = self.reminder_system.rooms[0]
@@ -154,6 +163,7 @@ class ActiveState(State):
 
 class MedicationTakenState(State):
     def setup(self):
+        log("Entering Medication Taken State")
         event_system.subscribe(EventType.MEDICATION_TAKEN, self.medication_event)
         event_system.subscribe(EventType.MOTION_ALERT, self.get_motion_alert)
 
@@ -175,6 +185,7 @@ class MedicationTakenState(State):
 
 class MedicationMissedState(State):
     def setup(self):
+        log("Entering Medication Missed State")
         self.last_reminder_date = datetime.date.today()  
         event_system.subscribe(EventType.MEDICATION_TAKEN, self.medication_event)
         event_system.subscribe(EventType.MOTION_ALERT, self.get_motion_alert)
@@ -196,6 +207,7 @@ class MedicationMissedState(State):
 
 class AlertState(State):
     def setup(self):
+        log("Entering Alert State")
         alert_configuration = None
         event_system.publish(EventType.REMIND_EVERYWHERE,alert_configuration)
         event_system.publish(EventType.NOTIFY_CAREGIVER,"Medication Taken again")
