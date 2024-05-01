@@ -33,6 +33,12 @@
             </a>
         </li>
         <li>
+            <a href="{% url 'manual_input' %}">
+            <span class="material-symbols-outlined"> edit </span>
+            Manual Input
+            </a>
+        </li>
+        <li>
             <a href="{% url 'events' %}">
             <span class="material-symbols-outlined"> list </span>
             Events
@@ -53,7 +59,7 @@
     </ul>
     <ul class="right">
         <li>
-            <a href="{% url 'settings' %}"><span class="material-symbols-outlined"> settings </span>Settings</a>
+            <a href="{% url 'settings' %}"><span class="material-symbols-outlined"> manage_accounts </span>{{ user.username }}</a>
         </li>
         <li>
             <form action="{% url 'logout' %}" method="post">
