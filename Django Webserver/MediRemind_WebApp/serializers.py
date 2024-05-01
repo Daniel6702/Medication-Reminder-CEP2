@@ -26,6 +26,7 @@ class StateConfigSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StateConfig
+        fields = '__all__' 
         fields = '__all__'
 
     def get_sound_file(self, obj):

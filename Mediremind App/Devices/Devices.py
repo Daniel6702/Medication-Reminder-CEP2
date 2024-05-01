@@ -73,6 +73,7 @@ class Actuator(Device, z2mInteractor):
                 if self._blink_thread.is_alive():
                     self._blink_thread.join()
                 self._blink_thread = None
+
     
 class Sensor(Device, z2mInteractor):
     def __init__(self, **kwargs):
@@ -107,7 +108,7 @@ class MotionSensor(Sensor):
         self.occupancy = False
         
     def receive(self, data: dict):
-        print(data)
+        print(f'data: {data}')
         topic: str = data.get('topic', None)
         parts = topic.split("zigbee2mqtt/")
         name = parts[1] if len(parts) > 1 else None

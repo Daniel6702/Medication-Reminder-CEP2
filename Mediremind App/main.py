@@ -6,8 +6,8 @@ from config import base_api_url, api_token
 from ReminderController import ReminderSystem
 from Devices.Device_Controller import DeviceController
 from NotificationController import NotificationController
+import threading
 from time import sleep
-
 '''
 Dependencies:
     - Django server (API) must be running (settings.py), and the connection configured (config.py)
@@ -23,29 +23,47 @@ update db manager
 implement stateconfig in rc 
 '''
 
+import threading
+from time import sleep
+
 class MainSystem():
-    '''Central class of the system that integrates the varioues components and controllers, and allows them to work together.'''
+    '''Central class of the system that integrates the various components and controllers, and allows them to work together.'''
     def __init__(self):
+        self.setup_finished = threading.Event()
         self.running = False
         event_system.subscribe(EventType.SETUP_FINISHED, self.start)
-        self.database_controller = DatabaseManager(base_api_url,api_token)
+        self.database_controller = DatabaseManager(base_api_url, api_token)
         self.device_controller = DeviceController()
         self.mqtt_controller = MQTTController()
         self.mqtt_controller.start()
         self.notification_controller = NotificationController()
-        
+
     def start(self, a):
-        if not self.running:
-            self.reminder_system_controller = ReminderSystem()
-            self.loop()
-            self.running = True
+        '''This method will be called when the SETUP_FINISHED event is triggered.'''
+        self.reminder_system_controller = ReminderSystem()
+        self.running = True
+        self.setup_finished.set()
+        self.thread = threading.Thread(target=self.loop)  # Create a thread for the loop
+        self.thread.start()  # Start the loop thread
 
     def loop(self):
-        '''Main loop of the system, continuously updating the reminder system'''
-        while True:
+        '''Main loop of the system, continuously updating the reminder system.'''
+        while self.running:
             self.reminder_system_controller.update()
             sleep(1)
 
+    def stop(self):
+        '''Stop the system by terminating the loop and joining the thread.'''
+        self.running = False
+        self.thread.join()
+
 if __name__ == "__main__":
     reminder_system = MainSystem()
-    while True: pass
+    reminder_system.setup_finished.wait()
+    try:
+        while True:  # Main thread remains responsive
+            sleep(1)
+    except KeyboardInterrupt:
+        print("Shutting down the system...")
+        reminder_system.stop()
+
