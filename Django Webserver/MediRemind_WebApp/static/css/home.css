@@ -1,24 +1,23 @@
-.notification-container {
-    margin: 20px;
-    padding: 10px;
-    background-color: #f7f7f7;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border-left: 2px solid #ccc;
-    border-right: 2px solid #ccc;
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
 }
 
-.medication-calendar {
-    position: relative;
-    width: 50%;
-    height: 720px; /* 24 hours x 60 minutes */
-    border-left: 2px solid #ccc;
-    border-right: 2px solid #ccc;
-    margin: 20px;
-    padding: 10px;
+.notification-container, .medication-calendar {
     background-color: #f7f7f7;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 2px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+}
+
+.sidebar {
+    width: 200px;
+    background-color: #f0f0f0;
+    padding: 10px;
+    height: 100vh;
 }
 
 .notification-list {
@@ -30,30 +29,38 @@
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 5px;
+    background-color: #e2e2e2;
     transition: background-color 0.3s;
 }
 
-.notification-message {
+.notification-item:hover {
+    background-color: #d3d3d3;
+}
+
+.notification-message, .notification-timestamp {
     display: block;
+}
+
+.notification-message {
     font-size: 16px;
 }
 
 .notification-timestamp {
-    display: block;
     font-size: 12px;
     color: #888;
     margin-top: 5px;
 }
 
-/* Color coding for different notification types */
 .routine { background-color: #e7f4e4; }
 .important { background-color: #fff3cd; }
 .critical { background-color: #f8d7da; }
 .info { background-color: #d1ecf1; }
 .system { background-color: #cce5ff; }
 
-.notification-item:hover {
-    background-color: #e2e2e2;
+.medication-calendar {
+    position: relative;
+    width: 50%;
+    height: 720px; /* 24 hours x 30 minutes each */
 }
 
 .time-columns {
@@ -67,7 +74,7 @@
 }
 
 .hour-mark {
-    height: 120px; /* 2 hours block */
+    height: 120px; /* Represents 2-hour blocks */
     border-top: 1px solid #ddd;
     padding: 5px;
     box-sizing: border-box;
@@ -97,15 +104,5 @@
 
 .content-container {
     display: flex;
-    justify-content: space-between; 
+    justify-content: space-between;
 }
-
-.notification-container, .medication-calendar {
-    flex: 1; 
-    margin: 10px; 
-}
-
-.content-container, .notification-container, .medication-calendar {
-    font-family: 'Montserrat', sans-serif;
-}
-

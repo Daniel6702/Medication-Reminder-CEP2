@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 import uuid
 from enum import Enum
 from django.core.validators import MinValueValidator
+import json
 
 def get_default_user_id():
     return User.objects.first().id if User.objects.exists() else None
@@ -36,6 +37,8 @@ class Room(models.Model):
     room_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
     connected_rooms = models.ManyToManyField('self', blank=True)
+    position_x = models.FloatField(default=0.0)
+    position_y = models.FloatField(default=0.0)
 
     def __str__(self):
         return self.name
@@ -80,26 +83,6 @@ class StateConfig(models.Model):
 
     def __str__(self):
         return f"StateConfig {self.state_config_id} - Color: {self.color_code}"
-        
-class AlertConfiguration(models.Model):
-    ALERT_TYPES = (
-        ('LIGHT', 'Light'),
-        ('SOUND', 'Sound'),
-    )
-
-    alert_id = models.CharField(max_length=100, primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='alert_configurations', null=True, blank=True)
-    alert_type = models.CharField(max_length=5, choices=ALERT_TYPES)
-    color_code = models.CharField(max_length=7, blank=True)  # For RGB color code like '#FF5733'
-    sound_file = models.FileField(upload_to='alerts/sounds/', blank=True)
-    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='alert_configurations')
-
-    blink = models.BooleanField(default=False)
-    blink_interval = models.FloatField(default=1.0) 
-    blink_times = models.IntegerField(null=True, blank=True)
-
-    def __str__(self):
-        return self.alert_id
     
 class MQTTConfiguration(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='mqtt_configurations')
@@ -175,4 +158,69 @@ class HeucodEvent(models.Model):
     accuracy = models.IntegerField(null=True, blank=True)
     link_quality = models.FloatField(null=True, blank=True)
 
-    # Add any other fields as necessary
+class EventType(Enum):
+    '''
+    Represents different types of events that can be detected or generated within the system. 
+    Acts like topics / channels functions can subscribe to. 
+    '''
+    ZigbeeMotionEvent = 1
+    DEVICE_DISCOVERY = 2
+    IDLE = 3
+    ACTIVE = 4
+    MEDICATION_TAKEN = 5
+    MEDICATION_MISSED = 6
+    ALERT = 7
+    RGB_STRIP = 8
+    PIR_SENSOR = 9
+    SWITCH = 10
+    VIBRATION_SENSOR = 11
+    SEND_ZIGBEE = 12
+    REQUEST_SCHEDULES = 13
+    RESPONSE_SCHEDULES = 14
+    ADD_DEVICE = 15
+    HEUCOD_EVENT = 16
+    REQUEST_DEVICES = 17
+    RESPONSE_DEVICES = 18
+    UPDATE_DB_INSTANCE = 19
+    REQUEST_MQTT_CONF = 20
+    RESPONSE_MQTT_CONF = 21
+    REQUEST_ALERT_CONFS = 22
+    RESPONSE_ALERT_CONFS = 23
+    REQUEST_ROOMS = 24
+    RESPONSE_ROOMS = 25
+    UPDATE_DB_ATTRIBUTE = 26
+    MOTION_ALERT = 27
+    REMIND_HERE = 28
+    REMIND_EVERYWHERE = 30
+    NOTIFY_CAREGIVER = 31
+    ALERT_RESOLVED = 32
+    REQUEST_CAREGIVER = 33
+    RESPONSE_CAREGIVER = 34
+    NOTIFICATION = 35
+    SEND_NOTIFICATION = 36
+    REQUEST_STATE_CONFS = 37
+    RESPONSE_STATE_CONFS = 38
+    CHANGE_COLOR = 39
+    SWITCH_LIGHT = 40
+    PLAY_SOUND = 41
+    SEND_EVENTS = 42
+
+    @classmethod
+    def choices(cls):
+        return [(item.value, item.name) for item in cls]
+
+class Event(models.Model):
+    event_id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='event')
+    type = models.CharField(max_length=50, choices=EventType.choices())
+    data = models.TextField()  # Storing JSON data in a text field
+    time = models.TimeField()
+
+    def set_data(self, data):
+        self.data = json.dumps(data)
+
+    def get_data(self):
+        return json.loads(self.data)
+
+    def __str__(self):
+        return f"{self.event_id} ({self.type})"

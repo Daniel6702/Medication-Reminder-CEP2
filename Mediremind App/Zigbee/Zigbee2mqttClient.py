@@ -8,6 +8,7 @@ from time import sleep
 from typing import Any, Callable, List, Optional
 from paho.mqtt.client import Client as MqttClient, MQTTMessage
 from paho.mqtt import publish, subscribe
+from EventSystem import event_system, EventType
 
 
 class Cep2Zigbee2mqttMessageType(Enum):
@@ -77,10 +78,11 @@ class Cep2Zigbee2mqttMessage:
         #     - Class methods: https://stackabuse.com/pythons-classmethod-and-staticmethod-explained/
         #     - Factory design pattern: https://refactoring.guru/design-patterns/factory-method
 
+        print(message)
+
         try:
             message_json = json.loads(message)
         except json.JSONDecodeError as e:
-            print(f"Error decoding JSON from message: {e}")
             return None
 
         if not message.strip():
@@ -165,6 +167,7 @@ class Cep2Zigbee2mqttClient:
         self.__subscriber_thread = Thread(target=self.__worker,
                                           daemon=True)
         self.__topics = topics
+        event_system.subscribe(EventType.SEND_ZIGBEE, self.publish_)
 
     def connect(self) -> None:
         """ Connects to the MQTT broker specified in the initializer. This is a blocking function.
@@ -189,6 +192,13 @@ class Cep2Zigbee2mqttClient:
 
         self.__client.publish(topic=f"zigbee2mqtt/{device_id}/set",
                               payload=json.dumps({"state": f"{state}"}))
+        
+    def publish_(self, data):
+        topic = data[0]
+        payload = data[1]
+        zigbee_id = data[2]
+        self.__client.publish(topic=f"zigbee2mqtt/{zigbee_id}/{topic}",payload=json.dumps(payload))
+        
 
     def check_health(self) -> str:
         """ Allows to check whether zigbee2mqtt is healthy, i.e. the service is running properly.
@@ -244,6 +254,7 @@ class Cep2Zigbee2mqttClient:
     def disconnect(self) -> None:
         """ Disconnects from the MQTT broker.
         """
+        print("Disconnect")
         self.__stop_worker.set()
         self.__client.loop_stop()
         # Unsubscribe from all topics given in the initializer.
@@ -269,6 +280,7 @@ class Cep2Zigbee2mqttClient:
         print("MQTT client connected")
 
     def __on_disconnect(self, client, userdata, rc) -> None:
+        print("on_disconnect")
         """ Callback invoked when the client disconnects from the MQTT broker occurs.
 
         Refer to paho-mqtt documentation for more information on this callback:
@@ -288,7 +300,10 @@ class Cep2Zigbee2mqttClient:
         """
 
         # Push a message to the queue. This will later be processed by the worker.
+        print(message)
         self.__events_queue.put(message)
+        #if message:
+        #    self.__on_message_clbk(Cep2Zigbee2mqttMessage.parse(message.topic,message.payload.decode("utf-8")))
 
     def __worker(self) -> None:
         """ This method pulls zigbee2mqtt messages from the queue of received messages, pushed when
@@ -296,11 +311,13 @@ class Cep2Zigbee2mqttClient:
         the instance of zigbee2mqttClient disconnects, i.e. disconnect() is called and sets the
         __stop_worker event.
         """
-        while not self.__stop_worker.is_set():
+        while True:
+            print("ajshbd")
             try:
                 # Pull a message from the queue.
                 message = self.__events_queue.get(timeout=1)
             except Empty:
+                print("hello")
                 # This exception is raised when the queue pull times out. Ignore it and retry a new
                 # pull.
                 pass

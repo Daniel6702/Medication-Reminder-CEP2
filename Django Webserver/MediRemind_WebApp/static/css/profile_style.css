@@ -16,10 +16,10 @@ body, html {
 
 /* Sidebar styling */
 .sidebar {
-    width: 200px;               /* Sidebar width */
-    background-color: #f0f0f0;/* Background color */
-    padding: 10px;              /* Padding inside the sidebar */
-    height: 100vh;              /* Full height of the viewport */
+    width: 200px;               
+    background-color: #f0f0f0;
+    padding: 10px;              
+    height: 100vh;              
 }
 
 /* Main content styling */
@@ -89,5 +89,4 @@ tr:nth-child(even) {
 .sidebar button:hover {
     background-color: #d0d0d0;/* Background color on hover */
 }
-
 

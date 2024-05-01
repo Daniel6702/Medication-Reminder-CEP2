@@ -50,8 +50,9 @@ class DatabaseManager():
             event_system.subscribe(EventType.REQUEST_SCHEDULES, self.make_request(self.database_manager.get_medication_schedules, self.database_manager.instance.medication_schedules,EventType.RESPONSE_SCHEDULES))
             event_system.subscribe(EventType.REQUEST_DEVICES, self.make_request(self.database_manager.get_devices, self.database_manager.instance.devices, EventType.RESPONSE_DEVICES))
             event_system.subscribe(EventType.REQUEST_MQTT_CONF, self.make_request(self.database_manager.get_mqtt_configuration, self.database_manager.instance.mqtt_configuration, EventType.RESPONSE_MQTT_CONF))
-            event_system.subscribe(EventType.REQUEST_ALERT_CONFS, self.make_request(self.database_manager.get_alert_configuration, self.database_manager.instance.alert_configurations, EventType.RESPONSE_ALERT_CONFS))
+            event_system.subscribe(EventType.REQUEST_STATE_CONFS, self.make_request(self.database_manager.get_state_configs, self.database_manager.instance.alert_configurations, EventType.RESPONSE_STATE_CONFS))
             event_system.subscribe(EventType.REQUEST_ROOMS,self.make_request(self.database_manager.get_rooms, self.database_manager.instance.rooms, EventType.RESPONSE_ROOMS))
+            event_system.subscribe(EventType.SEND_EVENTS,self.database_manager.send_events)
 
         def make_request(self, new_method, old_method, response_type):
             '''When making a db request you can choose between fetching new data
@@ -90,7 +91,7 @@ class DatabaseManager():
         def update_attribute(self, attribute_name: str):
             update_methods = {
                 "medication_schedules": self.__database_manager.get_medication_schedules,
-                "alert_configurations": self.__database_manager.get_alert_configuration,
+                "alert_configurations": self.__database_manager.get_state_configs,
                 "mqtt_configuration": self.__database_manager.get_mqtt_configuration,
                 "rooms": self.__database_manager.get_rooms,
                 "devices": self.__database_manager.get_devices,
@@ -104,7 +105,7 @@ class DatabaseManager():
 
         def update(self):
             self.medication_schedules = self.__database_manager.get_medication_schedules()
-            self.alert_configurations = self.__database_manager.get_alert_configuration()
+            self.alert_configurations = self.__database_manager.get_state_configs()
             self.mqtt_configuration = self.__database_manager.get_mqtt_configuration()
             self.rooms = self.__database_manager.get_rooms()
             self.devices = self.__database_manager.get_devices()
@@ -114,6 +115,22 @@ class DatabaseManager():
         self.headers= {'Authorization': f'Token {api_token}'}
         self.instance = DatabaseManager.Instance(self)
         self.event_handler = DatabaseManager.EventHandler(self)
+
+    def send_events(self, events: list):
+        serialized_events = json.dumps(events, cls=EnhancedJSONEncoder)
+
+        response = requests.post(
+            self.base_api_url + '/api/event/',
+            data=serialized_events,
+            headers={**self.headers, 'Content-Type': 'application/json'}
+        )
+
+        if response.status_code == 201:
+            print("Events Sent")
+        else:
+            print("Error sending Events:", response.text)
+
+        return response
 
     def send_notification(self, notification: Models.Notification):
         serialized_notification= json.dumps(notification, cls=EnhancedJSONEncoder)
@@ -142,12 +159,11 @@ class DatabaseManager():
         response = requests.get(self.base_api_url + '/api/mqtt-configuration/', headers=self.headers)
         return Models.MQTTConfiguration.from_json(response.json())
     
-    def get_alert_configuration(self) -> list[Models.AlertType]:
-        response = requests.get(self.base_api_url + '/api/alert-configuration/', headers=self.headers)
-        alert_confs = []
-        for x in response.json():
-            alert_confs.append(Models.AlertConfiguration.from_json(x))
-        return alert_confs
+    def get_state_configs(self) -> List[Models.StateConfig]:
+        response = requests.get(self.base_api_url + '/api/state_config/', headers=self.headers)
+        response.raise_for_status()  
+        configs = [Models.StateConfig.from_json(conf) for conf in response.json()]
+        return configs
 
     def get_rooms(self) -> list[Models.Room]:
         response = requests.get(self.base_api_url + '/api/room/', headers=self.headers)

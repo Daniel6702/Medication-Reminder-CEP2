@@ -84,6 +84,8 @@ git pull origin master
 - **Install python libraries**
 ```shell
 pip install Django djangorestframework mysqlclient paho-mqtt==1.6.1 django-extensions
+
+python -m pip install -e git+https://github.com/pybluez/pybluez.git#egg=pybluez
 ```
 
 ### **File and Directory Operations**

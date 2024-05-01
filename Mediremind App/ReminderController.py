@@ -2,50 +2,95 @@ from enum import Enum
 from EventSystem import EventType, event_system
 from Database.DataBaseManager import DatabaseManager
 from abc import ABC, abstractmethod
-import datetime
-
-
+from datetime import datetime, timedelta
+from Database.Models import StateConfig, DeviceEvent
+from time import sleep
 '''
 This Python module defines the core logic of the remind mechanisms. The system is structured around a state machine pattern,
 allowing it to transition between various states based on medication schedules, user interactions, and system events.
 '''
 
+def hex_to_rgb(hex_color: str) -> dict:
+    hex_color = hex_color.lstrip('#')
+
+    r = int(hex_color[0:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+
+    return {"r": r, "g": g, "b": b}
+
 class ReminderSystem:
     '''Initializes the system state, handles state changes. Retrieves data from the db through events'''
     def __init__(self):
         self.setup_connections()
+        self.initialize_data()
         self.state = IdleState(self)
-        event_system.publish(EventType.REQUEST_ROOMS,'new')
-        event_system.publish(EventType.REQUEST_ALERT_CONFS,'new')
-        event_system.publish(EventType.REQUEST_SCHEDULES,'new')
+
+    def initialize_data(self):
+        '''Publish events to request initial data load.'''
+        event_system.publish(EventType.REQUEST_ROOMS, 'new')
+        event_system.publish(EventType.REQUEST_STATE_CONFS, 'new')
+        event_system.publish(EventType.REQUEST_SCHEDULES, 'new')
 
     def setup_connections(self):
         event_system.subscribe(EventType.RESPONSE_ROOMS,self.get_rooms)
-        event_system.subscribe(EventType.RESPONSE_ALERT_CONFS,self.get_alert_configurations)
+        event_system.subscribe(EventType.RESPONSE_STATE_CONFS,self.get_state_configurations)
         event_system.subscribe(EventType.RESPONSE_SCHEDULES, self.get_medication_schedules)
 
-    def get_rooms(self, rooms):
-        self.rooms = rooms
-        print(f"ROOMS: {rooms}")
+    def get_rooms(self, rooms): self.rooms = rooms; print(f"\nROOMS:\n {rooms}\n")
 
-    def get_alert_configurations(self, alert_configurations):
-        self.alert_configurations = alert_configurations
-        print(f"ALERT CONFS: {alert_configurations}")
+    def get_state_configurations(self, state_configurations): 
+        self.state_configurations = state_configurations
+        self.idle_conf = state_configurations[0]
+        self.active_conf = state_configurations[1]
+        self.medication_taken_conf = state_configurations[2]
+        self.medication_missed_conf = state_configurations[3]
+        self.alert_conf = state_configurations[4]
+        print(f"\nALERT CONFS:\n {state_configurations}\n")
 
-    def get_medication_schedules(self,schedules):
-        self.schedules = schedules
-        print(f"SCHEDULES: {schedules}")
+    def get_medication_schedules(self,schedules): self.schedules = schedules; print(f"\nSCHEDULES:\n {schedules}\n")
 
-    def change_state(self, state):
+    def change_state(self, state: 'State'):
         self.state = state
         self.state.handle()
 
     def update(self):
         self.state.handle()
+        #print(self.state.__class__.__name__)
+    
+    def get_reminder_datetime(self, schedule):
+        current_date = datetime.now().date()
+        return datetime.strptime(f"{current_date} {schedule.reminder_time}", "%Y-%m-%d %H:%M:%S")
 
-    def is_time_passed(self, time: datetime.datetime):
-        now = datetime.datetime.now()
-        return now.time() >= time.time()
+    def get_end_datetime(self, schedule):
+        reminder_datetime = self.get_reminder_datetime(schedule)
+        return reminder_datetime + timedelta(hours=schedule.time_window)
+
+    def is_medication_time(self):
+        current_datetime = datetime.now()
+        for schedule in self.schedules:
+            if self.get_reminder_datetime(schedule) <= current_datetime <= self.get_end_datetime(schedule):  # Current time is within the time window
+                return True
+        return False
+
+    def is_medication_time_passed(self):
+        current_datetime = datetime.now()
+        for schedule in self.schedules:
+            end_datetime = self.get_end_datetime(schedule)
+            missed_window_end = end_datetime + timedelta(hours=1)
+            if end_datetime < current_datetime <= missed_window_end:  # Current time is within the missed window
+                if not self.is_medication_time():  # Check if no other schedule is active
+                    return True
+        return False
+
+    def apply_config(self, config: StateConfig, room = None):
+        if config.color_code:
+            color = hex_to_rgb(config.color_code)
+            event_system.publish(EventType.CHANGE_COLOR, DeviceEvent(room=room, color=color))
+        if config.blink:
+            pass
+        if config.sound_file:
+            event_system.publish(EventType.PLAY_SOUND, config.sound_file)
  
 class State(ABC):
     '''It provides a common interface for all states to implement the handle
@@ -65,17 +110,27 @@ class IdleState(State):
     '''Represents the idle state of the reminder system. It checks for medication times
     and changes to ActiveState if it's time for medication.'''
 
-    def is_medication_time(self):
-        for schedule in self.reminder_system.schedules:
-            schedule_time = datetime.datetime.strptime(schedule.reminder_time, "%H:%M:%S")
-            if self.reminder_system.is_time_passed(schedule_time):
-                return True
-        return False
+    def setup(self):
+        #conf: StateConfig = self.reminder_system.idle_conf
+        #if conf.color_code is not None or conf.color_code != "#000000":
+        #    event_system.publish(EventType.REMIND_EVERYWHERE, conf)
+        #self.x = 0
+        print("setup")
 
     def handle(self):
-        print("IDLE")
-        if self.is_medication_time():
+        if self.reminder_system.is_medication_time() and False:
             self.reminder_system.change_state(ActiveState(self.reminder_system))
+        print("handle")
+        #sleep(3)
+        #if self.x % 2 == 0:
+        #    print("turn on 1")
+        #    #event_system.publish(EventType.TURN_ON, DeviceEvent)
+        #    event_system.publish(EventType.CHANGE_COLOR, DeviceEvent(color={"r":46,"g":102,"b":150}))
+        #else:
+        #    event_system.publish(EventType.CHANGE_COLOR, DeviceEvent(color={"r":200,"g":75,"b":56}))
+        #    #event_system.publish(EventType.TURN_OFF, DeviceEvent)
+        #    print("turn off 1")
+        #self.x+=1
 
 class ActiveState(State):
     def setup(self):
@@ -90,17 +145,8 @@ class ActiveState(State):
         #TODO: use data from vibration sensor to ensure medication has been taken
         self.reminder_system.change_state(MedicationTakenState(self.reminder_system))
 
-    def is_medication_time_missed(self):
-        for schedule in self.reminder_system.schedules:            
-            window_end_time = datetime.datetime.strptime(schedule.reminder_time, "%H:%M:%S") + datetime.timedelta(hours=schedule.time_window)
-            if self.reminder_system.is_time_passed(window_end_time):
-                return True
-        return False
-
     def handle(self):
-        print("IT WORKED")
-        if self.is_medication_time_missed():
-            self.reminder_system.change_state(MedicationMissedState(self.reminder_system))
+        pass
 
 class MedicationTakenState(State):
     def setup(self):

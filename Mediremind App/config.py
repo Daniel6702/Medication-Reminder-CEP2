@@ -35,3 +35,5 @@ DEVICE_TYPES = {
 #or_must_have
 #must_have_any
 #must_not_have
+
+EVENT_SENDING_TIME = 15 #minutes

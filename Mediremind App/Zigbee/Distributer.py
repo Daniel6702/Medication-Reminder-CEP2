@@ -16,6 +16,7 @@ class ZigbeeMessageDistributer():
     '''Responsible for processing and routing messages from Zigbee devices through the MQTT broker to the appropriate components within the system.'''
 
     def analyze_message(self, message: Cep2Zigbee2mqttMessage):
+        print(message)
         '''Analyzes incoming messages from Zigbee2mqtt. Depending on the type of message, it publishes corresponding events to the event system. 
         Handles the identification of device types based on predefined rules'''
         if not message:
@@ -28,9 +29,8 @@ class ZigbeeMessageDistributer():
             message_str = json.dumps(asdict(message), cls=EnhancedJSONEncoder)
             for device_type, rules in DEVICE_TYPES.items():
                 if matches_rules(message_str, rules):
-                    print(f"DEVICE_EVENT: {device_type}")
                     event_type = getattr(EventType, device_type)
-                    event_system.publish(event_type, message.data)
+                    event_system.publish(event_type, asdict(message))
                     return
-            print('Unknown Device')
             
+
