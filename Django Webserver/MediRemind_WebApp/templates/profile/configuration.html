@@ -63,23 +63,44 @@
     </li>
 
     <!-- State Configuration -->
-    <li class="configuration-section">
-        <h3>State Configuration</h3>
-        <form method="get" action="">
-            <label for="state">Select State:</label>
-            <select name="state" onchange="this.form.submit()">
-                {% for state, name in state_names %}
-                <option value="{{ state }}" {% if state == current_state %}selected{% endif %}>{{ name }}</option>
-                {% endfor %}
-            </select>
-        </form>
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ state_config_form.as_p }}
-            <input type="hidden" name="state_name" value="{{ current_state }}">
-            <button type="submit" name="state_config_submit">Save State Configuration</button>
-        </form>
-    </li>
+<!-- State Configuration -->
+<li class="configuration-section">
+    <h3>State Configuration</h3>
+    <form method="get" action="">
+        <label for="state">Select State:</label>
+        <select name="state" onchange="this.form.submit()">
+            {% for state, name in state_names %}
+            <option value="{{ state }}" {% if state == current_state %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+        </select>
+    </form>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ state_config_form.as_p }}
+        <input type="hidden" name="state_name" value="{{ current_state }}">
+        <button type="submit" name="state_config_submit">Save State Configuration</button>
+        {% if state_config.sound_file %}
+        <button type="button" onclick="confirmDelete()">Delete Sound File</button>
+        {% endif %}
+    </form>
+    <script>
+        function confirmDelete() {
+            if (confirm("Are you sure you want to delete the sound file?")) {
+                var form = document.createElement('form');
+                document.body.appendChild(form);
+                form.method = 'post';
+                form.action = "{% url 'delete_sound' state_config.state_config_id %}";
+                var csrf = document.createElement('input');
+                csrf.type = 'hidden';
+                csrf.name = 'csrfmiddlewaretoken';
+                csrf.value = '{{ csrf_token }}';
+                form.appendChild(csrf);
+                form.submit();
+            }
+        }
+    </script>
+</li>
+
     
     <!-- MQTT Configuration -->
     <li class="configuration-section">

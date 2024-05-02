@@ -3,8 +3,10 @@ from django.contrib import admin
 from django.contrib.auth.views import LogoutView
 from .views import ProfileViews, delete_schedule, home, CustomLoginView, register
 from .Views.room_views import delete_room, add_room, update_room_position, connect_rooms 
-from .Views.api_views import MedicationScheduleAPIView, HeucodEventAPIView, MQTTConfigurationAPIView, RoomAPIView, DeviceAPIView, NotificationAPIView, StateConfigAPIView, EventAPIView
+from .Views.api_views import MedicationScheduleAPIView, HeucodEventAPIView, MQTTConfigurationAPIView, RoomAPIView, DeviceAPIView, NotificationAPIView, StateConfigAPIView, EventAPIView, delete_sound
 from .Views.configuration_view import ConfigurationView
+from django.conf import settings
+from django.conf.urls.static import static
 
 profile_urls = [
     path('profile/home', ProfileViews.HomeView.as_view(), name='profile_home'),
@@ -27,6 +29,8 @@ api_urls = [
     path('api/notification/', NotificationAPIView.as_view(), name='notification_api'),
     path('api/state_config/', StateConfigAPIView.as_view(), name='state_config_api'),
     path('api/event/', EventAPIView.as_view(), name='event_api'),
+    path('delete_sound/<uuid:state_config_id>/', delete_sound, name='delete_sound'),
+
 ]
 
 urlpatterns = profile_urls + api_urls + \
@@ -40,4 +44,4 @@ urlpatterns = profile_urls + api_urls + \
     path('profile/add_room/', add_room, name='add_room'),
     path('profile/delete_room/', delete_room, name='delete_room'),
     path('profile/update_room_position/', update_room_position, name='update_room_position'),
-] 
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
