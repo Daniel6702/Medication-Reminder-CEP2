@@ -73,3 +73,7 @@
     background-color: var(--accent); /* Change background color on hover */
     color: var(--background); /* Change text color on hover */
 }
+.navbar .active a {
+    color: #fff !important;
+    background-color: #508250 !important;
+}
