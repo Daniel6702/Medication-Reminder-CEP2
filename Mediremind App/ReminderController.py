@@ -138,9 +138,10 @@ class IdleState(State):
         log("Entering Idle State")
         for room in self.reminder_system.rooms:
             self.reminder_system.activate_room(self.reminder_system.idle_conf, room.room_id)
+        event_system.publish(EventType.PLAY_SOUND, self.reminder_system.idle_conf.sound_file)
 
     def handle(self):
-        if self.reminder_system.is_medication_time():
+        if self.reminder_system.is_medication_time() and False:
             self.reminder_system.change_state(ActiveState(self.reminder_system))
 
 class ActiveState(State):

@@ -57,6 +57,7 @@ class ConfigurationView(LoginRequiredMixin, TemplateView):
         context['state_config_form'] = StateConfigForm(instance=state_config)
         context['current_state'] = state_name
         context['state_names'] = StateConfig.STATE_NAMES
+        context['state_config'] = state_config
         
         return context
 

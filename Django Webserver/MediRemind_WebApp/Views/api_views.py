@@ -5,6 +5,8 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from ..models import Notification, Room, Device, MedicationSchedule, HeucodEvent, MQTTConfiguration, StateConfig, Event
 from ..serializers import NotificationSerializer, RoomSerializer, DeviceSerializer, MedicationScheduleSerializer, HeucodEventSerializer, MQTTConfigurationSerializer, StateConfigSerializer, EventSerializer
+from django.http import Http404
+from django.shortcuts import redirect
 
 class NotificationAPIView(APIView):
     authentication_classes = [TokenAuthentication]
@@ -79,7 +81,7 @@ class StateConfigAPIView(APIView):
 
     def get(self, request):
         state_configs = StateConfig.objects.filter(user=request.user)
-        serializer = StateConfigSerializer(state_configs, many=True)
+        serializer = StateConfigSerializer(state_configs, many=True, context={'request': request})
         return Response(serializer.data)
 
     def post(self, request):
@@ -93,6 +95,17 @@ class StateConfigAPIView(APIView):
         state_config = StateConfig.objects.get(state_config_id=state_config_id)
         state_config.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+def delete_sound(request, state_config_id):
+    try:
+        state_config = StateConfig.objects.get(state_config_id=state_config_id)
+        if state_config.sound_file:
+            state_config.sound_file.delete()  # Delete the file
+            state_config.sound_file = None
+            state_config.save()
+        return redirect('/configuration')
+    except StateConfig.DoesNotExist:
+        raise Http404("StateConfig not found")
 
 class MedicationScheduleAPIView(APIView):
     authentication_classes = [TokenAuthentication]
