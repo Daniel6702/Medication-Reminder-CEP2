@@ -19,7 +19,6 @@ class SoundController:
             return
         print(f"PLAYING SOUND {data}")
         
-        # Check if the data is a URL
         if urlparse(data).scheme in ['http', 'https']:
             # Download the file from the URL and play it
             response = requests.get(data)
@@ -27,7 +26,6 @@ class SoundController:
                 # Use a temporary file to save the audio
                 with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as tmpfile:
                     tmpfile.write(response.content)
-                    # Load and play the sound file
                     pygame.mixer.music.load(tmpfile.name)
                     pygame.mixer.music.play()
                     self.is_playing = True

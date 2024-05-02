@@ -16,7 +16,7 @@ def log(message):
 
     # Format the current time as "%H:%M:%S"
     formatted_time = current_time.strftime("%H:%M:%S")
-    print(f"[{formatted_time}] {message}\n")
+    print(f"[{formatted_time}] {message}")
 
 def hex_to_rgb(hex_color: str) -> dict:
     hex_color = hex_color.lstrip('#')
@@ -30,6 +30,7 @@ def hex_to_rgb(hex_color: str) -> dict:
 class ReminderSystem:
     '''Initializes the system state, handles state changes. Retrieves data from the db through events'''
     def __init__(self):
+        self.room_configurations = {} 
         self.setup_connections()
         self.initialize_data()
         self.state = IdleState(self)
@@ -61,13 +62,16 @@ class ReminderSystem:
 
     def get_medication_schedules(self,schedules): self.schedules = schedules; print(f"\nSCHEDULES:\n {schedules}\n")
 
-    def change_state(self, state: 'State'):
-        print(f'change state {state}')
-        self.state = state
+    def change_state(self, new_state: 'State'):
+        if type(self.state) is type(new_state) or self.state == new_state:
+            log(f"Attempted to change to the same type of state: {type(new_state).__name__}. No action taken.")
+        else:
+            log(f"Changing state from {type(self.state).__name__} to {type(new_state).__name__}")
+            self.state = new_state
 
     def update(self):
         self.state.handle()
-        print(self.state.__class__.__name__)
+        log(self.state.__class__.__name__)
     
     def get_reminder_datetime(self, schedule):
         current_date = datetime.now().date()
@@ -94,27 +98,39 @@ class ReminderSystem:
                     return True
         return False
 
-    def activate_room(self, config: StateConfig, room = None):
+    def activate_room(self, config: StateConfig, room=None):
+        current_config = self.room_configurations.get(room)
+        if current_config == config:
+            log(f"{room} is already activated with the given configuration. No action taken.")
+            return
+
         log(f'ACTIVATE {room}, with {config.state_name}')
         event_system.publish(EventType.TURN_ON, DeviceEvent(room=room))
         if config.color_code:
             color = hex_to_rgb(config.color_code)
             event_system.publish(EventType.CHANGE_COLOR, DeviceEvent(room=room, color=color))
         if config.blink:
-            interval = 1
-            if config.blink_interval:
-                interval = config.blink_interval                
+            interval = config.blink_interval if config.blink_interval else 1
             if config.blink_times:
                 event_system.publish(EventType.BLINK_TIMES, DeviceEvent(room=room, blink_interval=interval, blink_times=config.blink_times))
             else:
                 event_system.publish(EventType.START_BLINK, DeviceEvent(room=room, interval=interval))
         if config.sound_file:
             event_system.publish(EventType.PLAY_SOUND, config.sound_file)
+        
+        # Update the room's current configuration after activation
+        self.room_configurations[room] = config
 
-    def deactivate_room(self, room = None):
+    def deactivate_room(self, room=None):
+        log(f'DEACTIVATING ROOM: {room}')
         event_system.publish(EventType.TURN_OFF, DeviceEvent(room=room))
         event_system.publish(EventType.STOP_BLINK, DeviceEvent(room=room))
         event_system.publish(EventType.STOP_SOUND, DeviceEvent(room=room))
+        
+        # Reset the room's configuration upon deactivation
+        if room in self.room_configurations:
+            del self.room_configurations[room]
+
  
 class State(ABC):
     '''It provides a common interface for all states to implement the handle

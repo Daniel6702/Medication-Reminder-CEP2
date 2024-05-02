@@ -39,8 +39,6 @@ class DeviceController():
     '''
     def __init__(self):
         self.devices = []
-        self.actuators = []
-        self.sensors = []
         event_system.subscribe(EventType.RESPONSE_DEVICES,self.get_db_devices)
         event_system.subscribe(EventType.DEVICE_DISCOVERY, self.get_devices)
 
@@ -48,8 +46,6 @@ class DeviceController():
     
     def get_devices(self, message: list[dict]):
         self.devices = []
-        self.actuators = []
-        self.sensors = []
         '''
         Subscribed to the EVENT_DISCOVERY event, occurs on initialization of system. 
         Retrieves devices from z2m message and database.
@@ -98,17 +94,8 @@ class DeviceController():
         # Update self.devices with newly configured devices
         self.devices = [device for device in z2m_devices if device.room is not None]
 
-        # Split devices into actuators and sensors
-        self.actuators.clear()
-        self.sensors.clear()
         print("\nDEVICES: ")
-        for device in self.devices:
-            print(f'{device}')
-            if isinstance(device, Actuator):
-                self.actuators.append(device)
-            elif isinstance(device, Sensor):
-                self.sensors.append(device)
-        print("")
+        for device in self.devices: print(f'{device}')
         event_system.publish(EventType.SETUP_FINISHED, None)
         
     def create_device(self, device_data: Device):
@@ -127,26 +114,3 @@ class DeviceController():
             return Switch(**device_data)
         else:
             raise ValueError(f"Unsupported device type: {device_type}")
-
-    def remind(self, remind_configuration):
-        '''
-        Uses the systems actuators to remind the user. The method iterates
-        through all actuators and activates those in the specified room with the 
-        configuration provided (such as light color, audio, blinking, etc.)
-        '''
-        for actuator in self.actuators:
-            if actuator.room == remind_configuration.room:
-                actuator.turn_on()
-
-                if hasattr(actuator, 'set_color') and remind_configuration.color_code:
-                    actuator.set_color(remind_configuration.color_code)
-
-                if hasattr(actuator, 'play_sound') and remind_configuration.sound_file:
-                    actuator.play_sound(remind_configuration.sound_file)
-
-                if hasattr(actuator, 'start_blink') and remind_configuration.blink:
-                    # Check for continuous blinking or blink for a specified number of times
-                    if remind_configuration.blink_times is not None:
-                        actuator.blink_times(remind_configuration.blink_times, remind_configuration.blink_interval)
-                    else:
-                        actuator.start_blink(remind_configuration.blink_interval)
