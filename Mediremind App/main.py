@@ -8,6 +8,7 @@ from Devices.Device_Controller import DeviceController
 from NotificationController import NotificationController
 import threading
 from time import sleep
+from Sound.sound_controller import SoundController
 '''
 Dependencies:
     - Django server (API) must be running (settings.py), and the connection configured (config.py)
@@ -26,6 +27,7 @@ implement stateconfig in rc
 class MainSystem():
     '''Central class of the system that integrates the various components and controllers, and allows them to work together.'''
     def __init__(self):
+        self.sound_controller = SoundController()
         self.setup_finished = threading.Event()
         self.running = False
         event_system.subscribe(EventType.SETUP_FINISHED, self.start)
