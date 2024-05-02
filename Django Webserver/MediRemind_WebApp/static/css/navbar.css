@@ -51,6 +51,10 @@
     margin-right: 5px;
 }
 
+#theme-switcher {
+    margin: 0 2.5px;
+}
+
 .navbar button,
 .navbar a {
     text-decoration: none;
