@@ -15,16 +15,16 @@
 <body>
     {% include 'navbar.html' %}
 
-    {% if is_alarmed %}
+    <!-- {% if is_alarmed %} -->
     <form method="post" action="" class="alert-resolved">
         {% csrf_token %}
         <input type="hidden" name="reset_alarm" value="1">
         <button type="submit" class="alert-resolved-button">
-            <span class="material-symbols-outlined"> Error </span>
-            Alert Resolved
+            <span class="material-symbols-outlined"> Engineering </span>
+            System is in an alarmed state: Click to resolve
         </button>
     </form>
-    {% endif %}
+    <!-- {% endif %} -->
     
     <div class="row">
         <ul>
