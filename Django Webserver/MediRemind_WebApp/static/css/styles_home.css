@@ -90,19 +90,32 @@ body {
     background-color: var(--secondary);
 }
 
+.alert-resolved {
+    display: flex;
+    justify-content: center;
+}
+
 
 .alert-resolved-button {
-    margin-top: 100px;
+    position: fixed;
+    z-index: 1000; /* Set the z-index to ensure the button is on top */
     padding: 20px 40px; /* Large padding for a big button */
-    background-color: red; /* Red background for the button */
+    background-color: rgb(225, 0, 0); /* Red background for the button */
     color: white; /* White text color */
     font-size: 18px; /* Larger font size for better visibility */
     border: none; /* No border for a cleaner look */
     border-radius: 8px; /* Rounded corners */
     cursor: pointer; /* Pointer cursor on hover */
-    display: block; /* Block display to take the full width available */
-    margin: 20px auto; /* Center the button horizontally with auto margins */
+    display: flex; /* Block display to take the full width available */
+    flex-direction: row;
+    margin: 3em auto; /* Center the button horizontally with auto margins */
     text-align: center; /* Center the text inside the button */
+    box-shadow: 0 0.32em 0.64em 0 var(--shadow), 0 0.48em 1.6em 0 var(--shadow); /* Convert px to em */
+    transition: background-color 0.3s, color 0.3s; /* Add transition for smooth effect */
+}
+
+.alert-resolved-button span {
+    margin-right: 5px; /* Add space between the icon and text */
 }
 
 .alert-resolved-button:hover {

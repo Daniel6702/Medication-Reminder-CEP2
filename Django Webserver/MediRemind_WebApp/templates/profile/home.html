@@ -16,10 +16,13 @@
     {% include 'navbar.html' %}
 
     {% if is_alarmed %}
-    <form method="post" action="">
+    <form method="post" action="" class="alert-resolved">
         {% csrf_token %}
         <input type="hidden" name="reset_alarm" value="1">
-        <button type="submit" class="alert-resolved-button">Alert Resolved</button>
+        <button type="submit" class="alert-resolved-button">
+            <span class="material-symbols-outlined"> Error </span>
+            Alert Resolved
+        </button>
     </form>
     {% endif %}
     
