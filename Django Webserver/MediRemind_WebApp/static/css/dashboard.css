@@ -41,11 +41,6 @@ body {
     background-color: #cce5ff;
 }
 
-
-.notification-item:hover {
-    background-color: #d3d3d3;
-}
-
 .notification-message, .notification-timestamp, .schedule-medication, .schedule-time {
     display: block;
 }
