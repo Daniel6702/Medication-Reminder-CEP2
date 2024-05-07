@@ -100,8 +100,8 @@ body {
     position: fixed;
     z-index: 1000; /* Set the z-index to ensure the button is on top */
     padding: 20px 40px; /* Large padding for a big button */
-    background-color: rgb(225, 0, 0); /* Red background for the button */
-    color: white; /* White text color */
+    background-color: #ecd540; /* Red background for the button */
+    color: var(--text); /* White text color */
     font-size: 18px; /* Larger font size for better visibility */
     border: none; /* No border for a cleaner look */
     border-radius: 8px; /* Rounded corners */
@@ -119,5 +119,5 @@ body {
 }
 
 .alert-resolved-button:hover {
-    background-color: #cc0000; /* Slightly darker red on hover for feedback */
+    background-color: #f3e067; /* Slightly darker red on hover for feedback */
 }
