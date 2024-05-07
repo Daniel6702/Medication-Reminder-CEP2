@@ -27,6 +27,7 @@ body {
     padding: 0;
     overflow-x: hidden; /* Hide horizontal scrollbar */
     line-height: 1;
+    margin-top: 5em; /* Set the top margin to the height of the navbar */
 }
 
 .row {
