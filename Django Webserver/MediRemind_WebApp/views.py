@@ -50,7 +50,7 @@ import datetime
 def notifications_view(request):
     page_number = int(request.GET.get('page', 1))
     notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')
-    paginator = Paginator(notifications, 9)
+    paginator = Paginator(notifications, 5)
 
     try:
         notifications_page = paginator.page(page_number)

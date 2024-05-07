@@ -4,29 +4,7 @@
 
 {% block profile_content %}
 <div class="content-container">
-    <div class="notification-container">
-        <h4>Notifications</h4>
-        {% if notifications %}
-            <ul class="notification-list" id="notificationList">
-                {% for notification in notifications %}
-                    <li class="notification-item {{ notification.type|lower }}">
-                        <span class="notification-message">{{ notification.message }}</span>
-                        <span class="notification-timestamp">{{ notification.timestamp|date:"M d, Y H:i" }}</span>
-                    </li>
-                {% endfor %}
-            </ul>
-            <div class="pagination-controls">
-                <button id="prevPage" onclick="changePage(-1)">←</button>
-                <span id="currentPage">1</span>
-                <button id="nextPage" onclick="changePage(1)">→</button>
-            </div>
-            
-    {% else %}
-        <p>No notifications found.</p>
-    {% endif %}
-    </div>
-
-    <div class="medication-calendar" style="flex: 1;">
+    <ul class="medication-calendar">
         <h4>Today's Medication Schedule</h4>
         {% if schedules %}
             <ul class="schedule-list">
@@ -38,9 +16,33 @@
                 {% endfor %}
             </ul>
         {% else %}
-            <p>No medication events scheduled for today.</p>
+            <li>No medication events scheduled for today.</li>
         {% endif %}
-    </div>
+    </ul>
+
+    <ul class="notification-container">
+        <h4>Notifications</h4>
+        <li>
+            {% if notifications %}
+            <ul class="notification-list" id="notificationList">
+                {% for notification in notifications %}
+                    <li class="notification-item {{ notification.type|lower }}">
+                        <span class="notification-message">{{ notification.message }}</span>
+                        <span class="notification-timestamp">{{ notification.timestamp|date:"M d, Y H:i" }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </li>
+        <li class="pagination-controls">
+            <button id="prevPage" onclick="changePage(-1)">←</button>
+            <span id="currentPage">1</span>
+            <button id="nextPage" onclick="changePage(1)">→</button>
+        </li>
+            
+    {% else %}
+        <li>No notifications found.</li>
+    {% endif %}
+    </ul>
 </div>
 {% endblock %}
 
