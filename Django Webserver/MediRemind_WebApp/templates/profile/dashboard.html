@@ -7,17 +7,23 @@
     <div class="notification-container" style="flex: 1;">
         <h4>Notifications</h4>
         {% if notifications %}
-            <ul class="notification-list">
-                {% for notification in notifications %}
+            <ul class="notification-list" id="notificationList">
+                {% for notification in notifications|slice:":9" %}
                     <li class="notification-item {{ notification.type|lower }}">
                         <span class="notification-message">{{ notification.message }}</span>
                         <span class="notification-timestamp">{{ notification.timestamp|date:"M d, Y H:i" }}</span>
                     </li>
                 {% endfor %}
             </ul>
-        {% else %}
-            <p>No notifications found.</p>
-        {% endif %}
+            <div class="pagination-controls">
+                <button id="prevPage" onclick="changePage(-1)">←</button>
+                <span id="currentPage">1</span>
+                <button id="nextPage" onclick="changePage(1)">→</button>
+            </div>
+            
+    {% else %}
+        <p>No notifications found.</p>
+    {% endif %}
     </div>
 
     <div class="medication-calendar" style="flex: 1;">

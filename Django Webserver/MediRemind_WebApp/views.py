@@ -9,8 +9,15 @@ from django.views.generic import TemplateView
 from django.views.generic.list import ListView
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserChangeForm, PasswordChangeForm
-
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.utils.dateformat import DateFormat
+
+
+
 
 #RestAPI
 from rest_framework.authtoken.models import Token
@@ -36,6 +43,32 @@ from .forms import ManualInputForm
 import json
 import uuid
 
+@login_required
+def notifications_view(request):
+    page_number = int(request.GET.get('page', 1))
+    notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')
+    paginator = Paginator(notifications, 9)
+
+    try:
+        notifications_page = paginator.page(page_number)
+    except PageNotAnInteger:
+        notifications_page = paginator.page(1)  # Load the first page if the page number is not an integer
+    except EmptyPage:
+        notifications_page = paginator.page(paginator.num_pages)  # Load the last page if the page is out of range
+
+    notifications_data = [{
+        'message': notification.message,
+        'timestamp': DateFormat(notification.timestamp).format('M d, Y H:i'),  # Formatting here
+        'type': notification.type
+    } for notification in notifications_page.object_list]
+
+    return JsonResponse({
+        'notifications': notifications_data,
+        'has_next': notifications_page.has_next(),
+        'has_prev': notifications_page.has_previous()
+    })
+
+
 class ProfileViews:
     class HomeView(LoginRequiredMixin, TemplateView):
         template_name = 'profile/home.html'
@@ -58,6 +91,8 @@ class ProfileViews:
             context['schedules'] = MedicationSchedule.objects.filter(user=self.request.user)
 
             return context
+        
+       
     class EventsView(LoginRequiredMixin, TemplateView):
         template_name = 'profile/events.html'
 
