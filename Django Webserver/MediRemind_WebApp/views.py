@@ -9,8 +9,15 @@ from django.views.generic import TemplateView
 from django.views.generic.list import ListView
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserChangeForm, PasswordChangeForm
-
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.utils.dateformat import DateFormat
+
+
+
 
 #RestAPI
 from rest_framework.authtoken.models import Token
@@ -21,6 +28,7 @@ from .models import MQTTConfiguration
 from .models import Room
 from .models import Device
 from .models import Notification
+from .models import Event
 from .models import ManualInput
 from .models import StateConfig
 
@@ -35,6 +43,32 @@ from .forms import ManualInputForm
 
 import json
 import uuid
+
+@login_required
+def notifications_view(request):
+    page_number = int(request.GET.get('page', 1))
+    notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')
+    paginator = Paginator(notifications, 9)
+
+    try:
+        notifications_page = paginator.page(page_number)
+    except PageNotAnInteger:
+        notifications_page = paginator.page(1)  # Load the first page if the page number is not an integer
+    except EmptyPage:
+        notifications_page = paginator.page(paginator.num_pages)  # Load the last page if the page is out of range
+
+    notifications_data = [{
+        'message': notification.message,
+        'timestamp': DateFormat(notification.timestamp).format('M d, Y H:i'),  # Formatting here
+        'type': notification.type
+    } for notification in notifications_page.object_list]
+
+    return JsonResponse({
+        'notifications': notifications_data,
+        'has_next': notifications_page.has_next(),
+        'has_prev': notifications_page.has_previous()
+    })
+
 
 class ProfileViews:
     class HomeView(LoginRequiredMixin, TemplateView):
@@ -58,13 +92,51 @@ class ProfileViews:
             context['schedules'] = MedicationSchedule.objects.filter(user=self.request.user)
 
             return context
+        
+       
     class EventsView(LoginRequiredMixin, TemplateView):
         template_name = 'profile/events.html'
 
         def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
-            user_logs = self.request.user.heucod_events.all()
-            context['logs'] = user_logs
+            user_events = Event.objects.filter(user=self.request.user)
+            user_notifications = Notification.objects.filter(user=self.request.user)
+
+            # Events description: ID, User, Log/notification, Type, Timestamp, Content
+            class Event_Table_Item:
+                def __init__(self, id, user, event_type, status, timestamp, content):
+                    self.id = id
+                    self.user = user
+                    self.event_type = event_type
+                    self.status = status
+                    self.timestamp = timestamp
+                    self.content = content
+
+
+            # Iterate through logs and notifications, and merge them into a single list
+            all_events = []
+
+            for event in user_events:
+                curr_event = Event_Table_Item(event.id, event.user, 'Event', event.type, event.time, event.data)
+                all_events.append(curr_event)
+
+            for notification in user_notifications:
+                curr_event = Event_Table_Item(notification.notification_id, notification.user, 'Notification', notification.type, notification.timestamp, notification.message)
+                all_events.append(curr_event)
+
+            all_events.sort(key=lambda x: x.timestamp, reverse=True)
+            context['events'] = all_events
+
+            return context
+        
+    class AnalysisView(LoginRequiredMixin, TemplateView):
+        template_name = 'profile/analysis.html'
+
+        def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            context['user'] = self.request.user
+            context['notifications'] = Notification.objects.filter(user=self.request.user)
+            context['schedules'] = MedicationSchedule.objects.filter(user=self.request.user)
 
             return context
 

@@ -22,47 +22,77 @@
     --accent: #ff00bb;
 }
 
+:root {
+    --text: #10150f;
+    --background: #fafbf9;
+    --primary: #799d72;
+    --secondary: #aac4b7;
+    --accent: #92b3a7;
+    --shadow: rgba(125, 125, 125, 0.2);
+}
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Roboto", sans-serif;
 }
 
-.login-container {
-    margin: auto;
-    width: 300px;
-    padding: 20px;
-    border: 1px solid #cccccc;
-    border-radius: 5px;
+h2 {
     text-align: center;
+    margin-bottom: 20px; /* Adds spacing below the title */
 }
 
-.container button {
+.login-container ul {
+    display: flex;
+    align-items: center; /* Centers items vertically */
+    justify-content: center; /* Centers items horizontally */
+    flex-direction: row;
+    padding: 0;
+}
+
+.login-container li {
+    list-style-type: none;
+    margin-right: 10px;
+}
+
+.register-btn ul {
+    display: flex;
+    align-items: center; /* Centers items vertically */
+    justify-content: center; /* Centers items horizontally */
+    flex-direction: row;
+    padding: 0;
+}
+
+.register-btn li {
+    list-style-type: none;
+    margin-right: 10px;
+}
+
+#alt-btn {
+    border: 2px solid var(--primary);
+    background-color: var(--background);
+    transition: color 0.3s, color 0.3s; /* Add transition for smooth effect */
+}
+
+#alt-btn:hover {
+    color: var(--primary);
+}
+
+ a, button {
+    text-decoration: none;
+    font-family: "Roboto", sans-serif;
     padding: 15px 30px; /* Adjust the top and bottom padding */
     font-size: 18px; /* Increase the font size of the button text */
-    background-color: #4CAF50; /* Set background color */
-    color: black; /* Set text color */
+    background-color: var(--primary); /* Set background color */
+    color: var(--text); /* Set text color */
     border: none; /* Remove border */
     border-radius: 5px; /* Rounded corners */
     cursor: pointer; /* Add cursor pointer on hover */
-    transition: background-color 0.3s; 
-    /* Smooth transition for background color change */
+    transition: background-color 0.3s, color 0.3s; /* Add transition for smooth effect */
 }
 
 /* Hover effect */
-.container button:hover {
-    background-color: #308034; /* Darker background color on hover */
-}
-
-button[type="submit"] {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px; 
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-button[type="submit"]:hover {
-    background-color: #45a049;
+ a:hover, button:hover {
+    background-color: var(--accent); /* Change background color on hover */
+    color: var(--text); /* Change text color on hover */
 }
 
 .text-over {
@@ -95,3 +125,20 @@ tr:nth-child(even) {
     background-color: #f2f2f2;
 }
 
+input[type="text"], input[type="email"], input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0 20px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+form {
+    max-width: 500px;
+    margin: 20px auto;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f2f2f2;
+}

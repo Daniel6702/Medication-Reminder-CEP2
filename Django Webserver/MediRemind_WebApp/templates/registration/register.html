@@ -1,16 +1,26 @@
-{% extends "base.html" %}
 {% load static %}
 
 {% block content %}
   <form method="post" class="register-form">
     {% csrf_token %}
-    <h2 class="form-title">Register</h2>
+    <h2>Register</h2>
     {{ form.as_p }}
-    <button type="submit">Register</button>
+    <div class="register-btn">
+      <ul>
+        <li>
+            <button type="submit">Register</button>
+        </li>
+        <li>
+            <a id="alt-btn" href="{% url 'login' %}">Login</a>
+        </li>
+        <li>
+          <a id="alt-btn" href="{% url 'home' %}">Home</a>
+        </li>
+      </ul>
+    </div>
   </form>
 {% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/registration.css' %}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 {% endblock %}

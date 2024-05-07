@@ -12,7 +12,7 @@
        .container {
            position: relative;
            height: 100%;
-           background-image: url("{% static 'images/elder_care.jpg' %}");
+           background: rgba(0, 0, 0, 0.5);
            background-size: cover;
            background-position: center;
            display: flex;
@@ -20,17 +20,28 @@
            align-items: center;
            text-align: center;
        }
+
+       #video {
+           position: fixed;
+           top: 0;
+           left: 0;
+           min-width: 100%;
+           min-height: 100%;
+       }
    </style>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <title>Home</title>
 </head>
 <body>
+    <video autoplay muted loop id="video">
+        <source src="{% static 'images/background_video.mp4' %}" type="video/mp4">
+    </video>
     <div class="container">
         <div class="text-over">
             <h1>Welcome</h1>
-            <a href="{% url 'login' %}"><button>Login</button></a>  
-            <a href="{% url 'register' %}"><button>Register</button></a>  
-            <a href="{% url 'admin:index' %}"><button>Admin</button></a>
+            <a href="{% url 'login' %}">Login</a>  
+            <a href="{% url 'register' %}">Register</a>  
+            <a href="{% url 'admin:index' %}">Admin</a>
         </div>
     </div>
 </body>
