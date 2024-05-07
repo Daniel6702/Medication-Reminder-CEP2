@@ -14,6 +14,8 @@ body {
 }
 
 .schedule {
+    flex: 1;
+    width: auto;
     margin: 10px;
     padding: 20px;
     border: 1px solid #ccc;
