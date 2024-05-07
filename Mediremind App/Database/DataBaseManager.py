@@ -53,6 +53,7 @@ class DatabaseManager():
             event_system.subscribe(EventType.REQUEST_MQTT_CONF, self.make_request(self.database_manager.get_mqtt_configuration, self.database_manager.instance.mqtt_configuration, EventType.RESPONSE_MQTT_CONF))
             event_system.subscribe(EventType.REQUEST_STATE_CONFS, self.make_request(self.database_manager.get_state_configs, self.database_manager.instance.alert_configurations, EventType.RESPONSE_STATE_CONFS))
             event_system.subscribe(EventType.REQUEST_ROOMS,self.make_request(self.database_manager.get_rooms, self.database_manager.instance.rooms, EventType.RESPONSE_ROOMS))
+            event_system.subscribe(EventType.REQUEST_ALARM_STATE,self.make_request(self.database_manager.get_current_alarm_state, False, EventType.RESPONSE_ALARM_STATE))
             event_system.subscribe(EventType.SEND_EVENTS,self.database_manager.send_events)
 
         def make_request(self, new_method, old_method, response_type):
@@ -165,6 +166,16 @@ class DatabaseManager():
             print(f"Failed to update alarm status. Status Code: {response.status_code}, Message: {response.text}")
 
         return response
+    
+    def get_current_alarm_state(self) -> bool:
+        try:
+            response = requests.get(self.base_api_url + '/api/alarmed/', headers=self.headers)
+            response.raise_for_status()  # This will raise an exception for HTTP error responses
+            alarmed_data = response.json()
+            return alarmed_data.get('alarmed', False)
+        except requests.RequestException as e:
+            print(f"An error occurred: {e}")
+            return False
 
     def get_medication_schedules(self) -> List[Models.MedicationSchedule]:
         response = requests.get(self.base_api_url + '/api/medication-schedule/', headers=self.headers)

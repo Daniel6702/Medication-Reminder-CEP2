@@ -55,6 +55,8 @@ class EventType(enum.Enum):
     STOP_SOUND = 49
     ROOM_EMPTY = 50
     ALARM = 51
+    REQUEST_ALARM_STATE = 52
+    RESPONSE_ALARM_STATE = 53
 
 class EventSystem:
     '''
