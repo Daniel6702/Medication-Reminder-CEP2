@@ -15,6 +15,7 @@ class SoundController:
         self.is_playing = False
 
     def play_sound(self, data):
+        print("hej")
         if self.is_playing:
             return
         print(f"PLAYING SOUND {data}")

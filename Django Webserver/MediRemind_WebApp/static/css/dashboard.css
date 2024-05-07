@@ -11,6 +11,7 @@ body {
 }
 
 .notification-container, .medication-calendar {
+    position: relative; /* Ensures child elements with absolute positioning are placed relative to this container */
     width: 50%;
     background-color: #f7f7f7;
     border-radius: 8px;
@@ -109,6 +110,9 @@ body {
 
 
 .pagination-controls {
+    position: absolute;
+    bottom: 10px; /* Distance from the bottom of the container */
+    width: 100%; /* Ensures the pagination controls span the entire width of the container */
     display: flex;
     justify-content: center;
     align-items: center;

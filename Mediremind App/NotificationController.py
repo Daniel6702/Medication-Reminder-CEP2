@@ -20,11 +20,11 @@ class NotificationController():
             self.send_email("EMERGENCY", text, care_giver.email)
         self.new_notification(text + "\n\n CAREGIVER(s) NOTIFIED", NotificationType.CRITICAL)
 
-    def new_notification(self, message: str, type: NotificationType):  
+    def new_notification(self, data):  
         notification = Notification(
             notification_id=str(uuid.uuid4()),
-            type = type.name,
-            message=message,
+            type = data[1].name,
+            message=data[0],
             timestamp=datetime.now())
         
         event_system.publish(EventType.NOTIFICATION, notification)

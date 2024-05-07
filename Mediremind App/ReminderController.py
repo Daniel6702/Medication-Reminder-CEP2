@@ -3,9 +3,10 @@ from EventSystem import EventType, event_system
 from Database.DataBaseManager import DatabaseManager
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
-from Database.Models import StateConfig, DeviceEvent
+from Database.Models import StateConfig, DeviceEvent, NotificationType
 from time import sleep
 from random import randint
+
 '''
 This Python module defines the core logic of the remind mechanisms. The system is structured around a state machine pattern,
 allowing it to transition between various states based on medication schedules, user interactions, and system events.
@@ -131,7 +132,14 @@ class ReminderSystem:
         if room in self.room_configurations:
             del self.room_configurations[room]
 
- 
+    def reset_all_rooms(self):
+        for room in self.rooms:
+            self.deactivate_room(room.room_id)
+
+    def activate_all_rooms(self, conf):
+        for room in self.rooms:
+            self.activate_room(room, conf)
+
 class State(ABC):
     '''It provides a common interface for all states to implement the handle
     method and allows optional setup procedures for each state.'''
@@ -153,10 +161,7 @@ class IdleState(State):
     def setup(self):  
         self.timer = 0  
         log("Entering Idle State")
-        for room in self.reminder_system.rooms:
-            #self.reminder_system.activate_room(self.reminder_system.idle_conf, room.room_id)
-            self.reminder_system.deactivate_room(room.room_id)
-        event_system.publish(EventType.PLAY_SOUND, self.reminder_system.idle_conf.sound_file)
+        self.reminder_system.reset_all_rooms()
 
     def handle(self):
         if self.reminder_system.is_medication_time():
@@ -172,7 +177,8 @@ class ActiveState(State):
         event_system.subscribe(EventType.MOTION_ALERT, self.get_motion_alert)
         event_system.subscribe(EventType.MEDICATION_TAKEN, self.medication_event)
         event_system.subscribe(EventType.ROOM_EMPTY, self.reminder_system.deactivate_room)
-        #self.reminder_system.activate_room(self.reminder_system.active_conf, self.reminder_system.latest_room)
+        event_system.publish(EventType.PLAY_SOUND, self.reminder_system.active_conf.sound_file)
+        self.reminder_system.reset_all_rooms()
 
     def get_motion_alert(self, room):
         self.reminder_system.activate_room(self.reminder_system.active_conf, room)
@@ -181,7 +187,7 @@ class ActiveState(State):
         self.reminder_system.change_state(MedicationTakenState(self.reminder_system))
 
     def handle(self):
-        if self.reminder_system.is_x_time_passed_since_medication_time(1):
+        if not self.reminder_system.is_medication_time():
             self.reminder_system.change_state(MedicationMissedState(self.reminder_system))
         
 class MedicationTakenState(State):
@@ -190,9 +196,8 @@ class MedicationTakenState(State):
         event_system.subscribe(EventType.MEDICATION_TAKEN, self.medication_event)
         event_system.subscribe(EventType.MOTION_ALERT, self.get_motion_alert)
         event_system.subscribe(EventType.ROOM_EMPTY, self.reminder_system.deactivate_room)
-        for room in self.reminder_system.rooms:
-            self.reminder_system.deactivate_room(room.room_id)
-        #self.reminder_system.activate_room(self.reminder_system.medication_taken_conf, self.reminder_system.latest_room)
+        event_system.publish(EventType.PLAY_SOUND, self.reminder_system.medication_taken_conf.sound_file)
+        self.reminder_system.reset_all_rooms()
         self.n_meds = 0
 
     def get_motion_alert(self, room):
@@ -207,8 +212,6 @@ class MedicationTakenState(State):
     def handle(self):
         if not self.reminder_system.is_medication_time():
             self.reminder_system.change_state(IdleState(self.reminder_system))
-        #if not self.reminder_system.is_x_time_passed_since_medication_time(1) or not self.reminder_system.is_medication_time():
-        #    self.reminder_system.change_state(IdleState(self.reminder_system))
 
 class MedicationMissedState(State):
     def setup(self):
@@ -216,10 +219,9 @@ class MedicationMissedState(State):
         event_system.subscribe(EventType.MEDICATION_TAKEN, self.medication_event)
         event_system.subscribe(EventType.MOTION_ALERT, self.get_motion_alert)
         event_system.subscribe(EventType.ROOM_EMPTY, self.reminder_system.deactivate_room)
-        for room in self.reminder_system.rooms:
-            #self.reminder_system.activate_room(self.reminder_system.idle_conf, room.room_id)
-            self.reminder_system.deactivate_room(room.room_id)
-        #self.reminder_system.activate_room(self.reminder_system.medication_missed_conf, self.reminder_system.latest_room)
+        event_system.publish(EventType.SEND_NOTIFICATION, ["Medication missed", NotificationType.IMPORTANT])
+        event_system.publish(EventType.PLAY_SOUND, self.reminder_system.medication_missed_conf.sound_file)
+        self.reminder_system.reset_all_rooms()
 
     def medication_event(self, data):
         self.reminder_system.change_state(MedicationTakenState(self.reminder_system))
@@ -228,17 +230,17 @@ class MedicationMissedState(State):
         self.reminder_system.activate_room(self.reminder_system.medication_missed_conf, room)
 
     def handle(self):
-        if not self.reminder_system.is_x_time_passed_since_medication_time(1) or not self.reminder_system.is_medication_time():
+        if not self.reminder_system.is_x_time_passed_since_medication_time(1) and not self.reminder_system.is_medication_time():
             self.reminder_system.change_state(IdleState(self.reminder_system))
 
 class AlertState(State):
     def setup(self):
         log("Entering Alert State")
-        for room in self.reminder_system.rooms:
-            self.reminder_system.activate_room(self.reminder_system.alert_conf, room.room_id)
         event_system.publish(EventType.NOTIFY_CAREGIVER,"Medication Taken again")
         event_system.subscribe(EventType.MEDICATION_TAKEN, self.medication_event)
         event_system.subscribe(EventType.ALERT_RESOLVED,self.alert_resolved)
+        event_system.publish(EventType.PLAY_SOUND, self.reminder_system.alert_conf.sound_file)
+        self.reminder_system.activate_all_rooms(self.reminder_system.alert_conf)
         self.number_of_meds_taken = 2
     
     def alert_resolved(self,data):
