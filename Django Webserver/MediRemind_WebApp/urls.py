@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.views import LogoutView
 from .views import ProfileViews, delete_schedule, home, CustomLoginView, register
 from .Views.room_views import delete_room, add_room, update_room_position, connect_rooms 
-from .Views.api_views import MedicationScheduleAPIView, HeucodEventAPIView, MQTTConfigurationAPIView, RoomAPIView, DeviceAPIView, NotificationAPIView, StateConfigAPIView, EventAPIView, delete_sound
+from .Views.api_views import MedicationScheduleAPIView, HeucodEventAPIView, MQTTConfigurationAPIView, RoomAPIView, DeviceAPIView, NotificationAPIView, StateConfigAPIView, EventAPIView, delete_sound, AlarmedAPIView
 from .Views.configuration_view import ConfigurationView
 from django.conf import settings
 from django.conf.urls.static import static
@@ -32,12 +32,12 @@ api_urls = [
     path('api/state_config/', StateConfigAPIView.as_view(), name='state_config_api'),
     path('api/event/', EventAPIView.as_view(), name='event_api'),
     path('delete_sound/<uuid:state_config_id>/', delete_sound, name='delete_sound'),
-
+    path('api/alarmed/', AlarmedAPIView.as_view(), name='alarm_api'),
 ]
 
 urlpatterns = profile_urls + api_urls + \
     [
-    path('', home, name='home'),
+    #path('', home, name='home'),
     path('login/', CustomLoginView.as_view(), name='login'),
     path('admin/', admin.site.urls),
     path('register/', register, name='register'),

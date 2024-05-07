@@ -45,6 +45,7 @@ class DatabaseManager():
             event_system.subscribe(EventType.ADD_DEVICE, self.database_manager.add_device)
             event_system.subscribe(EventType.NOTIFICATION, self.database_manager.send_notification)
             event_system.subscribe(EventType.HEUCOD_EVENT, self.database_manager.send_heucod_event)
+            event_system.subscribe(EventType.ALARM, self.database_manager.change_alarm_state)
             event_system.subscribe(EventType.UPDATE_DB_INSTANCE, self.database_manager.instance.update)
             event_system.subscribe(EventType.UPDATE_DB_ATTRIBUTE, self.database_manager.instance.update_attribute)
             event_system.subscribe(EventType.REQUEST_SCHEDULES, self.make_request(self.database_manager.get_medication_schedules, self.database_manager.instance.medication_schedules,EventType.RESPONSE_SCHEDULES))
@@ -145,6 +146,23 @@ class DatabaseManager():
             print("Notification Sent")
         else:
             print("Error sending Notification:", response.text)
+
+        return response
+        
+    def change_alarm_state(self, alarmed_state):
+        data = {"alarmed": alarmed_state}
+
+        response = requests.post(
+            url=self.base_api_url + '/api/alarmed/', 
+            json=data,
+            headers=self.headers
+        )
+
+        # Check for both 200 OK and 201 Created as successful responses
+        if response.status_code in [200, 201]:
+            print("Alarm status updated successfully.")
+        else:
+            print(f"Failed to update alarm status. Status Code: {response.status_code}, Message: {response.text}")
 
         return response
 

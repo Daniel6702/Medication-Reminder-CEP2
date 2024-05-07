@@ -54,6 +54,7 @@ class EventType(enum.Enum):
     SETUP_FINISHED = 48
     STOP_SOUND = 49
     ROOM_EMPTY = 50
+    ALARM = 51
 
 class EventSystem:
     '''

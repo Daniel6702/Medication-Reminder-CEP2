@@ -162,6 +162,7 @@ class IdleState(State):
         self.timer = 0  
         log("Entering Idle State")
         self.reminder_system.reset_all_rooms()
+        event_system.publish(EventType.ALARM, True)
 
     def handle(self):
         if self.reminder_system.is_medication_time():

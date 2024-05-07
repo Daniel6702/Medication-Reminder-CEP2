@@ -31,6 +31,7 @@ from .models import Notification
 from .models import Event
 from .models import ManualInput
 from .models import StateConfig
+from .models import Alarmed
 
 #Forms
 from .forms import RegisterForm
@@ -69,7 +70,6 @@ def notifications_view(request):
         'has_prev': notifications_page.has_previous()
     })
 
-
 class ProfileViews:
     class HomeView(LoginRequiredMixin, TemplateView):
         template_name = 'profile/home.html'
@@ -80,7 +80,20 @@ class ProfileViews:
             context['notifications'] = Notification.objects.filter(user=self.request.user)
             context['schedules'] = MedicationSchedule.objects.filter(user=self.request.user)
 
+            # Check and add the alarmed status
+            alarmed_instance, created = Alarmed.objects.get_or_create(user=self.request.user)
+            context['is_alarmed'] = alarmed_instance.alarmed
+
             return context
+
+        def post(self, request, *args, **kwargs):
+            # Check if the request to post is to reset the alarm
+            if 'reset_alarm' in request.POST:
+                alarm = Alarmed.objects.get(user=request.user)
+                alarm.alarmed = False
+                alarm.save()
+
+            return redirect('profile_home')
         
     class DashView(LoginRequiredMixin, TemplateView):
         template_name = 'profile/dashboard.html'
@@ -93,7 +106,6 @@ class ProfileViews:
 
             return context
         
-       
     class EventsView(LoginRequiredMixin, TemplateView):
         template_name = 'profile/events.html'
 

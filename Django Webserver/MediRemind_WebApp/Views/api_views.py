@@ -3,10 +3,30 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from ..models import Notification, Room, Device, MedicationSchedule, HeucodEvent, MQTTConfiguration, StateConfig, Event
-from ..serializers import NotificationSerializer, RoomSerializer, DeviceSerializer, MedicationScheduleSerializer, HeucodEventSerializer, MQTTConfigurationSerializer, StateConfigSerializer, EventSerializer
+from ..models import Notification, Room, Device, MedicationSchedule, HeucodEvent, MQTTConfiguration, StateConfig, Event, Alarmed
+from ..serializers import NotificationSerializer, RoomSerializer, DeviceSerializer, MedicationScheduleSerializer, HeucodEventSerializer, MQTTConfigurationSerializer, StateConfigSerializer, EventSerializer, AlarmedSerializer
 from django.http import Http404
 from django.shortcuts import redirect
+
+class AlarmedAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Try to get the alarm instance for the user, or None if it doesn't exist
+        alarm, _ = Alarmed.objects.get_or_create(user=request.user)
+        serializer = AlarmedSerializer(alarm)
+        return Response(serializer.data)
+
+    def post(self, request):
+        # Retrieve the existing alarm instance for the user, or create a new one if it doesn't exist
+        alarm, created = Alarmed.objects.get_or_create(user=request.user)
+        serializer = AlarmedSerializer(alarm, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+            return Response(serializer.data, status=status_code)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class NotificationAPIView(APIView):
     authentication_classes = [TokenAuthentication]

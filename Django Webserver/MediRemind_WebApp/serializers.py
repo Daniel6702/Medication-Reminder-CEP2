@@ -2,9 +2,13 @@ from rest_framework import serializers
 from .models import HeucodEvent
 from .models import MedicationSchedule
 from .models import MQTTConfiguration
-from .models import Room, Device, Notification, StateConfig, Event
+from .models import Room, Device, Notification, StateConfig, Event, Alarmed
 from django.conf import settings
 
+class AlarmedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Alarmed
+        fields = '__all__'
 
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:

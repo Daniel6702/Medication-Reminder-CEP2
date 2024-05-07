@@ -8,6 +8,10 @@ import json
 def get_default_user_id():
     return User.objects.first().id if User.objects.exists() else None
 
+class Alarmed(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='alarm', default=get_default_user_id)
+    alarmed = models.BooleanField(default=False)
+
 class MedicationSchedule(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='medication_schedules', default=get_default_user_id)
     medication_name = models.CharField(max_length=100)

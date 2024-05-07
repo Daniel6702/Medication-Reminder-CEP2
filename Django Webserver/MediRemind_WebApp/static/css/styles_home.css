@@ -89,3 +89,22 @@ body {
 .row a:hover {
     background-color: var(--secondary);
 }
+
+
+.alert-resolved-button {
+    margin-top: 100px;
+    padding: 20px 40px; /* Large padding for a big button */
+    background-color: red; /* Red background for the button */
+    color: white; /* White text color */
+    font-size: 18px; /* Larger font size for better visibility */
+    border: none; /* No border for a cleaner look */
+    border-radius: 8px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    display: block; /* Block display to take the full width available */
+    margin: 20px auto; /* Center the button horizontally with auto margins */
+    text-align: center; /* Center the text inside the button */
+}
+
+.alert-resolved-button:hover {
+    background-color: #cc0000; /* Slightly darker red on hover for feedback */
+}

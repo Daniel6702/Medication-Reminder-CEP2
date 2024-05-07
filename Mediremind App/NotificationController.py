@@ -18,7 +18,7 @@ class NotificationController():
     def notify_caregiver(self, text):
         for care_giver in self.care_givers:
             self.send_email("EMERGENCY", text, care_giver.email)
-        self.new_notification(text + "\n\n CAREGIVER(s) NOTIFIED", NotificationType.CRITICAL)
+        self.new_notification([text + "\n\n CAREGIVER(s) NOTIFIED", NotificationType.CRITICAL])
 
     def new_notification(self, data):  
         notification = Notification(
