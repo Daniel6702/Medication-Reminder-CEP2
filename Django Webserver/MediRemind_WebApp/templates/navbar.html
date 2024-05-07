@@ -26,24 +26,24 @@
             Schedule
             </a>
         </li>
-        <li class="{% if request.resolver_match.url_name == 'manual_input' %}active{% endif %}">
-            <a href="{% url 'manual_input' %}">
-            <span class="material-symbols-outlined"> edit </span>
-            Manual Input
-            </a>
-        </li>
         <li class="{% if request.resolver_match.url_name == 'events' %}active{% endif %}">
             <a href="{% url 'events' %}">
             <span class="material-symbols-outlined"> list </span>
             Events
             </a>
         </li>
-        <li class="{% if request.resolver_match.url_name == 'data' %}active{% endif %}">
+        <li class="{% if request.resolver_match.url_name == 'manual_input' %}active{% endif %}">
+            <a href="{% url 'manual_input' %}">
+            <span class="material-symbols-outlined"> edit </span>
+            Manual Input
+            </a>
+        </li>
+        <!-- <li class="{% if request.resolver_match.url_name == 'data' %}active{% endif %}">
             <a href="{% url 'data' %}">
             <span class="material-symbols-outlined"> equalizer </span>
             Analysis
             </a>
-        </li>
+        </li> -->
         <li class="{% if request.resolver_match.url_name == 'configuration' %}active{% endif %}">
             <a href="{% url 'configuration' %}">
             <span class="material-symbols-outlined"> tune </span>

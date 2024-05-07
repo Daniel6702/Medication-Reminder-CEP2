@@ -10,11 +10,18 @@ body {
     flex-direction: row;
     justify-content: space-between;
     width: 100%;
-
+    padding: 0;
 }
 
-.configuration-section {
-    flex: 1;
+.schedule {
+    margin: 10px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.add-schedule {
+    min-width: fit-content;
     margin: 10px;
     padding: 20px;
     border: 1px solid #ccc;
