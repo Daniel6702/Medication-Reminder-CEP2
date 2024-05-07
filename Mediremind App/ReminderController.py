@@ -162,14 +162,18 @@ class IdleState(State):
         self.timer = 0  
         log("Entering Idle State")
         self.reminder_system.reset_all_rooms()
+
+        #temp
         event_system.publish(EventType.ALARM, True)
+        
 
     def handle(self):
         if self.reminder_system.is_medication_time():
             if self.timer < 4:
                 self.timer += 1
             else:
-                self.reminder_system.change_state(ActiveState(self.reminder_system))
+                #self.reminder_system.change_state(ActiveState(self.reminder_system))
+                self.reminder_system.change_state(AlertState(self.reminder_system))
                 self.timer = 0
 
 class ActiveState(State):
@@ -241,8 +245,14 @@ class AlertState(State):
         event_system.subscribe(EventType.MEDICATION_TAKEN, self.medication_event)
         event_system.subscribe(EventType.ALERT_RESOLVED,self.alert_resolved)
         event_system.publish(EventType.PLAY_SOUND, self.reminder_system.alert_conf.sound_file)
-        self.reminder_system.activate_all_rooms(self.reminder_system.alert_conf)
+        event_system.subscribe(EventType.RESPONSE_ALARM_STATE, self.get_alert_state)
+        #self.reminder_system.activate_all_rooms(self.reminder_system.alert_conf)
         self.number_of_meds_taken = 2
+        self.timer = 0
+
+    def get_alert_state(self, alarmed_state):
+        if alarmed_state is False:
+            self.reminder_system.change_state(IdleState(self.reminder_system))
     
     def alert_resolved(self,data):
         self.reminder_system.change_state(IdleState(self.reminder_system))
@@ -258,4 +268,8 @@ class AlertState(State):
         event_system.publish(EventType.NOTIFY_CAREGIVER,f"WE HAVE A PROBLEM {self.number_of_meds_taken}")
 
     def handle(self):
-        pass
+        if self.timer < 5:
+            self.timer += 1
+        else:
+            self.timer = 0
+            event_system.publish(EventType.REQUEST_ALARM_STATE, 'new')
