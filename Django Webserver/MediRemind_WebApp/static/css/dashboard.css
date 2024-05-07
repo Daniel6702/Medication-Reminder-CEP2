@@ -3,24 +3,21 @@ body {
     margin: 0;
     padding: 0;
     overflow-x: hidden; /* Hide horizontal overflow */
-    overflow-y: hidden; /* Hide horizontal overflow */
 }
 
+.content-container {
+    display: flex;
+    justify-content: space-between;
+}
 
 .notification-container, .medication-calendar {
+    width: 50%;
     background-color: #f7f7f7;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     border: 2px solid #ccc;
     padding: 10px;
     margin: 10px;
-}
-
-.sidebar {
-    width: 200px;
-    background-color: #f0f0f0;
-    padding: 10px;
-    height: 100vh;
 }
 
 .notification-list {
@@ -115,7 +112,6 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 20px;
 }
 
 .pagination-controls button {

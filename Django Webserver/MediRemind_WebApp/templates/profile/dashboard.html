@@ -3,12 +3,12 @@
 {% load custom_filters %}
 
 {% block profile_content %}
-<div class="content-container" style="display: flex; justify-content: space-between;">
-    <div class="notification-container" style="flex: 1;">
+<div class="content-container">
+    <div class="notification-container">
         <h4>Notifications</h4>
         {% if notifications %}
             <ul class="notification-list" id="notificationList">
-                {% for notification in notifications|slice:":9" %}
+                {% for notification in notifications %}
                     <li class="notification-item {{ notification.type|lower }}">
                         <span class="notification-message">{{ notification.message }}</span>
                         <span class="notification-timestamp">{{ notification.timestamp|date:"M d, Y H:i" }}</span>
