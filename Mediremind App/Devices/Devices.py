@@ -99,12 +99,13 @@ class RGBStrip(Actuator):
         pass
 
 class MotionSensor(Sensor):
-    MIN_TIME_BETWEEN_EVENTS = 30  # seconds
     OCCUPANCY_RESET_INTERVAL = 120  # seconds
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.event_type = getattr(EventType, self.type.name, None)
+        if not self.event_type:
+            raise ValueError("Invalid event type specified")
         event_system.subscribe(self.event_type, self.receive)
         self.lock = threading.Lock()
         self.last_motion_time: Optional[float] = None
@@ -114,24 +115,30 @@ class MotionSensor(Sensor):
     def reset_occupancy(self):
         with self.lock:
             self.occupancy = False
-            event_system.publish(EventType.ROOM_EMPTY, self.room)
+            try:
+                event_system.publish(EventType.ROOM_EMPTY, self.room)
+            except Exception as e:
+                print(f"Failed to publish ROOM_EMPTY event: {e}")
             print(f'RESET OCCUPANCY {self.name}')
 
-    def receive(self, data: dict):
+    def get_name_from_data(self, data):
         topic: str = data.get('topic', '')
         parts = topic.split("zigbee2mqtt/")
-        if len(parts) > 1 and parts[1] == self.name:
-            with self.lock:
-                current_time = time.time()
-                if self.last_motion_time is None or (current_time - self.last_motion_time >= self.MIN_TIME_BETWEEN_EVENTS):
-                    if data.get('event', {}).get('occupancy', False) and not self.occupancy:
-                        self.occupancy = True
-                        event_system.publish(EventType.MOTION_ALERT, self.room)
-                        print(f'MOTION EVENT {self.name}')
-                        self.cancel_and_reset_timer()
-                        self.occupancy_timer = threading.Timer(self.OCCUPANCY_RESET_INTERVAL, self.reset_occupancy)
-                        self.occupancy_timer.start()
-                    self.last_motion_time = current_time
+        if len(parts) > 1:
+            return parts[1]
+        return ""
+
+    def receive(self, data: dict):
+        with self.lock:
+            if self.name != self.get_name_from_data(data) or self.occupancy:
+                return
+            print(f'MOTION EVENT {self.name}')
+            self.occupancy = True
+            event_system.publish(EventType.MOTION_ALERT, self.room)
+            self.cancel_and_reset_timer()
+            self.occupancy_timer = threading.Timer(self.OCCUPANCY_RESET_INTERVAL, self.reset_occupancy)
+            self.occupancy_timer.daemon = True
+            self.occupancy_timer.start()
 
     def cancel_and_reset_timer(self):
         if self.occupancy_timer is not None:
@@ -139,9 +146,13 @@ class MotionSensor(Sensor):
             self.occupancy_timer = None
 
     def stop(self):
-        """ Stop the sensor, canceling any active timers. """
         with self.lock:
             self.cancel_and_reset_timer()
+            try:
+                event_system.unsubscribe(self.event_type, self.receive)
+            except Exception as e:
+                print(f"Failed to unsubscribe: {e}")
+
 
 
 class VibrationSensor(Sensor):
