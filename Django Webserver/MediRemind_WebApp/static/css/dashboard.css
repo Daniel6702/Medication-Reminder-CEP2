@@ -21,12 +21,12 @@ body {
     margin: 10px;
 }
 
-.notification-list {
+.notification-list, .schedule-list {
     list-style-type: none;
     padding: 0;
 }
 
-.notification-item {
+.notification-item, .schedule-item {
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 5px;
@@ -34,19 +34,24 @@ body {
     transition: background-color 0.3s;
 }
 
+.schedule-item {
+    background-color: #cce5ff;
+}
+
+
 .notification-item:hover {
     background-color: #d3d3d3;
 }
 
-.notification-message, .notification-timestamp {
+.notification-message, .notification-timestamp, .schedule-medication, .schedule-time {
     display: block;
 }
 
-.notification-message {
+.notification-message, .schedule-medication {
     font-size: 16px;
 }
 
-.notification-timestamp {
+.notification-timestamp, .schedule-time {
     font-size: 12px;
     color: #888;
     margin-top: 5px;
@@ -58,56 +63,10 @@ body {
 .info { background-color: #d1ecf1; }
 .system { background-color: #cce5ff; }
 
-.medication-calendar {
-    position: relative;
-    width: 50%;
-    height: 720px; /* 24 hours x 30 minutes each */
-}
-
-.time-columns {
-    margin-top: 60px;
-    position: absolute;
-    left: 0;
-    top: 0;
-    display: flex;
-    flex-direction: column;
-    height: 90%;
-}
-
-.hour-mark {
-    height: 120px; /* Represents 2-hour blocks */
-    border-top: 1px solid #ddd;
-    padding: 5px;
-    box-sizing: border-box;
-    font-size: 12px;
-    text-align: center;
-    color: #666;
-}
-
-.medication-events {
-    position: relative;
-    margin-left: 50px;
-    height: 100%;
-}
-
-.medication-event {
-    position: absolute;
-    left: 0;
-    width: calc(100% - 50px);
-    background-color: #a2d2ff;
-    border-radius: 5px;
-    padding: 5px;
-    box-sizing: border-box;
-    border: 1px solid #77aaff;
-    color: #333;
-    font-size: 14px;
-}
-
 .content-container {
     display: flex;
     justify-content: space-between;
 }
-
 
 .pagination-controls {
     position: absolute;

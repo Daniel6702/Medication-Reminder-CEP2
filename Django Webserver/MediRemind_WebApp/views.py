@@ -44,6 +44,7 @@ from .forms import ManualInputForm
 
 import json
 import uuid
+import datetime
 
 @login_required
 def notifications_view(request):
@@ -102,7 +103,11 @@ class ProfileViews:
             context = super().get_context_data(**kwargs)
             context['user'] = self.request.user
             context['notifications'] = Notification.objects.filter(user=self.request.user)
-            context['schedules'] = MedicationSchedule.objects.filter(user=self.request.user)
+
+            user_schedule = MedicationSchedule.objects.filter(user=self.request.user)
+            sorted_schedule = sorted(user_schedule, key=lambda x: x.reminder_time)
+
+            context['schedules'] = sorted_schedule
 
             return context
         
