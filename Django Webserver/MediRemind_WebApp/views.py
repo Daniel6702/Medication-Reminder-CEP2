@@ -126,10 +126,10 @@ class ProfileViews:
                 all_events.append(curr_event)
 
             for input in user_manual_inputs:
-                curr_event = Event_Table_Item(input.input_id, input.user, 'Manual Input', 'INFORMATIONAL', input.time, input.notes)
+                curr_event = Event_Table_Item(input.input_id, input.user, 'Manual Input', 'INFORMATIONAL', input.datetime, input.notes)
                 all_events.append(curr_event)
 
-            #all_events.sort(key=lambda x: x.timestamp, reverse=True)
+            all_events.sort(key=lambda x: x.timestamp, reverse=True)
             context['events'] = all_events
 
             return context
