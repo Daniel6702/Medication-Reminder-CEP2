@@ -101,6 +101,7 @@ class ProfileViews:
             context = super().get_context_data(**kwargs)
             user_events = Event.objects.filter(user=self.request.user)
             user_notifications = Notification.objects.filter(user=self.request.user)
+            user_manual_inputs = ManualInput.objects.filter(user=self.request.user)
 
             # Events description: ID, User, Log/notification, Type, Timestamp, Content
             class Event_Table_Item:
@@ -124,7 +125,11 @@ class ProfileViews:
                 curr_event = Event_Table_Item(notification.notification_id, notification.user, 'Notification', notification.type, notification.timestamp, notification.message)
                 all_events.append(curr_event)
 
-            all_events.sort(key=lambda x: x.timestamp, reverse=True)
+            for input in user_manual_inputs:
+                curr_event = Event_Table_Item(input.input_id, input.user, 'Manual Input', 'INFORMATIONAL', input.time, input.notes)
+                all_events.append(curr_event)
+
+            #all_events.sort(key=lambda x: x.timestamp, reverse=True)
             context['events'] = all_events
 
             return context
