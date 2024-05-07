@@ -37,7 +37,7 @@ api_urls = [
 
 urlpatterns = profile_urls + api_urls + \
     [
-    #path('', home, name='home'),
+    path('', home, name='home'),
     path('login/', CustomLoginView.as_view(), name='login'),
     path('admin/', admin.site.urls),
     path('register/', register, name='register'),

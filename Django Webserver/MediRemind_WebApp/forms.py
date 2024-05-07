@@ -16,6 +16,10 @@ class StateConfigForm(forms.ModelForm):
         model = StateConfig
         fields = ['color_code', 'sound_file', 'blink', 'blink_interval', 'blink_times', 'care_giver']
 
+    def __init__(self, *args, **kwargs):
+        super(StateConfigForm, self).__init__(*args, **kwargs)
+        self.fields['care_giver'].queryset = User.objects.filter(is_staff=True)
+
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField()

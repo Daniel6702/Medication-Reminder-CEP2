@@ -55,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'MediRemind_WebApp.middleware.ImpersonateMiddleware',
 ]
 
 ROOT_URLCONF = 'Server_Configuration.urls'
