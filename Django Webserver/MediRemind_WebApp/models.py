@@ -4,6 +4,7 @@ import uuid
 from enum import Enum
 from django.core.validators import MinValueValidator
 import json
+import datetime
 
 def get_default_user_id():
     return User.objects.first().id if User.objects.exists() else None
@@ -28,8 +29,7 @@ class ManualInput(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='manual_inputs', default=get_default_user_id)
     medication_name = models.CharField(max_length=100)
     dosage = models.CharField(max_length=100, default='0 mg')
-    time = models.TimeField(default='00:00:00')
-    date = models.DateField(auto_now_add=True)
+    datetime = models.DateTimeField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     input_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     

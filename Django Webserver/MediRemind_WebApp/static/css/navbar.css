@@ -19,7 +19,7 @@
 .navbar {
     position: fixed; /* Set the navbar to fixed position */
     top: 0; /* Position the navbar at the top of the page */
-    width: 100%;
+    width: 100vw;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -27,6 +27,7 @@
     padding: 1.25em; /* Convert 20px to em */
     box-shadow: 0 0.32em 0.64em 0 var(--shadow), 0 0.48em 1.6em 0 var(--shadow); /* Convert px to em */
     z-index: 1000; /* Set the z-index to ensure the navbar is on top */
+    box-sizing: border-box;
 }
 
 .navbar .left,
