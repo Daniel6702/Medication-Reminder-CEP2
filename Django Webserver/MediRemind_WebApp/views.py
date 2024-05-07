@@ -21,6 +21,7 @@ from .models import MQTTConfiguration
 from .models import Room
 from .models import Device
 from .models import Notification
+from .models import Event
 from .models import ManualInput
 from .models import StateConfig
 
@@ -63,8 +64,33 @@ class ProfileViews:
 
         def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
-            user_logs = self.request.user.heucod_events.all()
-            context['logs'] = user_logs
+            user_events = Event.objects.filter(user=self.request.user)
+            user_notifications = Notification.objects.filter(user=self.request.user)
+
+            # Events description: ID, User, Log/notification, Type, Timestamp, Content
+            class Event_Table_Item:
+                def __init__(self, id, user, event_type, status, timestamp, content):
+                    self.id = id
+                    self.user = user
+                    self.event_type = event_type
+                    self.status = status
+                    self.timestamp = timestamp
+                    self.content = content
+
+
+            # Iterate through logs and notifications, and merge them into a single list
+            all_events = []
+
+            for event in user_events:
+                curr_event = Event_Table_Item(event.id, event.user, 'Event', event.type, event.time, event.data)
+                all_events.append(curr_event)
+
+            for notification in user_notifications:
+                curr_event = Event_Table_Item(notification.notification_id, notification.user, 'Notification', notification.type, notification.timestamp, notification.message)
+                all_events.append(curr_event)
+
+            #user_events.sort(key=lambda x: x.timestamp, reverse=True)
+            context['events'] = all_events
 
             return context
         
