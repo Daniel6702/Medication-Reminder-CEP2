@@ -89,7 +89,7 @@ class ProfileViews:
                 curr_event = Event_Table_Item(notification.notification_id, notification.user, 'Notification', notification.type, notification.timestamp, notification.message)
                 all_events.append(curr_event)
 
-            #user_events.sort(key=lambda x: x.timestamp, reverse=True)
+            all_events.sort(key=lambda x: x.timestamp, reverse=True)
             context['events'] = all_events
 
             return context
