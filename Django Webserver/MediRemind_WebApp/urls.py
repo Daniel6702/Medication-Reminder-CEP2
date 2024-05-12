@@ -7,7 +7,7 @@ from .Views.api_views import MedicationScheduleAPIView, HeucodEventAPIView, MQTT
 from .Views.configuration_view import ConfigurationView
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import notifications_view
+from .views import notifications_view, faq
 
 profile_urls = [
     path('profile/home', ProfileViews.HomeView.as_view(), name='profile_home'),
@@ -41,6 +41,7 @@ urlpatterns = profile_urls + api_urls + \
     path('login/', CustomLoginView.as_view(), name='login'),
     path('admin/', admin.site.urls),
     path('register/', register, name='register'),
+    path('faq/', faq, name='faq'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('profile/connect_rooms/', connect_rooms, name='connect_rooms'),
     path('profile/add_room/', add_room, name='add_room'),

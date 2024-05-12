@@ -46,6 +46,10 @@ import json
 import uuid
 import datetime
 
+
+def faq(request):
+    return render(request, 'faq.html')
+
 @login_required
 def notifications_view(request):
     page_number = int(request.GET.get('page', 1))
