@@ -19,6 +19,7 @@ profile_urls = [
     path('profile/manual_input', ProfileViews.ManualInputView.as_view(), name='manual_input'),
     path('profile/dashboard.html', ProfileViews.DashView.as_view(), name='dashboard'),
     path('profile/analysis.html', ProfileViews.AnalysisView.as_view(), name='analysis'),
+    path('profile/faq', ProfileViews.FAQView.as_view(), name='faq'),
 ]
 
 api_urls = [
@@ -41,7 +42,7 @@ urlpatterns = profile_urls + api_urls + \
     path('login/', CustomLoginView.as_view(), name='login'),
     path('admin/', admin.site.urls),
     path('register/', register, name='register'),
-    path('faq/', faq, name='faq'),
+    path('faq/', faq, name='faq_home'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('profile/connect_rooms/', connect_rooms, name='connect_rooms'),
     path('profile/add_room/', add_room, name='add_room'),
