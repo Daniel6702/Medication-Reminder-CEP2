@@ -48,7 +48,7 @@ import datetime
 
 
 def faq(request):
-    return render(request, 'faq.html')
+    return render(request, 'MediRemind_WebApp/faq_home.html')
 
 @login_required
 def notifications_view(request):
