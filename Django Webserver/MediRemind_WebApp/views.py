@@ -15,9 +15,9 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.utils.dateformat import DateFormat
-
-
-
+from django.contrib.auth import update_session_auth_hash
+from django.urls import reverse_lazy
+from django.contrib import messages
 
 #RestAPI
 from rest_framework.authtoken.models import Token
@@ -193,6 +193,32 @@ class ProfileViews:
 
     class SettingsView(LoginRequiredMixin, TemplateView):
         template_name = 'profile/settings.html'
+
+        def get(self, request, *args, **kwargs):
+            user_change_form = UserChangeForm(instance=request.user)
+            password_change_form = PasswordChangeForm(user=request.user)
+            context = {
+                'user_change_form': user_change_form,
+                'password_change_form': password_change_form,
+            }
+            return render(request, self.template_name, context)
+
+        def post(self, request, *args, **kwargs):
+            user_change_form = UserChangeForm(request.POST, instance=request.user)
+            password_change_form = PasswordChangeForm(request.user, request.POST)
+
+            if 'change_details' in request.POST and user_change_form.is_valid():
+                user_change_form.save()
+                messages.success(request, 'Your details have been updated.')
+            elif 'change_password' in request.POST and password_change_form.is_valid():
+                user = password_change_form.save()
+                update_session_auth_hash(request, user)  # Important for keeping the user logged in after password change
+                messages.success(request, 'Your password has been updated.')
+            else:
+                messages.error(request, 'Please correct the error below.')
+
+            return redirect('profile/settings')  # Assumed URL name for this view
+
 
     class ManualInputView(LoginRequiredMixin, TemplateView):
         model = ManualInput

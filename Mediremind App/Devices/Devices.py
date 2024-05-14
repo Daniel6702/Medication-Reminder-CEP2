@@ -162,10 +162,9 @@ class VibrationSensor(Sensor):
         event_system.subscribe(event_type, self.receive)
         self.lock = threading.Lock()
         self.last_medication_time = None
-        self.min_time_between_medication_events = 30 #Seconds
+        self.min_time_between_medication_events = 10 #Seconds
         
     def receive(self, data: dict):
-        print(data)
         print(f'VIBRATION: {self.name}')
         event = data.get('event', False)
         if event and event.get('action') == 'vibration' and event.get('vibration', False):

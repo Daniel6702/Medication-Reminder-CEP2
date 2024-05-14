@@ -8,6 +8,11 @@ from ..forms import MQTTConfigurationForm, DeviceForm, RoomForm, StateConfigForm
 import json
 from rest_framework.authtoken.models import Token
 from django.http import HttpResponseRedirect
+import uuid
+
+
+def generate_unique_mqtt_id():
+    return str(uuid.uuid4())
 
 class ConfigurationView(LoginRequiredMixin, TemplateView):
     template_name = 'profile/configuration.html'
@@ -23,10 +28,17 @@ class ConfigurationView(LoginRequiredMixin, TemplateView):
         context['room_form'] = RoomForm()
 
         # Getting or creating the MQTT configuration instance for the user
-        mqtt_config, created = MQTTConfiguration.objects.get_or_create(
-            user=self.request.user,
-            defaults={'port': 1883, 'broker_address': 'localhost'}  # Default values
-        )
+        mqtt_config = MQTTConfiguration.objects.filter(user=self.request.user).first()
+        if not mqtt_config:
+            # Generate unique mqtt_id and create a new MQTT configuration
+            unique_mqtt_id = generate_unique_mqtt_id()
+            mqtt_config = MQTTConfiguration.objects.create(
+                user=self.request.user,
+                mqtt_id=unique_mqtt_id,
+                broker_address='localhost',  # Default broker address
+                port=1883  # Default port
+            )
+
         context['mqtt_form'] = MQTTConfigurationForm(instance=mqtt_config)
         
         rooms = Room.objects.filter(user=self.request.user)

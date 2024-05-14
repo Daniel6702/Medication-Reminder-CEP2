@@ -208,7 +208,18 @@ class EventType(Enum):
     SWITCH_LIGHT = 40
     PLAY_SOUND = 41
     SEND_EVENTS = 42
-
+    TURN_ON = 43
+    TURN_OFF = 44
+    BLINK_TIMES = 45
+    START_BLINK = 46
+    STOP_BLINK = 47
+    SETUP_FINISHED = 48
+    STOP_SOUND = 49
+    ROOM_EMPTY = 50
+    ALARM = 51
+    REQUEST_ALARM_STATE = 52
+    RESPONSE_ALARM_STATE = 53
+    
     @classmethod
     def choices(cls):
         return [(item.value, item.name) for item in cls]

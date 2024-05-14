@@ -164,8 +164,7 @@ class IdleState(State):
         self.reminder_system.reset_all_rooms()
 
         #temp
-        event_system.publish(EventType.ALARM, True)
-        
+        event_system.publish(EventType.ALARM, True)  
 
     def handle(self):
         if self.reminder_system.is_medication_time():
@@ -184,8 +183,12 @@ class ActiveState(State):
         event_system.subscribe(EventType.ROOM_EMPTY, self.reminder_system.deactivate_room)
         event_system.publish(EventType.PLAY_SOUND, self.reminder_system.active_conf.sound_file)
         self.reminder_system.reset_all_rooms()
+        self.current_room = None
 
     def get_motion_alert(self, room):
+        if self.current_room:
+            self.reminder_system.deactivate_room(self.current_room)
+        self.current_room = room
         self.reminder_system.activate_room(self.reminder_system.active_conf, room)
 
     def medication_event(self, data):
@@ -204,11 +207,15 @@ class MedicationTakenState(State):
         event_system.publish(EventType.PLAY_SOUND, self.reminder_system.medication_taken_conf.sound_file)
         self.reminder_system.reset_all_rooms()
         self.n_meds = 0
+        self.counter = 0
 
     def get_motion_alert(self, room):
         self.reminder_system.activate_room(self.reminder_system.medication_taken_conf, room)
 
     def medication_event(self, data):
+        if self.counter != 0:
+            return
+        self.counter += 1
         self.n_meds += 1
         if self.n_meds > 4:
             self.reminder_system.change_state(AlertState(self.reminder_system))
@@ -217,6 +224,7 @@ class MedicationTakenState(State):
     def handle(self):
         if not self.reminder_system.is_medication_time():
             self.reminder_system.change_state(IdleState(self.reminder_system))
+        self.counter = 0
 
 class MedicationMissedState(State):
     def setup(self):
@@ -246,7 +254,7 @@ class AlertState(State):
         event_system.subscribe(EventType.ALERT_RESOLVED,self.alert_resolved)
         event_system.publish(EventType.PLAY_SOUND, self.reminder_system.alert_conf.sound_file)
         event_system.subscribe(EventType.RESPONSE_ALARM_STATE, self.get_alert_state)
-        #self.reminder_system.activate_all_rooms(self.reminder_system.alert_conf)
+        self.reminder_system.activate_all_rooms(self.reminder_system.alert_conf)
         self.number_of_meds_taken = 2
         self.timer = 0
 

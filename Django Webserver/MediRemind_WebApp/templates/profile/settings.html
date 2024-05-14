@@ -1,1 +1,30 @@
 {% extends 'base_profile.html' %}
+{% load static %}
+
+{% block profile_content %}
+<form method="post" action="{% url 'settings' %}">
+    {% csrf_token %}
+    <fieldset>
+        <legend>Personal Information</legend>
+        {{ user_change_form.as_p }}
+        <button type="submit" name="change_details">Save Changes</button>
+    </fieldset>
+</form>
+
+<form method="post" action="{% url 'settings' %}">
+    {% csrf_token %}
+    <fieldset>
+        <legend>Change Password</legend>
+        {{ password_change_form.as_p }}
+        <button type="submit" name="change_password">Change Password</button>
+    </fieldset>
+</form>
+{% endblock %}
+
+{% block extra_css %}
+<!-- Add any additional CSS here -->
+{% endblock %}
+
+{% block extra_js %}
+<!-- Add any additional JavaScript here -->
+{% endblock %}
