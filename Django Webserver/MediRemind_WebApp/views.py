@@ -44,12 +44,17 @@ from .forms import ManualInputForm
 
 import json
 import uuid
+import datetime
+
+
+def faq(request):
+    return render(request, 'MediRemind_WebApp/faq_home.html')
 
 @login_required
 def notifications_view(request):
     page_number = int(request.GET.get('page', 1))
     notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')
-    paginator = Paginator(notifications, 9)
+    paginator = Paginator(notifications, 5)
 
     try:
         notifications_page = paginator.page(page_number)
@@ -94,6 +99,13 @@ class ProfileViews:
                 alarm.save()
 
             return redirect('profile_home')
+    
+    class FAQView(LoginRequiredMixin, TemplateView):
+        template_name = 'profile/faq.html'
+
+        def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            return context
         
     class DashView(LoginRequiredMixin, TemplateView):
         template_name = 'profile/dashboard.html'
@@ -102,7 +114,11 @@ class ProfileViews:
             context = super().get_context_data(**kwargs)
             context['user'] = self.request.user
             context['notifications'] = Notification.objects.filter(user=self.request.user)
-            context['schedules'] = MedicationSchedule.objects.filter(user=self.request.user)
+
+            user_schedule = MedicationSchedule.objects.filter(user=self.request.user)
+            sorted_schedule = sorted(user_schedule, key=lambda x: x.reminder_time)
+
+            context['schedules'] = sorted_schedule
 
             return context
         

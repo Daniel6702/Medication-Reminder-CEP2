@@ -50,6 +50,12 @@
             Configuration
             </a>
         </li>
+        <li class="{% if request.resolver_match.url_name == 'faq' %}active{% endif %}">
+            <a href="{% url 'faq' %}">
+            <span class="material-symbols-outlined"> Quiz </span>
+            FAQ
+            </a>
+        </li>
     </ul>
     <ul class="right">
         <li>

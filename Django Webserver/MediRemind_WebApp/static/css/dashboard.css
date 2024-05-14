@@ -11,6 +11,8 @@ body {
 }
 
 .notification-container, .medication-calendar {
+    display: flex;
+    flex-direction: column;
     position: relative; /* Ensures child elements with absolute positioning are placed relative to this container */
     width: 50%;
     background-color: #f7f7f7;
@@ -19,14 +21,15 @@ body {
     border: 2px solid #ccc;
     padding: 10px;
     margin: 10px;
+    list-style-type: none;
 }
 
-.notification-list {
+.notification-list, .schedule-list {
     list-style-type: none;
     padding: 0;
 }
 
-.notification-item {
+.notification-item, .schedule-item {
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 5px;
@@ -34,19 +37,19 @@ body {
     transition: background-color 0.3s;
 }
 
-.notification-item:hover {
-    background-color: #d3d3d3;
+.schedule-item {
+    background-color: #cce5ff;
 }
 
-.notification-message, .notification-timestamp {
+.notification-message, .notification-timestamp, .schedule-medication, .schedule-time {
     display: block;
 }
 
-.notification-message {
+.notification-message, .schedule-medication {
     font-size: 16px;
 }
 
-.notification-timestamp {
+.notification-timestamp, .schedule-time {
     font-size: 12px;
     color: #888;
     margin-top: 5px;
@@ -58,64 +61,19 @@ body {
 .info { background-color: #d1ecf1; }
 .system { background-color: #cce5ff; }
 
-.medication-calendar {
-    position: relative;
-    width: 50%;
-    height: 720px; /* 24 hours x 30 minutes each */
-}
-
-.time-columns {
-    margin-top: 60px;
-    position: absolute;
-    left: 0;
-    top: 0;
-    display: flex;
-    flex-direction: column;
-    height: 90%;
-}
-
-.hour-mark {
-    height: 120px; /* Represents 2-hour blocks */
-    border-top: 1px solid #ddd;
-    padding: 5px;
-    box-sizing: border-box;
-    font-size: 12px;
-    text-align: center;
-    color: #666;
-}
-
-.medication-events {
-    position: relative;
-    margin-left: 50px;
-    height: 100%;
-}
-
-.medication-event {
-    position: absolute;
-    left: 0;
-    width: calc(100% - 50px);
-    background-color: #a2d2ff;
-    border-radius: 5px;
-    padding: 5px;
-    box-sizing: border-box;
-    border: 1px solid #77aaff;
-    color: #333;
-    font-size: 14px;
-}
-
 .content-container {
     display: flex;
     justify-content: space-between;
 }
 
-
 .pagination-controls {
-    position: absolute;
+    position: relative;
     bottom: 10px; /* Distance from the bottom of the container */
     width: 100%; /* Ensures the pagination controls span the entire width of the container */
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-top: 20px;
 }
 
 .pagination-controls button {
