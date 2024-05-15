@@ -233,7 +233,7 @@ class ProfileViews:
             else:
                 messages.error(request, 'Please correct the error below.')
 
-            return redirect('profile/settings')  # Assumed URL name for this view
+            return redirect('settings')  # Assumed URL name for this view
 
 
     class ManualInputView(LoginRequiredMixin, TemplateView):
