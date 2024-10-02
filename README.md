@@ -9,8 +9,7 @@ https://tailscale.com/download
 ```
 - **login**
 ```shell
-cep2project2024@gmail.com
-cep2project
+
 ```
 
 - **Add your device to the 'pedersendaniel3561@gmail.com network'**
@@ -23,7 +22,6 @@ cep2project
 - **Connect to same local network as Pi**
 ```shell
 name: Pixel_6106
-password: 11111111
 ```
 
 - **Start Server:**
